@@ -13,6 +13,20 @@ Kharcha is a local-first personal money tracker built with Expo / React Native, 
 - Overview hierarchy prioritizes month net, budget, wallets and recent activity
 - Visual redesign only: no finance logic, storage model, Nepal-first behavior or feature scope changed
 
+## Phase 4.2–4.4 — Export, reports & safe data management
+
+- Excel-compatible CSV export for all transactions, current month, or custom AD date range
+- CSV includes AD + BS dates, transaction IDs, wallets, events, household, remittance, Udhaaro, obligations, savings and recurring links
+- Spreadsheet formula-injection protection for user-controlled text
+- Monthly PDF financial reports generated locally on-device
+- PDF summary includes income, expenses, budget, remittance, Udhaaro, bills/EMI, savings, households and transaction detail
+- Kharcha CSV import previews duplicates, invalid rows and warnings before import
+- CSV import preserves stable transaction IDs and reconnects known wallet/planning links
+- Clear-month flow prevents deleted recurring occurrences from regenerating and reconciles linked Udhaaro
+- Destructive changes create a persistent safety snapshot first
+- Full reset requires typed DELETE confirmation and remains recoverable through the last safety snapshot
+- Export/import/report files remain local unless the user explicitly shares or selects them
+
 ## Phase 4.1 — Backup & restore
 
 - Full portable `.kharcha.json` backup covering transactions, settings/wallets/categories/recurring rules, Nepal data, and Phase 3 planning data

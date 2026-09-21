@@ -6,7 +6,7 @@
 - [x] Android/iOS backup sharing
 - [x] document-picker restore
 - [ ] full regression / Android bundle verification
-- [ ] CSV export
-- [ ] monthly report export
-- [ ] destructive data-management safety
+- [x] CSV export
+- [x] monthly report export
+- [x] destructive data-management safety
 - [ ] local app security
