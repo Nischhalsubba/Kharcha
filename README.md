@@ -68,12 +68,31 @@ Kharcha is a local-first personal money tracker built with Expo / React Native, 
 
 ## Run locally
 
+Install dependencies once:
+
 ```bash
 npm install
-npx expo start
 ```
 
-Then open in Expo Go or a development build.
+For Expo Go (the default and the correct QR to scan with the Expo Go app):
+
+```bash
+npm start
+```
+
+If the phone cannot reach the local development server over LAN, use the tunnel command:
+
+```bash
+npm run start:go:tunnel
+```
+
+For a custom Kharcha development client instead of Expo Go:
+
+```bash
+npm run start:dev
+```
+
+Do not scan a development-client QR with Expo Go. The two launch targets use different deep links.
 
 ## Test
 
