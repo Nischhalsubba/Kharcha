@@ -2,6 +2,16 @@
 
 Kharcha is a local-first personal money tracker built with Expo / React Native, designed around everyday Nepali spending.
 
+## Phase 4.2 — CSV / Excel-compatible export
+
+- Export all transactions, the current month, or an inclusive custom AD date range
+- UTF-8 BOM keeps Nepali text readable when the CSV is opened in Excel
+- Every export includes both canonical AD and Bikram Sambat dates
+- Includes wallet, payment method, event, household budget/member, remittance, Udhaaro, obligation, savings-goal and recurring-link fields
+- User-controlled spreadsheet text is neutralized against formula injection
+- Rows are ordered oldest to newest for easier spreadsheet analysis
+- Export uses the Android/iOS system share sheet and does not upload data to a Kharcha server
+
 ## Phase 4.1 — Backup & restore
 
 - Full portable `.kharcha.json` backup covering transactions, settings/wallets/categories/recurring rules, Nepal data, and Phase 3 planning data
