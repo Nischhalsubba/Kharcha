@@ -1,0 +1,127 @@
+function safeAmount(value) {
+  const amount = Number(value);
+  return Number.isFinite(amount) && amount > 0 ? amount : 0;
+}
+
+function normalizePlanningData(data = {}) {
+  return {
+    obligations: Array.isArray(data.obligations) ? data.obligations.map((item) => ({ ...item })) : [],
+    savingsGoals: Array.isArray(data.savingsGoals) ? data.savingsGoals.map((item) => ({ ...item })) : [],
+    householdBudgets: Array.isArray(data.householdBudgets) ? data.householdBudgets.map((item) => ({ ...item })) : [],
+  };
+}
+
+function dueDateForMonth(monthKey, rawDueDay) {
+  const match = /^(\d{4})-(\d{2})$/.exec(String(monthKey || ''));
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  if (month < 1 || month > 12) return null;
+  const requested = Math.max(1, Math.min(31, Math.trunc(Number(rawDueDay) || 1)));
+  const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  return `${year}-${String(month).padStart(2, '0')}-${String(Math.min(requested, lastDay)).padStart(2, '0')}`;
+}
+
+function cycleFor(obligation, date) {
+  return obligation?.frequency === 'once' ? 'once' : String(date || '').slice(0, 7);
+}
+
+function dueDateFor(obligation, cycleKey) {
+  if (obligation?.frequency === 'once') return obligation.dueDate || null;
+  return dueDateForMonth(cycleKey, obligation?.dueDay);
+}
+
+function linkedPaymentTotal(obligationId, cycleKey, transactions = []) {
+  return transactions.reduce((sum, item) => {
+    if (item?.type !== 'expense') return sum;
+    if (item?.obligationPayment?.obligationId !== obligationId) return sum;
+    if (item?.obligationPayment?.cycleKey !== cycleKey) return sum;
+    return sum + safeAmount(item.amount);
+  }, 0);
+}
+
+function obligationStatus(obligation, transactions = [], today) {
+  const cycleKey = cycleFor(obligation, today);
+  const dueDate = dueDateFor(obligation, cycleKey);
+  const amountDue = safeAmount(obligation?.amount);
+  const paid = Math.min(linkedPaymentTotal(obligation?.id, cycleKey, transactions), amountDue);
+  const remaining = Math.max(amountDue - paid, 0);
+  let state = 'upcoming';
+  if (obligation?.active === false) state = 'inactive';
+  else if (remaining === 0 && amountDue > 0) state = 'paid';
+  else if (dueDate && today > dueDate) state = 'overdue';
+  else if (dueDate && today === dueDate) state = 'due';
+  return { id: obligation?.id, cycleKey, dueDate, amountDue, paid, remaining, state };
+}
+
+function defaultObligationCategory(kind) {
+  if (kind === 'emi') return 'EMI';
+  if (kind === 'loan') return 'Loan Repayment';
+  return 'Bills';
+}
+
+function createObligationPaymentTransaction(obligation, transactions, rawAmount, date, walletId, meta = {}) {
+  const status = obligationStatus(obligation, transactions, date);
+  const requested = safeAmount(rawAmount);
+  const amount = Math.min(requested, status.remaining);
+  if (!amount || !walletId) return null;
+  const id = meta.id || `obligation-payment-${Date.now()}`;
+  return {
+    id,
+    type: 'expense',
+    amount,
+    category: obligation.category || defaultObligationCategory(obligation.kind),
+    note: obligation.name || 'Obligation payment',
+    date,
+    walletId,
+    paymentMethod: 'bank',
+    createdAt: meta.createdAt || new Date().toISOString(),
+    obligationPayment: { obligationId: obligation.id, cycleKey: status.cycleKey },
+  };
+}
+
+function repaymentTotal(record) {
+  return (record?.repayments || []).reduce((sum, item) => sum + safeAmount(item.amount), 0);
+}
+
+function udharoOutstanding(record) {
+  return Math.max(safeAmount(record?.amount) - repaymentTotal(record), 0);
+}
+
+function recordUdhaaroPayment(record, rawAmount, date, walletId, meta = {}) {
+  const requested = safeAmount(rawAmount);
+  const amount = Math.min(requested, udharoOutstanding(record));
+  if (!amount || !walletId) return null;
+  const transactionId = meta.transactionId || `udharo-payment-${Date.now()}`;
+  const repayments = [...(record.repayments || []), { amount, date, transactionId }];
+  const remaining = Math.max(safeAmount(record.amount) - repayments.reduce((sum, item) => sum + safeAmount(item.amount), 0), 0);
+  const updatedRecord = { ...record, repayments, status: remaining === 0 ? 'settled' : 'active' };
+  const transaction = {
+    id: transactionId,
+    type: record.direction === 'lent' ? 'income' : 'expense',
+    amount,
+    category: 'Udhaaro Repayment',
+    note: `Udhaaro · ${record.person || ''}`.trim(),
+    date,
+    walletId,
+    paymentMethod: 'cash',
+    createdAt: meta.createdAt || new Date().toISOString(),
+    udharoPayment: { recordId: record.id },
+  };
+  return { record: updatedRecord, transaction, outstanding: remaining };
+}
+
+function reverseUdhaaroPayment(record, transactionId) {
+  const repayments = (record?.repayments || []).filter((item) => item.transactionId !== transactionId);
+  const remaining = Math.max(safeAmount(record?.amount) - repayments.reduce((sum, item) => sum + safeAmount(item.amount), 0), 0);
+  return { ...record, repayments, status: remaining === 0 ? 'settled' : 'active' };
+}
+
+module.exports = {
+  normalizePlanningData,
+  dueDateForMonth,
+  obligationStatus,
+  createObligationPaymentTransaction,
+  recordUdhaaroPayment,
+  reverseUdhaaroPayment,
+};
