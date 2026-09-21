@@ -66,7 +66,7 @@ function normalizeSettings(settings = {}) {
 function normalizeTransaction(transaction) {
   return {
     ...transaction,
-    walletId: transaction?.walletId || 'cash',
+    walletId: transaction?.walletId || transaction?.fromWalletId || 'cash',
   };
 }
 
@@ -78,11 +78,16 @@ function filterTransactions(transactions, filters = {}) {
   const query = String(filters.query || '').trim().toLowerCase();
   return normalizeTransactions(transactions).filter((item) => {
     if (filters.type && filters.type !== 'all' && item.type !== filters.type) return false;
-    if (filters.walletId && filters.walletId !== 'all' && item.walletId !== filters.walletId) return false;
+    if (filters.walletId && filters.walletId !== 'all') {
+      const matchesWallet = item.type === 'transfer'
+        ? [item.fromWalletId || item.walletId, item.toWalletId].includes(filters.walletId)
+        : item.walletId === filters.walletId;
+      if (!matchesWallet) return false;
+    }
     if (filters.category && filters.category !== 'all' && item.category !== filters.category) return false;
     if (filters.monthKey && String(item.date || '').slice(0, 7) !== filters.monthKey) return false;
     if (!query) return true;
-    const haystack = [item.note, item.category, item.date, item.amount, item.type, item.walletId]
+    const haystack = [item.note, item.category, item.date, item.amount, item.type, item.walletId, item.fromWalletId, item.toWalletId]
       .map((value) => String(value ?? '').toLowerCase())
       .join(' ');
     return haystack.includes(query);
@@ -98,6 +103,15 @@ function walletBalances(transactions, wallets) {
   for (const item of normalizeTransactions(transactions)) {
     if (!totals.has(item.walletId)) totals.set(item.walletId, 0);
     const amount = safeNumber(item.amount);
+    if (item.type === 'transfer') {
+      const fromWalletId = item.fromWalletId || item.walletId;
+      const toWalletId = item.toWalletId;
+      if (!totals.has(fromWalletId)) totals.set(fromWalletId, 0);
+      if (toWalletId && !totals.has(toWalletId)) totals.set(toWalletId, 0);
+      totals.set(fromWalletId, totals.get(fromWalletId) - amount);
+      if (toWalletId) totals.set(toWalletId, totals.get(toWalletId) + amount);
+      continue;
+    }
     if (item.type === 'income') totals.set(item.walletId, totals.get(item.walletId) + amount);
     if (item.type === 'expense') totals.set(item.walletId, totals.get(item.walletId) - amount);
   }

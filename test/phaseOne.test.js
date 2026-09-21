@@ -100,3 +100,45 @@ test('materializeRecurringTransactions respects skipped recurring occurrences', 
   const result = materializeRecurringTransactions([], recurring, '2026-10-31');
   assert.deepEqual(result.created.map((item) => item.date), ['2026-08-31', '2026-10-31']);
 });
+
+
+test('walletBalances moves transfers between wallets without treating them as income or expense', () => {
+  const withTransfer = [...transactions, {
+    id: '5',
+    type: 'transfer',
+    amount: 400,
+    category: 'Transfer',
+    note: 'Top up eSewa',
+    date: '2026-09-04',
+    walletId: 'cash',
+    fromWalletId: 'cash',
+    toWalletId: 'esewa',
+  }];
+  const result = walletBalances(withTransfer, wallets);
+  assert.deepEqual(result, [
+    { id: 'cash', name: 'Cash', openingBalance: 1000, balance: 6400 },
+    { id: 'esewa', name: 'eSewa', openingBalance: 500, balance: 100 },
+  ]);
+});
+
+test('filterTransactions finds a transfer from either participating wallet', () => {
+  const withTransfer = [...transactions, {
+    id: '5',
+    type: 'transfer',
+    amount: 400,
+    category: 'Transfer',
+    note: 'Top up eSewa',
+    date: '2026-09-04',
+    walletId: 'cash',
+    fromWalletId: 'cash',
+    toWalletId: 'esewa',
+  }];
+  assert.deepEqual(
+    filterTransactions(withTransfer, { walletId: 'esewa' }).map((item) => item.id),
+    ['3', '5'],
+  );
+  assert.deepEqual(
+    filterTransactions(withTransfer, { type: 'transfer' }).map((item) => item.id),
+    ['5'],
+  );
+});

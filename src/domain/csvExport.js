@@ -2,7 +2,7 @@ const { adToBsIso } = require('./nepal');
 const { isValidIsoDate } = require('./finance');
 
 const HEADERS = [
-  'Date AD','Date BS','Type','Amount NPR','Category','Note','Wallet','Payment Method','Event',
+  'Date AD','Date BS','Type','Amount NPR','Category','Note','Wallet','Payment Method','Transfer From','Transfer To','Event',
   'Household Budget','Household Member','Remittance Sender','Remittance Country',
   'Remittance Original Currency','Remittance Original Amount','Remittance Fee NPR',
   'Udhaaro Record ID','Obligation ID','Savings Goal','Savings Direction','Recurring ID','Transaction ID',
@@ -89,6 +89,8 @@ function createTransactionsCsv(state = {}, options = {}) {
       csvCell(item.note),
       csvCell(lookupName(wallets, item.walletId)),
       csvCell(item.paymentMethod),
+      csvCell(item.type === 'transfer' ? lookupName(wallets, item.fromWalletId || item.walletId) : ''),
+      csvCell(item.type === 'transfer' ? lookupName(wallets, item.toWalletId) : ''),
       csvCell(lookupName(events, item.eventId)),
       csvCell(lookupName(households, item.householdBudgetId)),
       csvCell(item.householdMember),

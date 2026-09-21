@@ -62,3 +62,23 @@ test('isValidIsoDate rejects impossible calendar dates', () => {
 test('dailyAverage uses elapsed days for the active month', () => {
   assert.equal(dailyAverage(tx, '2026-09', '2026-09-04'), 4000);
 });
+
+
+test('summarizeTransactions excludes wallet transfers from income and spending', () => {
+  const withTransfer = [...tx, {
+    id: '5',
+    type: 'transfer',
+    amount: 25000,
+    category: 'Transfer',
+    date: '2026-09-04',
+    walletId: 'cash',
+    fromWalletId: 'cash',
+    toWalletId: 'bank',
+  }];
+  assert.deepEqual(summarizeTransactions(withTransfer, '2026-09'), {
+    income: 100000,
+    expense: 16000,
+    balance: 84000,
+    monthExpense: 16000,
+  });
+});

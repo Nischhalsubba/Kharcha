@@ -33,7 +33,7 @@ test('CSV export is UTF-8 BOM compatible and includes Nepal/planning columns', (
   assert.equal(result.rowCount,2);
   assert.equal(result.filename,'kharcha-transactions-all-20260921.csv');
   assert.equal(result.csv.charCodeAt(0),0xFEFF);
-  assert.match(result.csv,/Date AD,Date BS,Type,Amount NPR,Category,Note,Wallet,Payment Method,Event,Household Budget,Household Member/);
+  assert.match(result.csv,/Date AD,Date BS,Type,Amount NPR,Category,Note,Wallet,Payment Method,Transfer From,Transfer To,Event,Household Budget,Household Member/);
   assert.match(result.csv,/2026-09-21,2083-/);
   assert.match(result.csv,/"खाजा, tea"/);
   assert.match(result.csv,/Home,Reeja/);
@@ -80,4 +80,19 @@ test('CSV includes stable transaction IDs for future safe imports', () => {
   assert.match(result.csv.split('\n')[0],/,Transaction ID$/);
   assert.match(result.csv,/t1/);
   assert.match(result.csv,/t2/);
+});
+
+
+test('CSV preserves wallet transfer endpoints for safe round trips', () => {
+  const transferState={
+    ...state,
+    transactions:[...state.transactions,{
+      id:'t3',type:'transfer',amount:5000,category:'Transfer',note:'Cash to bank',date:'2026-09-22',
+      walletId:'cash',fromWalletId:'cash',toWalletId:'bank',paymentMethod:'transfer',
+    }],
+  };
+  const result=createTransactionsCsv(transferState,{scope:'all',exportedAt:'2026-09-22T06:00:00.000Z'});
+  const header=result.csv.replace(/^\uFEFF/,'').split('\n')[0];
+  assert.match(header,/Wallet,Payment Method,Transfer From,Transfer To,Event/);
+  assert.match(result.csv,/transfer,5000,Transfer,Cash to bank,Cash,transfer,Cash,Bank,/);
 });

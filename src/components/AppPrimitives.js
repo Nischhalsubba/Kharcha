@@ -18,12 +18,18 @@ export function Chip({ label, active, onPress }) {
 }
 
 export function TransactionRow({ item, settings, money, onDelete, onEdit, wallets, customCategories }) {
+  const transfer=item.type==='transfer';
   const expense=item.type==='expense';
-  const linkedMovement=Boolean(item.obligationPayment||item.udharoPayment||item.savingsGoalMovement);
-  const wallet=wallets.find(x=>x.id===item.walletId);
+  const linkedMovement=Boolean(item.obligationPayment||item.udharoPayment||item.savingsGoalMovement||transfer);
+  const wallet=wallets.find(x=>x.id===(transfer?(item.fromWalletId||item.walletId):item.walletId));
+  const toWallet=transfer?wallets.find(x=>x.id===item.toWalletId):null;
   let date={primary:item.date,secondary:''};
   try{date=transactionDateLabel(item.date,settings);}catch{}
-  return <View style={s.row}><View style={s.icon}><Text style={s.iconText}>{categoryIcon(item.type,item.category,customCategories)}</Text></View><Pressable style={s.rowCopy} onPress={()=>!linkedMovement&&onEdit(item)} disabled={linkedMovement} accessibilityRole={linkedMovement?undefined:'button'} accessibilityLabel={linkedMovement?undefined:`Edit ${item.note||item.category}`}><Text style={s.rowTitle}>{item.note||categoryLabel(item.category,settings.language)}</Text><Text style={s.meta}>{categoryLabel(item.category,settings.language)} · {wallet?.name||'Cash'} · {date.primary}{date.secondary?` · ${date.secondary}`:''}{item.recurringId?' · recurring':''}{item.remittance?' · remittance':''}{item.obligationPayment?' · planned payment':''}{item.udharoPayment?' · Udhaaro':''}{item.savingsGoalMovement?' · savings':''}</Text></Pressable><View style={s.rowRight}><Text style={[s.amount,expense?s.danger:s.income]}>{expense?'−':'+'}{money(item.amount)}</Text><View style={s.rowActions}>{!linkedMovement?<Pressable onPress={()=>onEdit(item)} hitSlop={8}><Text style={s.edit}>{t(settings.language,'edit','Edit')}</Text></Pressable>:null}<Pressable onPress={()=>onDelete(item.id)} hitSlop={8}><Text style={s.delete}>{t(settings.language,'delete','Delete')}</Text></Pressable></View></View></View>;
+  const title=item.note||(transfer?t(settings.language,'transfer','Transfer'):categoryLabel(item.category,settings.language));
+  const meta=transfer
+    ? `${wallet?.name||'Wallet'} → ${toWallet?.name||'Wallet'} · ${date.primary}${date.secondary?` · ${date.secondary}`:''} · ${t(settings.language,'transfer','transfer')}`
+    : `${categoryLabel(item.category,settings.language)} · ${wallet?.name||'Cash'} · ${date.primary}${date.secondary?` · ${date.secondary}`:''}${item.recurringId?' · recurring':''}${item.remittance?' · remittance':''}${item.obligationPayment?' · planned payment':''}${item.udharoPayment?' · Udhaaro':''}${item.savingsGoalMovement?' · savings':''}`;
+  return <View style={s.row}><View style={s.icon}><Text style={s.iconText}>{transfer?'⇄':categoryIcon(item.type,item.category,customCategories)}</Text></View><Pressable style={s.rowCopy} onPress={()=>!linkedMovement&&onEdit(item)} disabled={linkedMovement} accessibilityRole={linkedMovement?undefined:'button'} accessibilityLabel={linkedMovement?undefined:`Edit ${title}`}><Text style={s.rowTitle}>{title}</Text><Text style={s.meta}>{meta}</Text></Pressable><View style={s.rowRight}><Text style={[s.amount,transfer?null:expense?s.danger:s.income]}>{transfer?'':expense?'−':'+'}{money(item.amount)}</Text><View style={s.rowActions}>{!linkedMovement?<Pressable onPress={()=>onEdit(item)} hitSlop={8}><Text style={s.edit}>{t(settings.language,'edit','Edit')}</Text></Pressable>:null}<Pressable onPress={()=>onDelete(item.id)} hitSlop={8}><Text style={s.delete}>{t(settings.language,'delete','Delete')}</Text></Pressable></View></View></View>;
 }
 
 export function Empty({ onAdd, filtered=false, language='en' }) {
