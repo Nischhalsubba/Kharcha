@@ -35,12 +35,12 @@ export default function DataManagementModal({visible,onClose,onImport,onClearMon
 }
 
 const s=StyleSheet.create({
-  backdrop:{...StyleSheet.absoluteFillObject,backgroundColor:'rgba(16,24,40,.45)'},
-  sheet:{position:'absolute',left:0,right:0,bottom:0,maxHeight:'94%',backgroundColor:COLORS.surface,borderTopLeftRadius:28,borderTopRightRadius:28,borderWidth:1,borderColor:COLORS.border},
-  body:{padding:20,paddingBottom:30},title:{color:COLORS.text,fontSize:22,fontWeight:'900'},muted:{color:COLORS.muted,fontSize:13,lineHeight:19,marginTop:4},
-  card:{flexDirection:'row',gap:12,alignItems:'center',backgroundColor:COLORS.surface2,borderRadius:16,padding:14,marginTop:16},dangerCard:{borderWidth:1,borderColor:'#F3B7B7'},icon:{fontSize:22,color:COLORS.text},copy:{flex:1},cardTitle:{color:COLORS.text,fontSize:14,fontWeight:'800'},dangerTitle:{color:COLORS.danger,fontSize:14,fontWeight:'900'},meta:{color:COLORS.muted,fontSize:12,lineHeight:17,marginTop:3},
-  input:{height:48,borderRadius:14,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface2,color:COLORS.text,paddingHorizontal:12,marginTop:10},
-  secondary:{height:48,borderRadius:14,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface,alignItems:'center',justifyContent:'center',marginTop:10},secondaryText:{color:COLORS.text,fontWeight:'800'},
-  dangerButton:{height:50,borderRadius:14,backgroundColor:COLORS.danger,alignItems:'center',justifyContent:'center',marginTop:10},dangerButtonText:{color:'#FFFFFF',fontWeight:'900'},
-  close:{height:44,alignItems:'center',justifyContent:'center',marginTop:8},closeText:{color:COLORS.muted,fontWeight:'700'},disabled:{opacity:.45},
+  backdrop:{...StyleSheet.absoluteFillObject,backgroundColor:'rgba(38,39,48,.42)'},
+  sheet:{position:'absolute',left:0,right:0,bottom:0,maxHeight:'94%',backgroundColor:COLORS.surface,borderTopLeftRadius:20,borderTopRightRadius:20,borderWidth:1,borderColor:COLORS.border},
+  body:{padding:20,paddingBottom:30},title:{color:COLORS.text,fontSize:22,fontWeight:'600'},muted:{color:COLORS.muted,fontSize:13,lineHeight:19,marginTop:4},
+  card:{flexDirection:'row',gap:12,alignItems:'center',backgroundColor:COLORS.surface2,borderRadius:12,padding:14,marginTop:16},dangerCard:{borderWidth:1,borderColor:'#F3B7B7'},icon:{fontSize:22,color:COLORS.text},copy:{flex:1},cardTitle:{color:COLORS.text,fontSize:14,fontWeight:'600'},dangerTitle:{color:COLORS.danger,fontSize:14,fontWeight:'600'},meta:{color:COLORS.muted,fontSize:12,lineHeight:17,marginTop:3},
+  input:{height:48,borderRadius:10,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface2,color:COLORS.text,paddingHorizontal:12,marginTop:10},
+  secondary:{height:48,borderRadius:10,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface,alignItems:'center',justifyContent:'center',marginTop:10},secondaryText:{color:COLORS.text,fontWeight:'600'},
+  dangerButton:{height:50,borderRadius:10,backgroundColor:COLORS.danger,alignItems:'center',justifyContent:'center',marginTop:10},dangerButtonText:{color:'#FFFFFF',fontWeight:'600'},
+  close:{height:44,alignItems:'center',justifyContent:'center',marginTop:8},closeText:{color:COLORS.muted,fontWeight:'600'},disabled:{opacity:.45},
 });
