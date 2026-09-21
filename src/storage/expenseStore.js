@@ -2,13 +2,14 @@ import Storage from 'expo-sqlite/kv-store';
 const { normalizeSettings, normalizeTransactions } = require('../domain/phaseOne');
 const { normalizeNepalData } = require('../domain/phaseTwo');
 const { normalizePlanningData } = require('../domain/phaseThree');
-const { restoreWithRollback } = require('../domain/backup');
+const { createBackupEnvelope, serializeBackup, parseBackup, restoreWithRollback } = require('../domain/backup');
 
 const TRANSACTIONS_KEY = 'kharcha.transactions.v1';
 const SETTINGS_KEY = 'kharcha.settings.v1';
 const NEPAL_KEY = 'kharcha.nepal.v1';
 const PLANNING_KEY = 'kharcha.planning.v1';
 const RESTORE_JOURNAL_KEY = 'kharcha.restore.journal.v1';
+const SAFETY_SNAPSHOT_KEY = 'kharcha.safety.snapshot.v1';
 
 export const defaultSettings = normalizeSettings({
   currency: 'NPR',
@@ -147,4 +148,39 @@ export async function recoverInterruptedRestore() {
   await writeFullState(snapshot);
   await Storage.removeItem(RESTORE_JOURNAL_KEY);
   return true;
+}
+
+
+export async function createSafetySnapshot() {
+  const state = await loadFullState();
+  const envelope = createBackupEnvelope(state, {
+    appVersion: 'safety-snapshot',
+    createdAt: new Date().toISOString(),
+  });
+  await Storage.setItem(SAFETY_SNAPSHOT_KEY, serializeBackup(envelope));
+  return { createdAt: envelope.metadata.createdAt };
+}
+
+export async function getSafetySnapshotInfo() {
+  const raw = await Storage.getItem(SAFETY_SNAPSHOT_KEY);
+  if (!raw) return null;
+  const parsed = parseBackup(raw);
+  return {
+    createdAt: parsed.metadata.createdAt,
+    transactionCount: parsed.state.transactions.length,
+  };
+}
+
+export async function applyFullStateWithSafetySnapshot(nextState) {
+  await createSafetySnapshot();
+  return restoreFullState(nextState);
+}
+
+export async function restoreLastSafetySnapshot() {
+  const raw = await Storage.getItem(SAFETY_SNAPSHOT_KEY);
+  if (!raw) throw new Error('No safety snapshot is available.');
+  const parsed = parseBackup(raw);
+  const restored = await restoreFullState(parsed.state);
+  await Storage.removeItem(SAFETY_SNAPSHOT_KEY);
+  return restored;
 }
