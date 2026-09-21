@@ -2,6 +2,17 @@
 
 Kharcha is a local-first personal money tracker built with Expo / React Native, designed around everyday Nepali spending.
 
+## Visual refresh — finance-first light UI
+
+- Light neutral canvas with white functional surfaces
+- Stronger balance and money hierarchy
+- Accessible Kharcha emerald for actions and selected states
+- Softer elevation, thinner separators and tighter card rhythm
+- Cleaner bottom navigation and circular add action
+- All existing sheets/modals use the same light design language
+- Overview hierarchy prioritizes month net, budget, wallets and recent activity
+- Visual redesign only: no finance logic, storage model, Nepal-first behavior or feature scope changed
+
 ## Phase 4.1 — Backup & restore
 
 - Full portable `.kharcha.json` backup covering transactions, settings/wallets/categories/recurring rules, Nepal data, and Phase 3 planning data
