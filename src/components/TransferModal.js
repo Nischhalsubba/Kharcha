@@ -66,13 +66,13 @@ export default function TransferModal({visible,onClose,onSave,wallets=[],setting
 }
 
 const s=StyleSheet.create({
-  backdrop:{...StyleSheet.absoluteFillObject,backgroundColor:'rgba(0,0,0,.58)'},
-  sheet:{position:'absolute',left:0,right:0,bottom:0,backgroundColor:COLORS.surface,borderTopLeftRadius:28,borderTopRightRadius:28,borderWidth:1,borderColor:COLORS.border,padding:20,paddingBottom:28},
-  title:{color:COLORS.text,fontSize:22,fontWeight:'900'},muted:{color:COLORS.muted,fontSize:13,lineHeight:19,marginTop:4},
-  label:{color:COLORS.text,fontSize:12,fontWeight:'700',marginTop:14,marginBottom:7},
-  wallet:{height:42,paddingHorizontal:12,borderRadius:13,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface,alignItems:'center',justifyContent:'center',marginRight:8},
-  walletActive:{borderColor:COLORS.accent,backgroundColor:COLORS.accentSoft},walletText:{color:COLORS.text,fontSize:12,fontWeight:'700'},
-  input:{height:48,borderRadius:14,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface2,color:COLORS.text,paddingHorizontal:12},
+  backdrop:{...StyleSheet.absoluteFillObject,backgroundColor:'rgba(38,39,48,.42)'},
+  sheet:{position:'absolute',left:0,right:0,bottom:0,backgroundColor:COLORS.surface,borderTopLeftRadius:20,borderTopRightRadius:20,borderWidth:1,borderColor:COLORS.border,padding:20,paddingBottom:28},
+  title:{color:COLORS.text,fontSize:22,fontWeight:'600'},muted:{color:COLORS.muted,fontSize:13,lineHeight:19,marginTop:4},
+  label:{color:COLORS.text,fontSize:12,fontWeight:'600',marginTop:14,marginBottom:7},
+  wallet:{height:44,paddingHorizontal:12,borderRadius:10,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface,alignItems:'center',justifyContent:'center',marginRight:8},
+  walletActive:{borderColor:COLORS.accent,backgroundColor:COLORS.accentSoft},walletText:{color:COLORS.text,fontSize:12,fontWeight:'600'},
+  input:{height:48,borderRadius:10,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface2,color:COLORS.text,paddingHorizontal:12},
   two:{flexDirection:'row',gap:10},flex:{flex:1},
-  primary:{height:52,borderRadius:15,marginTop:20,backgroundColor:COLORS.accent,alignItems:'center',justifyContent:'center'},primaryText:{color:COLORS.onAccent,fontSize:15,fontWeight:'900'},
+  primary:{height:48,borderRadius:10,marginTop:20,backgroundColor:COLORS.accent,alignItems:'center',justifyContent:'center'},primaryText:{color:COLORS.onAccent,fontSize:15,fontWeight:'600'},
 });
