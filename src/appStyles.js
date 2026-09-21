@@ -149,6 +149,7 @@ const s=StyleSheet.create({
 
   manageRow:{minHeight:62,paddingHorizontal:16,paddingVertical:12,flexDirection:'row',alignItems:'center',justifyContent:'space-between',borderBottomWidth:1,borderBottomColor:COLORS.border},
   manageRight:{alignItems:'flex-end',gap:6},
+  customCategoryTitle:{flex:1,flexDirection:'row',alignItems:'center'},
 
   budgetFlowHeader:{minHeight:48,flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginBottom:4},
   budgetFlowTitle:{color:COLORS.text,fontSize:20,lineHeight:30,fontWeight:'600',letterSpacing:-0.4,textAlign:'center'},
