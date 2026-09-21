@@ -47,5 +47,5 @@ const s=StyleSheet.create({
   label:{color:COLORS.muted,fontSize:10,lineHeight:13,fontWeight:'500'},
   labelActive:{color:COLORS.accent,fontWeight:'600'},
   addSlot:{width:64,alignItems:'center',justifyContent:'center'},
-  add:{width:48,height:48,borderRadius:24,backgroundColor:COLORS.accent,alignItems:'center',justifyContent:'center',shadowColor:'#0074FC',shadowOpacity:0.2,shadowRadius:8,shadowOffset:{width:0,height:4},elevation:4},
+  add:{width:48,height:48,borderRadius:24,backgroundColor:COLORS.accent,alignItems:'center',justifyContent:'center',boxShadow:'0 4px 12px rgba(0,116,252,0.18)'},
 });
