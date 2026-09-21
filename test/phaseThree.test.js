@@ -82,3 +82,28 @@ test('recordUdhaaroPayment creates income when receiving repayment for lent mone
   assert.equal(result.transaction.category, 'Udhaaro Repayment');
   assert.deepEqual(result.transaction.udharoPayment, { recordId: 'u2' });
 });
+
+test('savingsGoalStatus derives saved amount from linked deposits and withdrawals', () => {
+  const { savingsGoalStatus } = require('../src/domain/phaseThree');
+  const goal = { id: 'g1', name: 'Emergency fund', targetAmount: 10000 };
+  const tx = [
+    { type: 'expense', amount: 3000, savingsGoalMovement: { goalId: 'g1', direction: 'deposit' } },
+    { type: 'income', amount: 500, savingsGoalMovement: { goalId: 'g1', direction: 'withdrawal' } },
+  ];
+  assert.deepEqual(savingsGoalStatus(goal, tx), {
+    id: 'g1', targetAmount: 10000, saved: 2500, remaining: 7500, progress: 0.25,
+  });
+});
+
+test('createSavingsGoalTransaction caps deposits at remaining target and withdrawals at saved amount', () => {
+  const { createSavingsGoalTransaction } = require('../src/domain/phaseThree');
+  const goal = { id: 'g1', name: 'Emergency fund', targetAmount: 10000 };
+  const tx = [{ type: 'expense', amount: 9000, savingsGoalMovement: { goalId: 'g1', direction: 'deposit' } }];
+  const deposit = createSavingsGoalTransaction(goal, tx, 5000, '2026-09-21', 'bank', 'deposit', { id: 'save-1', createdAt: '2026-09-21T04:00:00.000Z' });
+  assert.equal(deposit.amount, 1000);
+  assert.equal(deposit.type, 'expense');
+  const withdrawal = createSavingsGoalTransaction(goal, [...tx, deposit], 20000, '2026-09-22', 'bank', 'withdrawal', { id: 'save-2', createdAt: '2026-09-22T04:00:00.000Z' });
+  assert.equal(withdrawal.amount, 10000);
+  assert.equal(withdrawal.type, 'income');
+  assert.deepEqual(withdrawal.savingsGoalMovement, { goalId: 'g1', direction: 'withdrawal' });
+});
