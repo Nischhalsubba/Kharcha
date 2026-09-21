@@ -43,8 +43,8 @@ const { prepareTransactionImport, mergeImportedTransactions, prepareMonthDeletio
 const { shareCsvExport } = require('./src/services/exportFiles');
 const { shareMonthlyPdf } = require('./src/services/reportFiles');
 const { pickCsvImportText } = require('./src/services/importFiles');
-const { DEFAULT_SECURITY_CONFIG, isValidPin, shouldLockAfterBackground, cooldownSecondsForFailures } = require('./src/domain/security');
-const { getSecurityConfig, enablePinLock, updatePin, verifyPin, disableAppLock, getBiometricAvailability, setBiometricEnabled, setLockAfterSeconds, authenticateBiometric } = require('./src/services/appSecurity');
+const { DEFAULT_SECURITY_CONFIG, isValidPin, shouldLockAfterBackground } = require('./src/domain/security');
+const { getSecurityConfig, enablePinLock, updatePin, verifyPin, disableAppLock, getBiometricAvailability, setBiometricEnabled, setLockAfterSeconds, authenticateBiometric, getPinAttemptState, attemptPinUnlock } = require('./src/services/appSecurity');
 const APP_VERSION = require('./package.json').version;
 
 function pad2(v){return String(v).padStart(2,'0');}
@@ -80,7 +80,7 @@ export default function App(){
 
   useEffect(()=>{let mounted=true;(async()=>{let recovered=false;try{recovered=await recoverInterruptedRestore();}catch(error){if(mounted)Alert.alert('Recovery issue',error?.message||'Kharcha could not recover an interrupted restore.');}try{const [tx,st,np,pl]=await Promise.all([loadTransactions(),loadSettings(),loadNepalData(),loadPlanningData()]);if(!mounted)return;const materialized=materializeRecurringTransactions(tx,st.recurringTransactions,localIsoDate());const reconciledUdhaaro=reconcileUdhaaroRecords(np.udharo,materialized.transactions);const reconciledNepal={...np,udharo:reconciledUdhaaro};setTransactions(materialized.transactions);setSettings(st);setNepalData(reconciledNepal);setPlanningData(pl);setBudgetDraft(String(st.monthlyBudget));const writes=[];if(materialized.created.length)writes.push(saveTransactions(materialized.transactions));if(JSON.stringify(reconciledUdhaaro)!==JSON.stringify(np.udharo))writes.push(saveNepalData(reconciledNepal));if(writes.length)await Promise.all(writes);if(recovered)Alert.alert('Restore recovered','Kharcha recovered the data that existed before an interrupted restore.');}finally{if(mounted)setReady(true);}})();return()=>{mounted=false;};},[]);
 
-  useEffect(()=>{let mounted=true;(async()=>{try{const [config,bio]=await Promise.all([getSecurityConfig(),getBiometricAvailability()]);if(!mounted)return;setSecurityConfig(config);setBiometricAvailable(bio);setLocked(config.enabled);}catch(error){if(mounted)Alert.alert('Security unavailable',error?.message||'Kharcha could not load app-lock settings.');}finally{if(mounted)setSecurityReady(true);}})();return()=>{mounted=false;};},[]);
+  useEffect(()=>{let mounted=true;(async()=>{try{const [config,bio,attempts]=await Promise.all([getSecurityConfig(),getBiometricAvailability(),getPinAttemptState()]);if(!mounted)return;setSecurityConfig(config);setBiometricAvailable(bio);setFailedAttempts(attempts.failureCount);setCooldownUntil(attempts.cooldownUntil);setLocked(config.enabled);}catch(error){if(mounted)Alert.alert('Security unavailable',error?.message||'Kharcha could not load app-lock settings.');}finally{if(mounted)setSecurityReady(true);}})();return()=>{mounted=false;};},[]);
 
   useEffect(()=>{
     const subscription=AppState.addEventListener('change',(nextState)=>{
@@ -255,9 +255,11 @@ export default function App(){
     setSecurityBusy(true);try{const config=await setLockAfterSeconds(seconds);setSecurityConfig(config);}catch(error){Alert.alert('Could not update auto-lock',error?.message||'Try again.');}finally{setSecurityBusy(false);}
   }
   async function unlockWithPin(pin){
-    const ok=await verifyPin(pin);
-    if(ok){setLocked(false);setFailedAttempts(0);setCooldownUntil(0);return true;}
-    const next=failedAttempts+1;setFailedAttempts(next);const cooldown=cooldownSecondsForFailures(next);if(cooldown)setCooldownUntil(Date.now()+cooldown*1000);return false;
+    const result=await attemptPinUnlock(pin);
+    setFailedAttempts(result.state.failureCount);
+    setCooldownUntil(result.state.cooldownUntil);
+    if(result.success){setLocked(false);return true;}
+    return false;
   }
   async function unlockWithBiometric(){
     const result=await authenticateBiometric();
