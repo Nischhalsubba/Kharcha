@@ -86,7 +86,7 @@ export default function BudgetScreen({
   async function saveOverallBudget(){await updateBudget();setView('management');}
   async function saveSelectedCategory(){await saveCategoryBudget();setView('management');}
 
-  if(view==='incomeEditor')return <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
+  if(view==='incomeEditor')return <ScrollView contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
     <Header title="Budget Management" onBack={()=>setView('management')}/>
     <FinanceCard title="Monthly Income" action="">
       <Text style={s.cardTitle}>{m(summary.income)}</Text><Text style={s.meta}>Recorded take-home income for {monthLabel(currentMonth)}.</Text>
@@ -96,7 +96,7 @@ export default function BudgetScreen({
     <View style={s.infoCallout}><Text style={s.rowTitle}>How income works in Kharcha</Text><Text style={s.meta}>Monthly income is calculated from recorded income transactions, so it always matches your actual data.</Text></View>
   </ScrollView>;
 
-  if(view==='budgetEditor')return <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
+  if(view==='budgetEditor')return <ScrollView contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
     <Header title="Budget Management" onBack={()=>setView('management')}/>
     <FinanceCard title="Monthly Budget" action="">
       <Text style={s.meta}>We deduct your monthly budget from recorded income to show potential savings.</Text>
@@ -106,7 +106,7 @@ export default function BudgetScreen({
     </FinanceCard>
   </ScrollView>;
 
-  if(view==='categorySelect')return <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
+  if(view==='categorySelect')return <ScrollView contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
     <Header title="Add Category" onBack={()=>setView('management')}/>
     <View style={s.categoryPickerCard}>
       <Text style={s.cardHeaderTitle}>Choose a category to budget</Text>
@@ -116,7 +116,7 @@ export default function BudgetScreen({
     </View>
   </ScrollView>;
 
-  if(view==='categoryEditor')return <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
+  if(view==='categoryEditor')return <ScrollView contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
     <Header title="Budget by Category" onBack={()=>setView('categorySelect')}/>
     <FinanceCard title={categoryLabel(categoryBudgetCategory,lang)} action="">
       <Text style={s.meta}>Budget for {monthLabel(currentMonth)} · applies to future months until changed.</Text>
@@ -129,7 +129,7 @@ export default function BudgetScreen({
   if(view==='detail'){
     const categoryTransactions=transactions.filter(item=>item.type==='expense'&&item.category===detailCategory&&String(item.date||'').slice(0,7)===currentMonth);
     const amount=categoryTransactions.reduce((total,item)=>total+(Number(item.amount)||0),0);
-    return <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
+    return <ScrollView contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
       <Header title="Category Breakdown" onBack={()=>setView('breakdown')}/>
       <FinanceCard title={categoryLabel(detailCategory,lang)} action="">
         <View style={s.between}><View><Text style={s.meta}>{monthLabel(currentMonth)}</Text><Text style={s.metricValueLarge}>{m(amount)}</Text></View><View style={s.pill}><Text style={s.pillText}>{Math.round(expenseTotal?amount/expenseTotal*100:0)}%</Text></View></View>
@@ -142,7 +142,7 @@ export default function BudgetScreen({
     </ScrollView>;
   }
 
-  if(view==='management')return <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
+  if(view==='management')return <ScrollView contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
     <Header title="Budget Management" onBack={()=>setView('breakdown')}/>
     <MonthStrip transactions={transactions} currentMonth={currentMonth}/>
     <FinanceCard title="Monthly Budget" action="">
@@ -166,7 +166,7 @@ export default function BudgetScreen({
   const activeItems=breakdownTab==='income'?incomeBreakdown:breakdown;
   const activeTotal=breakdownTab==='income'?incomeTotal:expenseTotal;
   const previewTransactions=transactions.filter(item=>String(item.date||'').slice(0,7)===currentMonth&&(breakdownTab==='budget'||item.type===breakdownTab)).slice(0,5);
-  return <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
+  return <ScrollView contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
     <Header title="Breakdown & budget" right={<Pressable style={s.headerIconButton} onPress={()=>setView('management')} accessibilityRole="button"><Text style={s.headerIconText}>⚙</Text></Pressable>}/>
     <MonthStrip transactions={transactions} currentMonth={currentMonth}/>
     <CashflowCard summary={summary} m={m}/>
