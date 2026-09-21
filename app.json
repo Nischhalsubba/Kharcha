@@ -2,6 +2,7 @@
   "expo": {
     "name": "Kharcha",
     "slug": "kharcha",
+    "owner": "nischhal",
     "scheme": "kharcha",
     "version": "1.0.0",
     "orientation": "portrait",
