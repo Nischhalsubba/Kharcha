@@ -73,3 +73,11 @@ test('CSV export uses the persisted remittance fees field', () => {
   const result=createTransactionsCsv(state,{scope:'all',exportedAt:'2026-09-21T06:00:00.000Z'});
   assert.match(result.csv,/Dai,Qatar,QAR,2700,500,/);
 });
+
+
+test('CSV includes stable transaction IDs for future safe imports', () => {
+  const result=createTransactionsCsv(state,{scope:'all',exportedAt:'2026-09-21T06:00:00.000Z'});
+  assert.match(result.csv.split('\n')[0],/,Transaction ID$/);
+  assert.match(result.csv,/t1/);
+  assert.match(result.csv,/t2/);
+});
