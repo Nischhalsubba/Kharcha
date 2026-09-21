@@ -128,7 +128,8 @@ const s=StyleSheet.create({
   fab:{width:44,height:44,borderRadius:22,backgroundColor:COLORS.accent,alignItems:'center',justifyContent:'center',marginHorizontal:2},
   fabText:{color:'#FFFFFF',fontSize:24,lineHeight:26,fontWeight:'500'},
 
-  search:{minHeight:44,borderRadius:10,borderWidth:1,borderColor:COLORS.borderStrong,backgroundColor:COLORS.surface,color:COLORS.text,paddingHorizontal:14,marginBottom:8,fontSize:14},
+  search:{minHeight:44,borderRadius:12,borderWidth:StyleSheet.hairlineWidth,borderColor:COLORS.borderStrong,backgroundColor:COLORS.surface,flexDirection:'row',alignItems:'center',gap:8,paddingHorizontal:12,marginBottom:8},
+  searchInput:{flex:1,minHeight:42,color:COLORS.text,fontSize:14,paddingVertical:0},
   filters:{paddingVertical:4,paddingRight:16},
   filterChip:{minHeight:44,paddingHorizontal:12,borderRadius:99,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface,justifyContent:'center',marginRight:7},
   filterChipActive:{borderColor:COLORS.borderStrong,backgroundColor:COLORS.surface2},
