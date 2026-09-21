@@ -51,6 +51,9 @@ test('brand accent is centralized and matches the supplied asset pack', () => {
 test('high-use bottom sheets use the same radius and typography contract', () => {
   const components = [
     'AddTransactionModal.js',
+    'CategoryModal.js',
+    'TransferModal.js',
+    'RecurringModal.js',
     'NepalSettingsModal.js',
     'DataSafetyModal.js',
     'DataManagementModal.js',
@@ -72,4 +75,12 @@ test('high-use bottom sheets use the same radius and typography contract', () =>
     assert.doesNotMatch(source, /borderTopLeftRadius:28|borderTopRightRadius:28/, filename);
     assert.doesNotMatch(source, /fontWeight:['"](?:700|800|900)['"]/, filename);
   }
+});
+
+
+test('lock screen follows the same typography and control-radius system', () => {
+  const source = fs.readFileSync(path.join(root, 'src/components/LockScreen.js'), 'utf8');
+  assert.doesNotMatch(source, /fontWeight:['"](?:700|800|900)['"]/);
+  assert.doesNotMatch(source, /borderRadius:(?:14|16|20)/);
+  assert.match(source, /height:48/);
 });
