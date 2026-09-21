@@ -4,7 +4,7 @@
     "slug": "kharcha",
     "owner": "nischhal",
     "scheme": "kharcha",
-    "version": "1.10.0",
+    "version": "1.11.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "ios": {
@@ -30,7 +30,8 @@
           "configureAndroidBackup": true,
           "faceIDPermission": "Allow Kharcha to protect app-lock credentials with Face ID."
         }
-      ]
+      ],
+      "expo-notifications"
     ]
   }
 }

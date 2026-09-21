@@ -2,6 +2,17 @@
 
 Kharcha is a local-first personal money tracker built with Expo / React Native, designed around everyday Nepali spending.
 
+## Phase 5.2A — Local due-date reminders
+
+- Explicit opt-in notification permission; Kharcha never asks until reminders are enabled
+- Local reminders for bills, EMI and loans
+- Local reminders for outstanding Udhaaro due dates
+- Local reminders for active savings target dates
+- Configurable lead time: due day only, 1, 2, 3 or 7 days before
+- Kharcha replaces only its own scheduled reminders to avoid duplicates
+- No push token, notification server or financial-data upload is used
+- Budget threshold alerts are intentionally separate in Phase 5.2B to add persistent anti-spam behavior
+
 ## Phase 5.1B — Smarter local insights
 
 - Month-over-month expense comparison that ignores wallet transfers and savings movements
