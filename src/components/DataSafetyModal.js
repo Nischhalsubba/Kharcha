@@ -3,7 +3,7 @@ import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { COLORS } from '../constants';
 import { t } from '../i18n';
 
-export default function DataSafetyModal({ visible, onClose, onBackup, onRestore, busy = false, language = 'en' }) {
+export default function DataSafetyModal({ visible, onClose, onBackup, onRestore, onCsvExport, busy = false, language = 'en' }) {
   return <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
     <Pressable style={s.backdrop} onPress={busy ? undefined : onClose}/>
     <View style={s.sheet}>
@@ -24,6 +24,14 @@ export default function DataSafetyModal({ visible, onClose, onBackup, onRestore,
       </View>
       <Pressable style={[s.secondary,busy&&s.disabled]} disabled={busy} onPress={onRestore} accessibilityRole="button">
         <Text style={s.secondaryText}>{t(language,'restoreBackup','Restore backup')}</Text>
+      </Pressable>
+
+      <View style={s.card}>
+        <Text style={s.icon}>📊</Text>
+        <View style={s.copy}><Text style={s.cardTitle}>{t(language,'exportTransactions','Export transactions')}</Text><Text style={s.meta}>{t(language,'exportTransactionsHint','Create an Excel-compatible CSV with AD + BS dates and your Kharcha money details.')}</Text></View>
+      </View>
+      <Pressable style={[s.secondary,busy&&s.disabled]} disabled={busy} onPress={onCsvExport} accessibilityRole="button">
+        <Text style={s.secondaryText}>{t(language,'exportCsv','Export CSV')}</Text>
       </Pressable>
 
       <View style={s.warning}><Text style={s.warningIcon}>⚠️</Text><Text style={s.warningText}>{t(language,'backupWarning','Backup files are not encrypted. Store them somewhere you trust and avoid sharing them publicly.')}</Text></View>
