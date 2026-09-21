@@ -104,7 +104,7 @@ function recordUdhaaroPayment(record, rawAmount, date, walletId, meta = {}) {
     note: `Udhaaro · ${record.person || ''}`.trim(),
     date,
     walletId,
-    paymentMethod: 'cash',
+    paymentMethod: walletId === 'cash' ? 'cash' : 'bank',
     createdAt: meta.createdAt || new Date().toISOString(),
     udharoPayment: { recordId: record.id },
   };
@@ -117,6 +117,46 @@ function reverseUdhaaroPayment(record, transactionId) {
   return { ...record, repayments, status: remaining === 0 ? 'settled' : 'active' };
 }
 
+function savingsGoalStatus(goal, transactions = []) {
+  const targetAmount = safeAmount(goal?.targetAmount);
+  let saved = 0;
+  for (const item of transactions) {
+    if (item?.savingsGoalMovement?.goalId !== goal?.id) continue;
+    const amount = safeAmount(item.amount);
+    if (item.savingsGoalMovement.direction === 'deposit') saved += amount;
+    if (item.savingsGoalMovement.direction === 'withdrawal') saved -= amount;
+  }
+  saved = Math.max(saved, 0);
+  const remaining = Math.max(targetAmount - saved, 0);
+  return {
+    id: goal?.id,
+    targetAmount,
+    saved,
+    remaining,
+    progress: targetAmount > 0 ? Math.min(saved / targetAmount, 1) : 0,
+  };
+}
+
+function createSavingsGoalTransaction(goal, transactions, rawAmount, date, walletId, direction, meta = {}) {
+  const status = savingsGoalStatus(goal, transactions);
+  const requested = safeAmount(rawAmount);
+  const available = direction === 'withdrawal' ? status.saved : status.remaining;
+  const amount = Math.min(requested, available);
+  if (!amount || !walletId || !['deposit', 'withdrawal'].includes(direction)) return null;
+  return {
+    id: meta.id || `savings-${Date.now()}`,
+    type: direction === 'deposit' ? 'expense' : 'income',
+    amount,
+    category: 'Savings Goal',
+    note: goal?.name || 'Savings goal',
+    date,
+    walletId,
+    paymentMethod: walletId === 'cash' ? 'cash' : 'bank',
+    createdAt: meta.createdAt || new Date().toISOString(),
+    savingsGoalMovement: { goalId: goal.id, direction },
+  };
+}
+
 module.exports = {
   normalizePlanningData,
   dueDateForMonth,
@@ -124,4 +164,6 @@ module.exports = {
   createObligationPaymentTransaction,
   recordUdhaaroPayment,
   reverseUdhaaroPayment,
+  savingsGoalStatus,
+  createSavingsGoalTransaction,
 };
