@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { COLORS, WALLET_PRESETS } from '../constants';
+import { t } from '../i18n';
 
-export default function WalletModal({ visible, onClose, onSave }) {
+export default function WalletModal({ visible, onClose, onSave, language = 'en' }) {
   const [preset, setPreset] = useState('bank');
   const [name, setName] = useState('Bank');
   const [openingBalance, setOpeningBalance] = useState('0');
@@ -24,11 +25,11 @@ export default function WalletModal({ visible, onClose, onSave }) {
   }
 
   return <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-    <Pressable style={s.backdrop} onPress={onClose}/><View style={s.sheet}><Text style={s.title}>Add wallet</Text><Text style={s.muted}>Track cash, bank and digital wallets separately.</Text>
-      <Text style={s.label}>Type</Text><ScrollView horizontal showsHorizontalScrollIndicator={false}>{WALLET_PRESETS.map(([id,label,icon])=><Pressable key={id} onPress={()=>choose(id)} style={[s.chip,preset===id&&s.selected]}><Text>{icon}</Text><Text style={s.chipText}>{label}</Text></Pressable>)}</ScrollView>
-      <Text style={s.label}>Wallet name</Text><TextInput value={name} onChangeText={setName} placeholder="Nabil Bank, eSewa…" placeholderTextColor={COLORS.muted} style={s.input}/>
-      <Text style={s.label}>Opening balance</Text><TextInput value={openingBalance} onChangeText={setOpeningBalance} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={COLORS.muted} style={s.input}/>
-      <Pressable style={s.primary} onPress={submit}><Text style={s.primaryText}>Add wallet</Text></Pressable>
+    <Pressable style={s.backdrop} onPress={onClose}/><View style={s.sheet}><Text style={s.title}>{t(language,'addWallet','Add wallet')}</Text><Text style={s.muted}>{language==='ne'?'नगद, बैंक र डिजिटल वालेट छुट्टाछुट्टै ट्र्याक गर्नुहोस्।':'Track cash, bank and digital wallets separately.'}</Text>
+      <Text style={s.label}>{language==='ne'?'प्रकार':'Type'}</Text><ScrollView horizontal showsHorizontalScrollIndicator={false}>{WALLET_PRESETS.map(([id,label,icon])=><Pressable key={id} onPress={()=>choose(id)} style={[s.chip,preset===id&&s.selected]}><Text>{icon}</Text><Text style={s.chipText}>{label}</Text></Pressable>)}</ScrollView>
+      <Text style={s.label}>{language==='ne'?'वालेट नाम':'Wallet name'}</Text><TextInput value={name} onChangeText={setName} placeholder="Nabil Bank, eSewa…" placeholderTextColor={COLORS.muted} style={s.input}/>
+      <Text style={s.label}>{language==='ne'?'सुरुआती मौज्दात':'Opening balance'}</Text><TextInput value={openingBalance} onChangeText={setOpeningBalance} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={COLORS.muted} style={s.input}/>
+      <Pressable style={s.primary} onPress={submit}><Text style={s.primaryText}>{t(language,'addWallet','Add wallet')}</Text></Pressable>
     </View>
   </Modal>;
 }

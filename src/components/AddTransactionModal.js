@@ -3,123 +3,51 @@ import {
   Alert, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView,
   StyleSheet, Text, TextInput, View,
 } from 'react-native';
-import { COLORS, categoryPairs } from '../constants';
+import { COLORS, PAYMENT_METHODS, categoryPairs } from '../constants';
+import { categoryLabel, t } from '../i18n';
 const { isValidIsoDate, normalizeAmount } = require('../domain/finance');
+const { inputDateToAd, transactionDateInput, transactionDateLabel } = require('../domain/nepal');
 
 function pad2(value) { return String(value).padStart(2, '0'); }
-function todayIso() {
-  const date = new Date();
-  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
-}
+function todayIso() { const date = new Date(); return `${date.getFullYear()}-${pad2(date.getMonth()+1)}-${pad2(date.getDate())}`; }
 
 export default function AddTransactionModal({
   visible, onClose, onSave, initialTransaction, wallets = [], customCategories,
+  events = [], settings = {}, initialEventId = '',
 }) {
-  const [type, setType] = useState('expense');
-  const [amount, setAmount] = useState('');
-  const [category, setCategory] = useState('Food');
-  const [walletId, setWalletId] = useState('cash');
-  const [note, setNote] = useState('');
-  const [date, setDate] = useState(todayIso());
-  const [saving, setSaving] = useState(false);
+  const lang=settings.language||'en';
+  const [type,setType]=useState('expense'),[amount,setAmount]=useState(''),[category,setCategory]=useState('Food'),[walletId,setWalletId]=useState('cash'),[paymentMethod,setPaymentMethod]=useState('cash'),[eventId,setEventId]=useState(''),[note,setNote]=useState(''),[date,setDate]=useState(todayIso()),[saving,setSaving]=useState(false);
 
-  useEffect(() => {
-    if (!visible) return;
-    const tx = initialTransaction;
-    const nextType = tx?.type || 'expense';
-    setType(nextType);
-    setAmount(tx ? String(tx.amount) : '');
-    setCategory(tx?.category || (nextType === 'expense' ? 'Food' : 'Salary'));
-    setWalletId(tx?.walletId || wallets[0]?.id || 'cash');
-    setNote(tx?.note || '');
-    setDate(tx?.date || todayIso());
+  useEffect(()=>{
+    if(!visible)return;
+    const tx=initialTransaction;const nextType=tx?.type||'expense';setType(nextType);setAmount(tx?String(tx.amount):'');setCategory(tx?.category||(nextType==='expense'?'Food':'Salary'));setWalletId(tx?.walletId||wallets[0]?.id||'cash');setPaymentMethod(tx?.paymentMethod||'cash');setEventId(tx?.eventId||initialEventId||'');setNote(tx?.note||'');
+    try{setDate(transactionDateInput(tx?.date||todayIso(),settings));}catch{setDate(tx?.date||todayIso());}
     setSaving(false);
-  }, [visible, initialTransaction, wallets]);
+  },[visible,initialTransaction,wallets,settings,initialEventId]);
 
-  const categories = useMemo(() => categoryPairs(type, customCategories), [type, customCategories]);
+  const categories=useMemo(()=>categoryPairs(type,customCategories),[type,customCategories]);
+  function switchType(next){setType(next);setCategory(next==='expense'?'Food':'Salary');if(next==='income')setEventId('');}
+  function dateHint(){if(settings.dateSystem!=='both'||!isValidIsoDate(date))return '';try{return transactionDateLabel(date,{...settings,dateSystem:'BS'}).primary;}catch{return '';}}
 
-  function switchType(next) {
-    setType(next);
-    setCategory(next === 'expense' ? 'Food' : 'Salary');
+  async function submit(){
+    const normalized=normalizeAmount(amount);if(!normalized)return Alert.alert('Check amount','Enter a number greater than zero.');
+    let canonicalDate;try{canonicalDate=inputDateToAd(date,settings);}catch{canonicalDate=null;}
+    if(!canonicalDate||!isValidIsoDate(canonicalDate))return Alert.alert('Check date',settings.dateSystem==='BS'?'Enter a valid BS date.':'Use a real date in YYYY-MM-DD format.');
+    if(!walletId)return Alert.alert('Choose a wallet','Select where this money moved.');
+    setSaving(true);const now=new Date().toISOString();
+    await onSave({id:initialTransaction?.id||`${Date.now()}-${Math.random().toString(36).slice(2,8)}`,type,amount:normalized,category,note:note.trim(),date:canonicalDate,walletId,paymentMethod,eventId:type==='expense'&&eventId?eventId:undefined,createdAt:initialTransaction?.createdAt||now,updatedAt:initialTransaction?now:undefined,recurringId:initialTransaction?.recurringId,remittance:initialTransaction?.remittance});
   }
 
-  async function submit() {
-    const normalized = normalizeAmount(amount);
-    if (!normalized) return Alert.alert('Enter an amount', 'Use a number greater than zero.');
-    if (!isValidIsoDate(date)) return Alert.alert('Check the date', 'Use a real date in YYYY-MM-DD format.');
-    if (!walletId) return Alert.alert('Choose a wallet', 'Select where this money moved.');
-    setSaving(true);
-    const now = new Date().toISOString();
-    await onSave({
-      id: initialTransaction?.id || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      type,
-      amount: normalized,
-      category,
-      note: note.trim(),
-      date,
-      walletId,
-      createdAt: initialTransaction?.createdAt || now,
-      updatedAt: initialTransaction ? now : undefined,
-      recurringId: initialTransaction?.recurringId,
-    });
-  }
-
-  return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <KeyboardAvoidingView style={s.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <Pressable style={s.backdrop} onPress={onClose} />
-        <View style={s.sheet}>
-          <View style={s.handle} />
-          <View style={s.header}>
-            <View>
-              <Text style={s.title}>{initialTransaction ? 'Edit transaction' : 'Add transaction'}</Text>
-              <Text style={s.muted}>{initialTransaction ? 'Correct the details and save.' : 'Takes only a few seconds.'}</Text>
-            </View>
-            <Pressable onPress={onClose} hitSlop={12} accessibilityRole="button" accessibilityLabel="Close transaction form"><Text style={s.close}>×</Text></Pressable>
-          </View>
-          <View style={s.segmented}>
-            {['expense', 'income'].map((key) => (
-              <Pressable key={key} style={[s.segment, type === key && s.segmentActive]} onPress={() => switchType(key)} accessibilityRole="button" accessibilityState={{ selected: type === key }}>
-                <Text style={[s.segmentText, type === key && s.segmentTextActive]}>{key === 'expense' ? 'Expense' : 'Income'}</Text>
-              </Pressable>
-            ))}
-          </View>
-          <Text style={s.label}>Amount</Text>
-          <View style={s.amountWrap}><Text style={s.prefix}>Rs</Text><TextInput value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={COLORS.muted} style={s.amount} /></View>
-          <Text style={s.label}>Category</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.chipRow}>
-            {categories.map(([name, emoji]) => (
-              <Pressable key={name} onPress={() => setCategory(name)} style={[s.chip, category === name && s.chipSelected]} accessibilityRole="button" accessibilityState={{ selected: category === name }}>
-                <Text>{emoji}</Text><Text style={[s.chipText, category === name && s.chipTextSelected]}>{name}</Text>
-              </Pressable>
-            ))}
-          </ScrollView>
-          <Text style={s.label}>Wallet</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.chipRow}>
-            {wallets.map((wallet) => (
-              <Pressable key={wallet.id} onPress={() => setWalletId(wallet.id)} style={[s.chip, walletId === wallet.id && s.chipSelected]} accessibilityRole="button" accessibilityState={{ selected: walletId === wallet.id }}>
-                <Text>{wallet.icon || '👛'}</Text><Text style={[s.chipText, walletId === wallet.id && s.chipTextSelected]}>{wallet.name}</Text>
-              </Pressable>
-            ))}
-          </ScrollView>
-          <View style={s.twoCol}>
-            <View style={s.flex}><Text style={s.label}>Note</Text><TextInput value={note} onChangeText={setNote} placeholder="Lunch, taxi…" placeholderTextColor={COLORS.muted} style={s.input} /></View>
-            <View style={s.flex}><Text style={s.label}>Date</Text><TextInput value={date} onChangeText={setDate} placeholder="YYYY-MM-DD" placeholderTextColor={COLORS.muted} style={s.input} /></View>
-          </View>
-          <Pressable style={[s.primary, saving && s.disabled]} onPress={submit} disabled={saving} accessibilityRole="button">
-            <Text style={s.primaryText}>{saving ? 'Saving…' : initialTransaction ? 'Save changes' : `Save ${type}`}</Text>
-          </Pressable>
-        </View>
-      </KeyboardAvoidingView>
-    </Modal>
-  );
+  return <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}><KeyboardAvoidingView style={s.root} behavior={Platform.OS==='ios'?'padding':undefined}><Pressable style={s.backdrop} onPress={onClose}/><ScrollView style={s.sheet} contentContainerStyle={s.body} keyboardShouldPersistTaps="handled"><View style={s.handle}/><View style={s.header}><View><Text style={s.title}>{initialTransaction?t(lang,'editTransaction','Edit transaction'):t(lang,'addTransaction','Add transaction')}</Text><Text style={s.muted}>{initialTransaction?(lang==='ne'?'विवरण सच्याएर सुरक्षित गर्नुहोस्।':'Correct the details and save.'):(lang==='ne'?'केही सेकेन्डमै लेख्नुहोस्।':'Takes only a few seconds.')}</Text></View><Pressable onPress={onClose} hitSlop={12}><Text style={s.close}>×</Text></Pressable></View>
+    <View style={s.segmented}>{['expense','income'].map(key=><Pressable key={key} style={[s.segment,type===key&&s.segmentActive]} onPress={()=>switchType(key)}><Text style={[s.segmentText,type===key&&s.segmentTextActive]}>{key==='expense'?t(lang,'expense','Expense'):t(lang,'income','Income')}</Text></Pressable>)}</View>
+    <Text style={s.label}>{t(lang,'amount','Amount')}</Text><View style={s.amountWrap}><Text style={s.prefix}>{lang==='ne'?'रु':'Rs'}</Text><TextInput value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={COLORS.muted} style={s.amount}/></View>
+    <Text style={s.label}>{t(lang,'category','Category')}</Text><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.chipRow}>{categories.map(([name,emoji])=><Pressable key={name} onPress={()=>setCategory(name)} style={[s.chip,category===name&&s.chipSelected]}><Text>{emoji}</Text><Text style={[s.chipText,category===name&&s.chipTextSelected]}>{categoryLabel(name,lang)}</Text></Pressable>)}</ScrollView>
+    <Text style={s.label}>{t(lang,'wallet','Wallet')}</Text><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.chipRow}>{wallets.map(wallet=><Pressable key={wallet.id} onPress={()=>setWalletId(wallet.id)} style={[s.chip,walletId===wallet.id&&s.chipSelected]}><Text>{wallet.icon||'👛'}</Text><Text style={[s.chipText,walletId===wallet.id&&s.chipTextSelected]}>{wallet.name}</Text></Pressable>)}</ScrollView>
+    <Text style={s.label}>{t(lang,'paymentMethod','Payment method')}</Text><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.chipRow}>{PAYMENT_METHODS.map(([key,label,icon])=><Pressable key={key} onPress={()=>setPaymentMethod(key)} style={[s.chip,paymentMethod===key&&s.chipSelected]}><Text>{icon}</Text><Text style={[s.chipText,paymentMethod===key&&s.chipTextSelected]}>{key==='cash'?t(lang,'cash',label):key==='qr'?t(lang,'qr',label):key==='card'?t(lang,'card',label):t(lang,'bankTransfer',label)}</Text></Pressable>)}</ScrollView>
+    {type==='expense'&&events.length?<><Text style={s.label}>{t(lang,'eventOptional','Event (optional)')}</Text><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.chipRow}><Pressable onPress={()=>setEventId('')} style={[s.chip,!eventId&&s.chipSelected]}><Text style={s.chipText}>—</Text></Pressable>{events.map(event=><Pressable key={event.id} onPress={()=>setEventId(event.id)} style={[s.chip,eventId===event.id&&s.chipSelected]}><Text style={[s.chipText,eventId===event.id&&s.chipTextSelected]}>{event.name}</Text></Pressable>)}</ScrollView></>:null}
+    <View style={s.twoCol}><View style={s.flex}><Text style={s.label}>{t(lang,'note','Note')}</Text><TextInput value={note} onChangeText={setNote} placeholder={lang==='ne'?'खाजा, ट्याक्सी…':'Lunch, taxi…'} placeholderTextColor={COLORS.muted} style={s.input}/></View><View style={s.flex}><Text style={s.label}>{t(lang,'date','Date')} {settings.dateSystem==='BS'?'(BS)':'(AD)'}</Text><TextInput value={date} onChangeText={setDate} placeholder="YYYY-MM-DD" placeholderTextColor={COLORS.muted} style={s.input}/>{dateHint()?<Text style={s.dateHint}>{dateHint()}</Text>:null}</View></View>
+    <Pressable style={[s.primary,saving&&s.disabled]} onPress={submit} disabled={saving}><Text style={s.primaryText}>{saving?'Saving…':initialTransaction?t(lang,'saveChanges','Save changes'):type==='expense'?t(lang,'saveExpense','Save expense'):t(lang,'saveIncome','Save income')}</Text></Pressable>
+  </ScrollView></KeyboardAvoidingView></Modal>;
 }
 
-const s = StyleSheet.create({
-  root:{flex:1,justifyContent:'flex-end'},backdrop:{...StyleSheet.absoluteFillObject,backgroundColor:'rgba(0,0,0,.58)'},sheet:{backgroundColor:'#10161E',borderTopLeftRadius:28,borderTopRightRadius:28,borderWidth:1,borderColor:COLORS.border,paddingHorizontal:20,paddingTop:10,paddingBottom:Platform.OS==='ios'?30:22,maxHeight:'92%'},
-  handle:{width:42,height:4,borderRadius:99,backgroundColor:COLORS.border,alignSelf:'center',marginBottom:14},header:{flexDirection:'row',justifyContent:'space-between'},title:{color:COLORS.text,fontSize:22,fontWeight:'900'},muted:{color:COLORS.muted,fontSize:13,marginTop:4},close:{color:COLORS.muted,fontSize:30,lineHeight:30},
-  segmented:{flexDirection:'row',backgroundColor:COLORS.surface,padding:4,borderRadius:14,marginTop:18},segment:{flex:1,height:42,alignItems:'center',justifyContent:'center',borderRadius:11},segmentActive:{backgroundColor:COLORS.surface2},segmentText:{color:COLORS.muted,fontWeight:'700'},segmentTextActive:{color:COLORS.text},
-  label:{color:COLORS.text,fontSize:12,fontWeight:'700',marginBottom:7,marginTop:12},amountWrap:{height:66,borderRadius:17,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface,flexDirection:'row',alignItems:'center',paddingHorizontal:14},prefix:{color:COLORS.accent,fontSize:20,fontWeight:'800',marginRight:8},amount:{flex:1,color:COLORS.text,fontSize:28,fontWeight:'800'},
-  chipRow:{paddingRight:16},chip:{height:42,paddingHorizontal:13,borderRadius:13,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface,flexDirection:'row',gap:7,alignItems:'center',marginRight:8},chipSelected:{backgroundColor:COLORS.accentSoft,borderColor:COLORS.accent},chipText:{color:COLORS.muted,fontSize:12,fontWeight:'700'},chipTextSelected:{color:COLORS.text},
-  twoCol:{flexDirection:'row',gap:10},flex:{flex:1},input:{height:48,borderRadius:14,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface2,color:COLORS.text,paddingHorizontal:12,fontSize:14},primary:{height:52,borderRadius:15,marginTop:18,backgroundColor:COLORS.accent,alignItems:'center',justifyContent:'center'},primaryText:{color:'#07130F',fontSize:15,fontWeight:'900'},disabled:{opacity:.6},
-});
+const s=StyleSheet.create({root:{flex:1,justifyContent:'flex-end'},backdrop:{...StyleSheet.absoluteFillObject,backgroundColor:'rgba(0,0,0,.58)'},sheet:{position:'absolute',left:0,right:0,bottom:0,maxHeight:'94%',backgroundColor:'#10161E',borderTopLeftRadius:28,borderTopRightRadius:28,borderWidth:1,borderColor:COLORS.border},body:{paddingHorizontal:20,paddingTop:10,paddingBottom:Platform.OS==='ios'?30:22},handle:{width:42,height:4,borderRadius:99,backgroundColor:COLORS.border,alignSelf:'center',marginBottom:14},header:{flexDirection:'row',justifyContent:'space-between'},title:{color:COLORS.text,fontSize:22,fontWeight:'900'},muted:{color:COLORS.muted,fontSize:13,marginTop:4},close:{color:COLORS.muted,fontSize:30,lineHeight:30},segmented:{flexDirection:'row',backgroundColor:COLORS.surface,padding:4,borderRadius:14,marginTop:18},segment:{flex:1,height:42,alignItems:'center',justifyContent:'center',borderRadius:11},segmentActive:{backgroundColor:COLORS.surface2},segmentText:{color:COLORS.muted,fontWeight:'700'},segmentTextActive:{color:COLORS.text},label:{color:COLORS.text,fontSize:12,fontWeight:'700',marginBottom:7,marginTop:12},amountWrap:{height:66,borderRadius:17,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface,flexDirection:'row',alignItems:'center',paddingHorizontal:14},prefix:{color:COLORS.accent,fontSize:20,fontWeight:'800',marginRight:8},amount:{flex:1,color:COLORS.text,fontSize:28,fontWeight:'800'},chipRow:{paddingRight:16},chip:{minHeight:42,paddingHorizontal:13,borderRadius:13,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface,flexDirection:'row',gap:7,alignItems:'center',marginRight:8},chipSelected:{backgroundColor:COLORS.accentSoft,borderColor:COLORS.accent},chipText:{color:COLORS.muted,fontSize:12,fontWeight:'700'},chipTextSelected:{color:COLORS.text},twoCol:{flexDirection:'row',gap:10},flex:{flex:1},input:{height:48,borderRadius:14,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface2,color:COLORS.text,paddingHorizontal:12,fontSize:14},dateHint:{color:COLORS.accent,fontSize:10,marginTop:5},primary:{height:52,borderRadius:15,marginTop:18,backgroundColor:COLORS.accent,alignItems:'center',justifyContent:'center'},primaryText:{color:'#07130F',fontSize:15,fontWeight:'900'},disabled:{opacity:.6}});

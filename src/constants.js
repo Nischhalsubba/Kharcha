@@ -5,18 +5,27 @@ export const COLORS = {
 };
 
 export const EXPENSE_CATEGORIES = [
-  ['Food', '🍲'], ['Transport', '🚕'], ['Shopping', '🛍️'], ['Bills', '💡'],
-  ['Health', '🩺'], ['Home', '🏠'], ['Entertainment', '🎬'], ['Other', '✨'],
+  ['Food', '🍲'], ['Khaja', '🥟'], ['Groceries', '🥬'], ['Transport', '🚕'], ['Fuel', '⛽'], ['Shopping', '🛍️'],
+  ['Bills', '🧾'], ['Electricity', '💡'], ['Water', '💧'], ['Internet', '🌐'], ['Mobile Recharge', '📱'],
+  ['Health', '🩺'], ['Home', '🏠'], ['Rent', '🔑'], ['School Fees', '🎓'], ['EMI', '📆'], ['Puja & Donation', '🙏'],
+  ['Festival', '🪔'], ['Entertainment', '🎬'], ['Other', '✨'],
 ];
 
 export const INCOME_CATEGORIES = [
-  ['Salary', '💼'], ['Freelance', '💻'], ['Gift', '🎁'], ['Other', '➕'],
+  ['Salary', '💼'], ['Freelance', '💻'], ['Remittance', '🌏'], ['Business', '🏪'], ['Rental Income', '🏠'],
+  ['Allowance', '🪙'], ['Gift', '🎁'], ['Other', '➕'],
 ];
 
 export const WALLET_PRESETS = [
   ['cash', 'Cash', '💵'], ['bank', 'Bank', '🏦'], ['esewa', 'eSewa', '🟢'],
   ['khalti', 'Khalti', '🟣'], ['imepay', 'IME Pay', '🔴'], ['card', 'Card', '💳'], ['other', 'Other', '👛'],
 ];
+
+export const PAYMENT_METHODS = [
+  ['cash', 'Cash', '💵'], ['qr', 'QR', '▦'], ['card', 'Card', '💳'], ['bank', 'Bank Transfer', '🏦'],
+];
+
+export const REMITTANCE_CURRENCIES = ['AED','QAR','SAR','MYR','USD','AUD','GBP','INR','JPY','KRW'];
 
 export function categoryPairs(type, customCategories = { expense: [], income: [] }) {
   const base = type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;

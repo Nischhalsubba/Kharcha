@@ -2,28 +2,42 @@
 
 Kharcha is a local-first personal money tracker built with Expo / React Native, designed around everyday Nepali spending.
 
-## Phase 1 features
+## Phase 2 — Nepal-first
+
+- English and नेपाली interface preferences
+- AD, Bikram Sambat (BS), or dual-date display
+- BS-aware transaction, recurring, remittance and Udhaaro date entry while storing canonical AD dates
+- Nepal-style NPR formatting such as `Rs 1,25,000`
+- Optional lakh/crore display, including Nepali digits in नेपाली mode
+- Nepal-focused expense and income categories such as Khaja, Groceries, Fuel, Rent, School Fees, EMI, Puja & Donation, Festival and Remittance
+- Payment-method tracking for Cash, QR, Card and Bank Transfer
+- Remittance income tracking with sender, country, original currency/amount, fees and destination wallet
+- Udhaaro tracking for money borrowed/lent, due dates, outstanding balances and partial repayments
+- Festival/event budgets for Dashain, Tihar, Teej, Chhath, Losar, weddings, travel, puja and custom events
+- Link expenses directly to a festival/event budget
+- Nepal money tools surfaced alongside the existing Insights experience
+- All Phase 1 data remains compatible and local-first
+
+## Phase 1 foundation
 
 - Overview with monthly net, income, spending and budget progress
 - Add, edit and delete expense or income transactions
-- Search transactions by note, category, amount and date
-- Filter activity by type, wallet, category and current month
-- Multiple wallets/accounts, including Cash, Bank, eSewa, Khalti, IME Pay and custom wallets
-- Wallet opening balances and calculated current balances
-- Custom expense and income categories
-- Overall monthly budget plus category-specific monthly budgets
-- Weekly and monthly recurring transactions for items such as rent, salary and bills
+- Search and filter transactions
+- Multiple wallets/accounts including Cash, Bank, eSewa, Khalti and IME Pay
+- Wallet opening balances and calculated balances
+- Custom categories
+- Overall and category-specific monthly budgets
+- Weekly and monthly recurring transactions
+- Persistent skip behavior for individual recurring occurrences
 - Category spending breakdown and simple insights
-- Migration-safe on-device persistence using `expo-sqlite/kv-store`
-- Dark, mobile-first UI with accessible labels and large tap targets
-- Finance and Phase 1 domain tests using Node's built-in test runner
 
 ## Stack
 
 - Expo SDK 57
 - React 19.2.3
-- React Native 0.86
+- React Native 0.86.3
 - expo-sqlite 57.0.3
+- `@inicrea/bikram-sambat-core` 0.1.3 for BS conversion
 
 ## Run locally
 
@@ -42,8 +56,9 @@ npm test
 
 ## Data and privacy
 
-- Currency defaults to NPR.
+- NPR is the default currency.
 - Data stays on the device and is not sent to a backend.
-- Existing pre-Phase-1 transactions are migrated to the Cash wallet automatically.
+- Existing older transactions remain readable and migrate safely to Phase 1/Phase 2 defaults.
+- Canonical transaction dates remain AD `YYYY-MM-DD` internally so sorting and existing data stay stable.
+- Phase 2 does not connect to live bank/wallet accounts or fetch live foreign-exchange rates.
 - The current database is not app-level encrypted with SQLCipher; highly sensitive production use should add encrypted storage/key management.
-- Persistence is isolated in `src/storage/expenseStore.js`, so optional cloud sync/auth can be added later without replacing the finance-domain logic.

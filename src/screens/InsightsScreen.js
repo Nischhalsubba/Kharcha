@@ -1,0 +1,11 @@
+import React from 'react';
+import { ScrollView, Text, View } from 'react-native';
+import NepalTools from '../components/NepalTools';
+import { categoryLabel, t } from '../i18n';
+import s from '../appStyles';
+import { Section } from '../components/AppPrimitives';
+const { dailyAverage } = require('../domain/finance');
+
+export default function InsightsScreen({ lang, breakdown, m, transactions, currentMonth, today, summary, settings, remittance, udharo, nepalData, eventStatuses, setSettingsOpen, setRemittanceOpen, setPaymentRecord, setUdhaaroOpen, setEventOpen, setTab, openAdd }) {
+  return <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}><Section title={t(lang,'insights','Spending insights')}/><View style={s.insightRow}><View style={s.insight}><Text style={s.kicker}>{t(lang,'topCategory','TOP CATEGORY').toUpperCase()}</Text><Text style={s.insightBig}>{breakdown[0]?categoryLabel(breakdown[0].category,lang):'—'}</Text><Text style={s.meta}>{breakdown[0]?m(breakdown[0].amount):(lang==='ne'?'अहिलेसम्म खर्च छैन':'No spending yet')}</Text></View><View style={s.insight}><Text style={s.kicker}>{t(lang,'dailyAverage','DAILY AVERAGE').toUpperCase()}</Text><Text style={s.insightBig}>{m(dailyAverage(transactions,currentMonth,today))}</Text><Text style={s.meta}>{t(lang,'basedThisMonth','Based on this month')}</Text></View></View><View style={s.form}><Text style={s.kicker}>{t(lang,'monthSnapshot','MONTH SNAPSHOT').toUpperCase()}</Text><Text style={s.cardTitle}>{lang==='ne'?`यो महिना ${m(summary.monthExpense)} खर्च भएको छ।`:`You have spent ${m(summary.monthExpense)} this month.`}</Text><Text style={[s.meta,{marginTop:8}]}>{t(lang,'addExpensesHint','Add expenses consistently for a clearer pattern over time.')}</Text></View><NepalTools settings={settings} money={m} remittance={remittance} udharo={udharo} udharoRecords={nepalData.udharo} eventStatuses={eventStatuses} onSettings={()=>setSettingsOpen(true)} onAddRemittance={()=>setRemittanceOpen(true)} onAddUdhaaro={()=>{setPaymentRecord(null);setUdhaaroOpen(true);}} onPayUdhaaro={(record)=>{setPaymentRecord(record);setUdhaaroOpen(true);}} onAddEvent={()=>setEventOpen(true)} onAddEventExpense={(eventId)=>{setTab('overview');openAdd(eventId);}}/></ScrollView>;
+}
