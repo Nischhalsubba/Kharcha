@@ -104,6 +104,7 @@ const s=StyleSheet.create({
 
   secondary:{marginTop:12,paddingHorizontal:16,minHeight:44,borderRadius:10,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface,alignItems:'center',justifyContent:'center'},
   secondaryText:{color:COLORS.text,fontSize:14,lineHeight:21,fontWeight:'600'},
+  buttonContent:{flexDirection:'row',alignItems:'center',justifyContent:'center',gap:8},
 
   listPad:{paddingBottom:120},
   listSingle:{backgroundColor:COLORS.surface,borderRadius:12,overflow:'hidden',marginBottom:8,...cardShadow},
@@ -145,12 +146,14 @@ const s=StyleSheet.create({
   walletRow:{paddingRight:20,gap:10},
   walletCard:{width:150,minHeight:96,backgroundColor:COLORS.surface,borderRadius:12,padding:14,borderWidth:StyleSheet.hairlineWidth,borderColor:COLORS.border,...cardShadow},
   walletIcon:{fontSize:20},
+  walletIconSurface:{width:36,height:36,borderRadius:18,backgroundColor:COLORS.accentSoft,alignItems:'center',justifyContent:'center'},
   walletName:{color:COLORS.muted,fontSize:12,lineHeight:16,fontWeight:'400',marginTop:8},
   walletBalance:{color:COLORS.text,fontSize:16,lineHeight:24,fontWeight:'600',marginTop:3,fontVariant:['tabular-nums']},
 
   setupGrid:{flexDirection:'row',flexWrap:'wrap',gap:10},
   setupCard:{width:'48%',minHeight:118,backgroundColor:COLORS.surface,borderRadius:12,padding:15,borderWidth:StyleSheet.hairlineWidth,borderColor:COLORS.border,...cardShadow},
   setupIcon:{fontSize:22,marginBottom:12},
+  setupIconSurface:{width:40,height:40,borderRadius:12,backgroundColor:COLORS.accentSoft,alignItems:'center',justifyContent:'center',marginBottom:12},
 
   manageRow:{minHeight:62,paddingHorizontal:16,paddingVertical:12,flexDirection:'row',alignItems:'center',justifyContent:'space-between',borderBottomWidth:1,borderBottomColor:COLORS.border},
   manageRight:{alignItems:'flex-end',gap:6},
