@@ -1,5 +1,5 @@
 const NE = {
-  personalMoney: 'व्यक्तिगत पैसा', local: 'स्थानीय', overview: 'सारांश', activity: 'कारोबार', budget: 'बजेट', insights: 'अन्तर्दृष्टि', add: 'थप्नुहोस्',
+  personalMoney: 'व्यक्तिगत पैसा', local: 'स्थानीय', overview: 'सारांश', activity: 'कारोबार', budget: 'बजेट', insights: 'अन्तर्दृष्टि', reports: 'रिपोर्ट', add: 'थप्नुहोस्',
   thisMonthNet: 'यो महिनाको खुद', income: 'आम्दानी', spent: 'खर्च', wallets: 'वालेटहरू', addWallet: 'वालेट थप्नुहोस्', transfer: 'स्थानान्तरण', transferFunds: 'वालेटबीच पैसा सार्नुहोस्', fromWallet: 'बाट वालेट', toWallet: 'मा वालेट',
   monthlyBudget: 'मासिक बजेट', left: 'बाँकी', limit: 'सीमा', recentActivity: 'हालका कारोबार', seeAll: 'सबै हेर्नुहोस्',
   allActivity: 'सबै कारोबार', clear: 'हटाउनुहोस्', searchPlaceholder: 'नोट, श्रेणी, रकम खोज्नुहोस्…', all: 'सबै', expense: 'खर्च', thisMonth: 'यो महिना',

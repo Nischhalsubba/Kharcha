@@ -4,6 +4,8 @@ This file is the durable handoff for post-1.8 feature work. Each batch should be
 
 ## Batch status
 
+- [x] **Design system migration — Figma 20-node set** — shared finance tokens, Spending, Transaction Record/Details, Breakdown & Budget, Budget Management, Reports and Repeated transaction.
+
 - [x] **5.1A — Wallet-to-wallet transfers** — local transfer records, two-wallet balance movement, activity/filter support, CSV round-trip safety.
 - [x] **5.1B — Smarter local insights** — month-over-month change, savings rate, month-end spending forecast, unusual-spend detection, recurring-transaction suggestions.
 - [x] **5.2A — Due-date device reminders** — local bills/EMI/loan, Udhaaro and savings-target reminders with explicit permission controls.
