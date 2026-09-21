@@ -1,10 +1,10 @@
 # Phase 4 tasks
 
-- [ ] versioned backup format + validation
-- [ ] migration-safe full-state restore
-- [ ] automatic pre-restore rollback snapshot
-- [ ] Android/iOS backup sharing
-- [ ] document-picker restore
+- [x] versioned backup format + validation
+- [x] migration-safe full-state restore
+- [x] automatic pre-restore rollback snapshot
+- [x] Android/iOS backup sharing
+- [x] document-picker restore
 - [ ] full regression / Android bundle verification
 - [ ] CSV export
 - [ ] monthly report export
