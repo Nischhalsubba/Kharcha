@@ -19,9 +19,10 @@ const s=StyleSheet.create({
   content:{flex:1},
 
   top:{paddingHorizontal:20,paddingTop:8,paddingBottom:12,flexDirection:'row',justifyContent:'space-between',alignItems:'center'},
-  brandLockup:{minHeight:44,justifyContent:'center'},
-  brandLogo:{width:142,height:36,marginLeft:-6},
-  loadingLogo:{width:170,height:44,marginBottom:10},
+  brandLockup:{minHeight:52,justifyContent:'center'},
+  brandRow:{flexDirection:'row',alignItems:'center',gap:8},
+  brandMark:{width:30,height:30},
+  loadingBrand:{flexDirection:'row',alignItems:'center',gap:10,marginBottom:10},
   eyebrow:{color:COLORS.muted,fontSize:12,lineHeight:16,fontWeight:'400',letterSpacing:-0.12},
   brand:{color:COLORS.text,fontSize:24,lineHeight:32,fontWeight:'600',letterSpacing:-0.72},
   badge:{minHeight:44,paddingHorizontal:12,borderRadius:99,backgroundColor:COLORS.nav,flexDirection:'row',alignItems:'center',gap:6},
