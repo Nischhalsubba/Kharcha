@@ -13,6 +13,7 @@ import SavingsGoalModal from './src/components/SavingsGoalModal';
 import HouseholdBudgetModal from './src/components/HouseholdBudgetModal';
 import DataSafetyModal from './src/components/DataSafetyModal';
 import CsvExportModal from './src/components/CsvExportModal';
+import MonthlyReportModal from './src/components/MonthlyReportModal';
 import { COLORS, categoryPairs } from './src/constants';
 import { t } from './src/i18n';
 import s from './src/appStyles';
@@ -34,6 +35,8 @@ const { createBackupEnvelope, serializeBackup, parseBackup } = require('./src/do
 const { shareBackupText, pickBackupText } = require('./src/services/backupFiles');
 const { createTransactionsCsv } = require('./src/domain/csvExport');
 const { shareCsvExport } = require('./src/services/exportFiles');
+const { buildMonthlyReport, renderMonthlyReportHtml } = require('./src/domain/monthlyReport');
+const { shareMonthlyPdf } = require('./src/services/reportFiles');
 const APP_VERSION = require('./package.json').version;
 
 function pad2(v){return String(v).padStart(2,'0');}
@@ -44,7 +47,7 @@ function money(value,settings){if(settings.currency==='NPR')return formatNpr(val
 export default function App(){
   const [ready,setReady]=useState(false),[tab,setTab]=useState('overview'),[transactions,setTransactions]=useState([]),[settings,setSettings]=useState(defaultSettings),[nepalData,setNepalData]=useState(defaultNepalData),[planningData,setPlanningData]=useState(defaultPlanningData);
   const [transactionOpen,setTransactionOpen]=useState(false),[editing,setEditing]=useState(null),[draftEventId,setDraftEventId]=useState('');
-  const [walletOpen,setWalletOpen]=useState(false),[categoryOpen,setCategoryOpen]=useState(false),[recurringOpen,setRecurringOpen]=useState(false),[settingsOpen,setSettingsOpen]=useState(false),[remittanceOpen,setRemittanceOpen]=useState(false),[udharoOpen,setUdhaaroOpen]=useState(false),[eventOpen,setEventOpen]=useState(false),[paymentRecord,setPaymentRecord]=useState(null),[obligationOpen,setObligationOpen]=useState(false),[paymentObligation,setPaymentObligation]=useState(null),[savingsOpen,setSavingsOpen]=useState(false),[savingsMovement,setSavingsMovement]=useState(null),[householdOpen,setHouseholdOpen]=useState(false),[dataSafetyOpen,setDataSafetyOpen]=useState(false),[backupBusy,setBackupBusy]=useState(false),[csvExportOpen,setCsvExportOpen]=useState(false);
+  const [walletOpen,setWalletOpen]=useState(false),[categoryOpen,setCategoryOpen]=useState(false),[recurringOpen,setRecurringOpen]=useState(false),[settingsOpen,setSettingsOpen]=useState(false),[remittanceOpen,setRemittanceOpen]=useState(false),[udharoOpen,setUdhaaroOpen]=useState(false),[eventOpen,setEventOpen]=useState(false),[paymentRecord,setPaymentRecord]=useState(null),[obligationOpen,setObligationOpen]=useState(false),[paymentObligation,setPaymentObligation]=useState(null),[savingsOpen,setSavingsOpen]=useState(false),[savingsMovement,setSavingsMovement]=useState(null),[householdOpen,setHouseholdOpen]=useState(false),[dataSafetyOpen,setDataSafetyOpen]=useState(false),[backupBusy,setBackupBusy]=useState(false),[csvExportOpen,setCsvExportOpen]=useState(false),[monthlyReportOpen,setMonthlyReportOpen]=useState(false);
   const [budgetDraft,setBudgetDraft]=useState(String(defaultSettings.monthlyBudget));
   const [query,setQuery]=useState(''),[filterType,setFilterType]=useState('all'),[filterWallet,setFilterWallet]=useState('all'),[filterCategory,setFilterCategory]=useState('all'),[filterPeriod,setFilterPeriod]=useState('all');
   const [categoryBudgetCategory,setCategoryBudgetCategory]=useState('Food'),[categoryBudgetDraft,setCategoryBudgetDraft]=useState('');
@@ -143,6 +146,24 @@ export default function App(){
     }
   }
 
+  async function generateMonthlyPdf(month){
+    setBackupBusy(true);
+    try{
+      const report=buildMonthlyReport(
+        {transactions,settings,nepalData,planningData},
+        month,
+        {asOfDate:month===currentMonth?today:undefined},
+      );
+      const html=renderMonthlyReportHtml(report,settings);
+      await shareMonthlyPdf({html,monthKey:month});
+      setMonthlyReportOpen(false);
+    }catch(error){
+      Alert.alert('Report failed',error?.message||'Kharcha could not generate this monthly PDF.');
+    }finally{
+      setBackupBusy(false);
+    }
+  }
+
   async function chooseBackupToRestore(){
     setBackupBusy(true);
     let picked;
@@ -183,6 +204,6 @@ export default function App(){
     <View style={s.bottom}>{[['overview','⌂',t(lang,'overview','Overview')],['activity','↕',t(lang,'activity','Activity')]].map(([k,i,l])=><Tab key={k} active={tab===k} icon={i} label={l} onPress={()=>setTab(k)}/>)}<Pressable style={s.fab} onPress={()=>openAdd()} accessibilityRole="button" accessibilityLabel="Add transaction"><Text style={s.fabText}>＋</Text></Pressable>{[['budget','◎',t(lang,'budget','Budget')],['insights','◔',t(lang,'insights','Insights')]].map(([k,i,l])=><Tab key={k} active={tab===k} icon={i} label={l} onPress={()=>setTab(k)}/>)}</View>
     <AddTransactionModal visible={transactionOpen} initialTransaction={editing} wallets={settings.wallets} customCategories={settings.customCategories} events={nepalData.events} householdBudgets={planningData.householdBudgets} settings={settings} initialEventId={draftEventId} onClose={()=>{setTransactionOpen(false);setEditing(null);setDraftEventId('');}} onSave={saveTransaction}/>
     <WalletModal visible={walletOpen} language={lang} onClose={()=>setWalletOpen(false)} onSave={addWallet}/><CategoryModal visible={categoryOpen} language={lang} onClose={()=>setCategoryOpen(false)} onSave={addCategory}/><RecurringModal visible={recurringOpen} settings={settings} onClose={()=>setRecurringOpen(false)} onSave={addRecurring} wallets={settings.wallets} customCategories={settings.customCategories}/>
-    <NepalSettingsModal visible={settingsOpen} settings={settings} onClose={()=>setSettingsOpen(false)} onSave={async(next)=>{await persistSettings(next);setSettingsOpen(false);}} onDataSafety={()=>{setSettingsOpen(false);setDataSafetyOpen(true);}}/><RemittanceModal visible={remittanceOpen} wallets={settings.wallets} settings={settings} onClose={()=>setRemittanceOpen(false)} onSave={saveRemittance}/><UdhaaroModal visible={udharoOpen} paymentRecord={paymentRecord} settings={settings} wallets={settings.wallets} onClose={()=>{setUdhaaroOpen(false);setPaymentRecord(null);}} onSave={addUdhaaro} onPay={payUdhaaro}/><EventBudgetModal visible={eventOpen} settings={settings} onClose={()=>setEventOpen(false)} onSave={addEvent}/><ObligationModal visible={obligationOpen} paymentTarget={paymentObligation} settings={settings} wallets={settings.wallets} onClose={()=>{setObligationOpen(false);setPaymentObligation(null);}} onSave={addObligation} onPay={payObligation}/><SavingsGoalModal visible={savingsOpen} movementTarget={savingsMovement} settings={settings} wallets={settings.wallets} onClose={()=>{setSavingsOpen(false);setSavingsMovement(null);}} onSaveGoal={addSavingsGoal} onMove={moveSavingsGoal}/><HouseholdBudgetModal visible={householdOpen} settings={settings} onClose={()=>setHouseholdOpen(false)} onSave={addHouseholdBudget}/><DataSafetyModal visible={dataSafetyOpen} language={settings.language} busy={backupBusy} onClose={()=>setDataSafetyOpen(false)} onBackup={createPortableBackup} onRestore={chooseBackupToRestore} onCsvExport={()=>{setDataSafetyOpen(false);setCsvExportOpen(true);}}/><CsvExportModal visible={csvExportOpen} language={settings.language} busy={backupBusy} onClose={()=>setCsvExportOpen(false)} onExport={exportTransactionsCsv}/>
+    <NepalSettingsModal visible={settingsOpen} settings={settings} onClose={()=>setSettingsOpen(false)} onSave={async(next)=>{await persistSettings(next);setSettingsOpen(false);}} onDataSafety={()=>{setSettingsOpen(false);setDataSafetyOpen(true);}}/><RemittanceModal visible={remittanceOpen} wallets={settings.wallets} settings={settings} onClose={()=>setRemittanceOpen(false)} onSave={saveRemittance}/><UdhaaroModal visible={udharoOpen} paymentRecord={paymentRecord} settings={settings} wallets={settings.wallets} onClose={()=>{setUdhaaroOpen(false);setPaymentRecord(null);}} onSave={addUdhaaro} onPay={payUdhaaro}/><EventBudgetModal visible={eventOpen} settings={settings} onClose={()=>setEventOpen(false)} onSave={addEvent}/><ObligationModal visible={obligationOpen} paymentTarget={paymentObligation} settings={settings} wallets={settings.wallets} onClose={()=>{setObligationOpen(false);setPaymentObligation(null);}} onSave={addObligation} onPay={payObligation}/><SavingsGoalModal visible={savingsOpen} movementTarget={savingsMovement} settings={settings} wallets={settings.wallets} onClose={()=>{setSavingsOpen(false);setSavingsMovement(null);}} onSaveGoal={addSavingsGoal} onMove={moveSavingsGoal}/><HouseholdBudgetModal visible={householdOpen} settings={settings} onClose={()=>setHouseholdOpen(false)} onSave={addHouseholdBudget}/><DataSafetyModal visible={dataSafetyOpen} language={settings.language} busy={backupBusy} onClose={()=>setDataSafetyOpen(false)} onBackup={createPortableBackup} onRestore={chooseBackupToRestore} onCsvExport={()=>{setDataSafetyOpen(false);setCsvExportOpen(true);}} onMonthlyReport={()=>{setDataSafetyOpen(false);setMonthlyReportOpen(true);}}/><CsvExportModal visible={csvExportOpen} language={settings.language} busy={backupBusy} onClose={()=>setCsvExportOpen(false)} onExport={exportTransactionsCsv}/><MonthlyReportModal visible={monthlyReportOpen} language={settings.language} busy={backupBusy} onClose={()=>setMonthlyReportOpen(false)} onGenerate={generateMonthlyPdf}/>
   </View></SafeAreaView>;
 }
