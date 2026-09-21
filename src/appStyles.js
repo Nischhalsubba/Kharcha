@@ -1,16 +1,8 @@
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { COLORS, DESIGN_TOKENS } from './constants';
 
-const cardShadow = Platform.select({
-  ios: { shadowColor: COLORS.shadow, shadowOpacity: 0.045, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } },
-  android: { elevation: 0 },
-  default: {},
-});
-const floatingShadow = Platform.select({
-  ios: { shadowColor: COLORS.shadow, shadowOpacity: 0.12, shadowRadius: 20, shadowOffset: { width: 0, height: 12 } },
-  android: { elevation: 10 },
-  default: {},
-});
+const cardShadow = { boxShadow:'0 1px 8px rgba(17,24,39,0.04)' };
+const floatingShadow = { boxShadow:'0 8px 24px rgba(17,24,39,0.12)' };
 
 const s=StyleSheet.create({
   safe:{flex:1,backgroundColor:COLORS.bg},
