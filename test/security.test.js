@@ -58,3 +58,16 @@ test('five failed PIN attempts trigger a short cooldown', () => {
   assert.equal(cooldownSecondsForFailures(9), 30);
   assert.equal(cooldownSecondsForFailures(10), 60);
 });
+
+
+test('PIN attempt cooldown state survives as deterministic policy data', () => {
+  const { nextPinAttemptState, isPinAttemptBlocked } = require('../src/domain/security');
+  let state = { failureCount: 4, cooldownUntil: 0 };
+  state = nextPinAttemptState(state, 1000);
+  assert.deepEqual(state, { failureCount: 5, cooldownUntil: 31000 });
+  assert.equal(isPinAttemptBlocked(state, 30000), true);
+  assert.equal(isPinAttemptBlocked(state, 31000), false);
+
+  state = nextPinAttemptState({ failureCount: 9, cooldownUntil: 0 }, 5000);
+  assert.deepEqual(state, { failureCount: 10, cooldownUntil: 65000 });
+});
