@@ -23,7 +23,7 @@ import {
 } from './src/storage/expenseStore';
 const { categoryBreakdown, monthlyBudgetStatus, normalizeAmount, summarizeTransactions } = require('./src/domain/finance');
 const { categoryBudgetStatus, filterTransactions, materializeRecurringTransactions, walletBalances } = require('./src/domain/phaseOne');
-const { applyUdharoPayment, eventBudgetStatus, remittanceSummary, udharoSummary } = require('./src/domain/phaseTwo');
+const { eventBudgetStatus, remittanceSummary, udharoSummary } = require('./src/domain/phaseTwo');
 const { formatNpr } = require('./src/domain/nepal');
 const { obligationStatus, createObligationPaymentTransaction, recordUdhaaroPayment, reverseUdhaaroPayment } = require('./src/domain/phaseThree');
 
