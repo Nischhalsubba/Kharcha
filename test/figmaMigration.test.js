@@ -24,9 +24,9 @@ test('Reports and recurring manager use Kharcha data instead of placeholder stor
   assert.doesNotMatch(reports,/fetch\(|AsyncStorage|SQLite/);
 });
 
-test('Figma migration release version is aligned across Expo and package metadata',()=>{
+test('Figma migration release version stays aligned across Expo and package metadata',()=>{
   const pkg=JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8'));
   const app=JSON.parse(fs.readFileSync(path.join(root,'app.json'),'utf8'));
-  assert.equal(pkg.version,'1.12.0');
-  assert.equal(app.expo.version,'1.12.0');
+  assert.equal(pkg.version,app.expo.version);
+  assert.match(pkg.version,/^1\.12\.\d+$/);
 });

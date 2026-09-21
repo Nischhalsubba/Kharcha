@@ -66,10 +66,10 @@ export default function LockScreen({onUnlockPin,onUnlockBiometric,biometricEnabl
 
 const s=StyleSheet.create({
   safe:{flex:1,backgroundColor:COLORS.bg},center:{flex:1,alignItems:'center',justifyContent:'center',paddingHorizontal:28},
-  mark:{width:58,height:58,borderRadius:20,backgroundColor:COLORS.accent,alignItems:'center',justifyContent:'center'},markText:{color:COLORS.onAccent,fontSize:28,fontWeight:'900'},
-  brand:{color:COLORS.text,fontSize:18,fontWeight:'900',marginTop:14},title:{color:COLORS.text,fontSize:30,fontWeight:'900',marginTop:26},copy:{color:COLORS.muted,fontSize:13,textAlign:'center',marginTop:6},
-  input:{width:'100%',height:56,borderRadius:16,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface,color:COLORS.text,textAlign:'center',fontSize:24,letterSpacing:12,marginTop:24},
-  primary:{width:'100%',height:50,borderRadius:14,backgroundColor:COLORS.accent,alignItems:'center',justifyContent:'center',marginTop:16},primaryText:{color:COLORS.onAccent,fontWeight:'900'},
-  secondary:{width:'100%',height:48,borderRadius:14,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface,alignItems:'center',justifyContent:'center',marginTop:10},secondaryText:{color:COLORS.text,fontWeight:'800'},
-  warning:{color:COLORS.danger,fontSize:12,fontWeight:'700',marginTop:10},meta:{color:COLORS.muted,fontSize:12,marginTop:10},privacy:{color:COLORS.muted,fontSize:11,marginTop:24},disabled:{opacity:.5},
+  mark:{width:58,height:58,borderRadius:12,backgroundColor:COLORS.accent,alignItems:'center',justifyContent:'center'},markText:{color:COLORS.onAccent,fontSize:28,fontWeight:'600'},
+  brand:{color:COLORS.text,fontSize:18,fontWeight:'600',marginTop:14},title:{color:COLORS.text,fontSize:30,fontWeight:'600',marginTop:26},copy:{color:COLORS.muted,fontSize:13,textAlign:'center',marginTop:6},
+  input:{width:'100%',height:48,borderRadius:12,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface,color:COLORS.text,textAlign:'center',fontSize:24,letterSpacing:12,marginTop:24},
+  primary:{width:'100%',height:48,borderRadius:10,backgroundColor:COLORS.accent,alignItems:'center',justifyContent:'center',marginTop:16},primaryText:{color:COLORS.onAccent,fontWeight:'600'},
+  secondary:{width:'100%',height:48,borderRadius:10,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface,alignItems:'center',justifyContent:'center',marginTop:10},secondaryText:{color:COLORS.text,fontWeight:'600'},
+  warning:{color:COLORS.danger,fontSize:12,fontWeight:'600',marginTop:10},meta:{color:COLORS.muted,fontSize:12,marginTop:10},privacy:{color:COLORS.muted,fontSize:11,marginTop:24},disabled:{opacity:.5},
 });

@@ -1,3 +1,10 @@
+export const BRAND_TOKENS = {
+  primary: '#0074FC',
+  iconBackground: '#F7FAFF',
+  dark: '#0F172A',
+  text: '#111827',
+};
+
 export const DESIGN_TOKENS = {
   colors: {
     canvas: '#F3F3F3',
@@ -5,10 +12,10 @@ export const DESIGN_TOKENS = {
     neutral: '#F3F4F6',
     border: '#EFEFF1',
     borderStrong: '#CCCDD3',
-    text: '#262730',
+    text: BRAND_TOKENS.text,
     muted: '#7B7D8E',
     mutedStrong: '#5A5D72',
-    primary: '#1F6FEB',
+    primary: BRAND_TOKENS.primary,
     primarySoft: '#E9F1FD',
     primaryLight: '#6FBFFF',
     success: '#40C79A',

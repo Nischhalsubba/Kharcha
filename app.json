@@ -4,7 +4,7 @@
     "slug": "kharcha",
     "owner": "nischhal",
     "scheme": "kharcha",
-    "version": "1.12.0",
+    "version": "1.12.1",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "ios": {
@@ -12,10 +12,17 @@
       "bundleIdentifier": "com.kharcha.expensetracker",
       "config": {
         "usesNonExemptEncryption": false
-      }
+      },
+      "icon": "./assets/images/icon.png"
     },
     "android": {
-      "package": "com.kharcha.expensetracker"
+      "package": "com.kharcha.expensetracker",
+      "icon": "./assets/images/icon.png",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon-foreground.png",
+        "monochromeImage": "./assets/images/adaptive-icon-monochrome.png",
+        "backgroundColor": "#F7FAFF"
+      }
     },
     "plugins": [
       [
@@ -31,7 +38,23 @@
           "faceIDPermission": "Allow Kharcha to protect app-lock credentials with Face ID."
         }
       ],
-      "expo-notifications"
-    ]
+      "expo-notifications",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#F7FAFF",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "dark": {
+            "backgroundColor": "#0F172A",
+            "image": "./assets/images/splash-icon-dark.png"
+          }
+        }
+      ]
+    ],
+    "icon": "./assets/images/icon.png",
+    "web": {
+      "favicon": "./assets/images/favicon.png"
+    }
   }
 }

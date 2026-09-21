@@ -31,10 +31,10 @@ export default function ReminderSettingsModal({visible,onClose,onSave,settings={
   </Modal>;
 }
 const s=StyleSheet.create({
-  backdrop:{...StyleSheet.absoluteFillObject,backgroundColor:'rgba(0,0,0,.58)'},sheet:{position:'absolute',left:0,right:0,bottom:0,backgroundColor:COLORS.surface,borderTopLeftRadius:28,borderTopRightRadius:28,borderWidth:1,borderColor:COLORS.border,padding:20,paddingBottom:28},
-  title:{color:COLORS.text,fontSize:22,fontWeight:'900'},muted:{color:COLORS.muted,fontSize:13,lineHeight:19,marginTop:4,marginBottom:12},
-  permission:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',paddingVertical:10,borderBottomWidth:1,borderBottomColor:COLORS.border},meta:{color:COLORS.muted,fontSize:12},status:{color:COLORS.danger,fontSize:12,fontWeight:'800'},ok:{color:COLORS.success},
-  row:{minHeight:48,flexDirection:'row',alignItems:'center',justifyContent:'space-between',borderBottomWidth:1,borderBottomColor:COLORS.border},rowText:{color:COLORS.text,fontSize:14,fontWeight:'700'},
-  label:{color:COLORS.text,fontSize:12,fontWeight:'700',marginTop:16,marginBottom:8},chips:{flexDirection:'row',flexWrap:'wrap',gap:8},chip:{minHeight:38,paddingHorizontal:12,borderRadius:12,borderWidth:1,borderColor:COLORS.border,alignItems:'center',justifyContent:'center'},chipActive:{borderColor:COLORS.accent,backgroundColor:COLORS.accentSoft},chipText:{color:COLORS.muted,fontSize:12,fontWeight:'700'},chipTextActive:{color:COLORS.text},
-  note:{color:COLORS.muted,fontSize:11,lineHeight:17,marginTop:14},primary:{height:52,borderRadius:15,marginTop:18,backgroundColor:COLORS.accent,alignItems:'center',justifyContent:'center'},primaryText:{color:COLORS.onAccent,fontSize:15,fontWeight:'900'},
+  backdrop:{...StyleSheet.absoluteFillObject,backgroundColor:'rgba(38,39,48,.42)'},sheet:{position:'absolute',left:0,right:0,bottom:0,backgroundColor:COLORS.surface,borderTopLeftRadius:20,borderTopRightRadius:20,borderWidth:1,borderColor:COLORS.border,padding:20,paddingBottom:28},
+  title:{color:COLORS.text,fontSize:22,fontWeight:'600'},muted:{color:COLORS.muted,fontSize:13,lineHeight:19,marginTop:4,marginBottom:12},
+  permission:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',paddingVertical:10,borderBottomWidth:1,borderBottomColor:COLORS.border},meta:{color:COLORS.muted,fontSize:12},status:{color:COLORS.danger,fontSize:12,fontWeight:'600'},ok:{color:COLORS.success},
+  row:{minHeight:48,flexDirection:'row',alignItems:'center',justifyContent:'space-between',borderBottomWidth:1,borderBottomColor:COLORS.border},rowText:{color:COLORS.text,fontSize:14,fontWeight:'600'},
+  label:{color:COLORS.text,fontSize:12,fontWeight:'600',marginTop:16,marginBottom:8},chips:{flexDirection:'row',flexWrap:'wrap',gap:8},chip:{minHeight:38,paddingHorizontal:12,borderRadius:12,borderWidth:1,borderColor:COLORS.border,alignItems:'center',justifyContent:'center'},chipActive:{borderColor:COLORS.accent,backgroundColor:COLORS.accentSoft},chipText:{color:COLORS.muted,fontSize:12,fontWeight:'600'},chipTextActive:{color:COLORS.text},
+  note:{color:COLORS.muted,fontSize:11,lineHeight:17,marginTop:14},primary:{height:48,borderRadius:10,marginTop:18,backgroundColor:COLORS.accent,alignItems:'center',justifyContent:'center'},primaryText:{color:COLORS.onAccent,fontSize:15,fontWeight:'600'},
 });
