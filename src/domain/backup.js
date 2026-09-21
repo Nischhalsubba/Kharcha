@@ -113,6 +113,7 @@ function parseBackup(raw) {
 
   assertStateShape(envelope.payload);
 
+  const normalizedPayload = normalizeBackupState(envelope.payload);
   const expectedChecksum = checksumFor({
     format: envelope.format,
     schemaVersion: envelope.schemaVersion,
@@ -120,7 +121,7 @@ function parseBackup(raw) {
       appVersion: String(envelope.metadata.appVersion || 'unknown'),
       createdAt: String(envelope.metadata.createdAt || ''),
     },
-    payload: envelope.payload,
+    payload: normalizedPayload,
   });
   if (typeof envelope.checksum !== 'string' || envelope.checksum !== expectedChecksum) {
     throw new Error('Backup checksum does not match. The file may be corrupted or edited.');
@@ -132,7 +133,7 @@ function parseBackup(raw) {
       createdAt: String(envelope.metadata.createdAt || ''),
       schemaVersion: BACKUP_SCHEMA_VERSION,
     },
-    state: normalizeBackupState(envelope.payload),
+    state: normalizedPayload,
   };
 }
 
