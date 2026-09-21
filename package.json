@@ -4,11 +4,14 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "start": "expo start",
+    "start": "expo start --go",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "test": "node --test"
+    "test": "node --test",
+    "start:go": "expo start --go",
+    "start:go:tunnel": "expo start --go --tunnel",
+    "start:dev": "expo start --dev-client"
   },
   "dependencies": {
     "@inicrea/bikram-sambat-core": "0.1.3",
