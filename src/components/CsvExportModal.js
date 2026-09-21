@@ -55,9 +55,9 @@ export default function CsvExportModal({visible,onClose,onExport,busy=false,lang
 }
 
 const s=StyleSheet.create({
-  backdrop:{...StyleSheet.absoluteFillObject,backgroundColor:'rgba(0,0,0,.6)'},sheet:{position:'absolute',left:0,right:0,bottom:0,backgroundColor:'#10161E',borderTopLeftRadius:28,borderTopRightRadius:28,borderWidth:1,borderColor:COLORS.border,padding:20,paddingBottom:28},
+  backdrop:{...StyleSheet.absoluteFillObject,backgroundColor:'rgba(0,0,0,.6)'},sheet:{position:'absolute',left:0,right:0,bottom:0,backgroundColor:COLORS.surface,borderTopLeftRadius:28,borderTopRightRadius:28,borderWidth:1,borderColor:COLORS.border,padding:20,paddingBottom:28},
   title:{color:COLORS.text,fontSize:22,fontWeight:'900'},muted:{color:COLORS.muted,fontSize:13,lineHeight:19,marginTop:4},label:{color:COLORS.text,fontSize:12,fontWeight:'700',marginTop:14,marginBottom:7},
   row:{flexDirection:'row',gap:8},choice:{flex:1,minHeight:42,borderRadius:12,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface,alignItems:'center',justifyContent:'center',paddingHorizontal:8},choiceActive:{borderColor:COLORS.accent,backgroundColor:COLORS.accentSoft},choiceText:{color:COLORS.muted,fontSize:11,fontWeight:'700',textAlign:'center'},choiceTextActive:{color:COLORS.text},
   range:{flexDirection:'row',gap:10},field:{flex:1},input:{height:48,borderRadius:14,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface2,color:COLORS.text,paddingHorizontal:12},info:{backgroundColor:COLORS.surface2,borderRadius:14,padding:12,marginTop:16},infoText:{color:COLORS.muted,fontSize:11,lineHeight:17},
-  primary:{height:52,borderRadius:15,marginTop:18,backgroundColor:COLORS.accent,alignItems:'center',justifyContent:'center'},primaryText:{color:'#07130F',fontSize:15,fontWeight:'900'},close:{height:44,alignItems:'center',justifyContent:'center',marginTop:6},closeText:{color:COLORS.muted,fontWeight:'700'},disabled:{opacity:.55},
+  primary:{height:52,borderRadius:15,marginTop:18,backgroundColor:COLORS.accent,alignItems:'center',justifyContent:'center'},primaryText:{color:COLORS.onAccent,fontSize:15,fontWeight:'900'},close:{height:44,alignItems:'center',justifyContent:'center',marginTop:6},closeText:{color:COLORS.muted,fontWeight:'700'},disabled:{opacity:.55},
 });
