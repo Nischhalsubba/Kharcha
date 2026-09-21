@@ -2,6 +2,23 @@
 
 Kharcha is a local-first personal money tracker built with Expo / React Native, designed around everyday Nepali spending.
 
+## Figma design-system migration — v1.12.0
+
+Kharcha now follows the supplied Thriftly financial-app UI kit as a design-system reference while retaining Kharcha's Nepal-first data, terminology and finance behavior.
+
+- soft `#F3F3F3` canvas with white 12px-radius finance cards
+- `#262730` primary text and dark floating capsule navigation
+- `#1F6FEB` primary actions, `#40C79A` positive states and `#F26969` expense/error states
+- compact 4 / 8 / 12 / 16 / 20 / 24 spacing rhythm
+- Spending overview with six-month expense visualization and payment record
+- Transaction Record grouped by date plus transaction-detail sheet
+- Breakdown & Budget tabs for Expenses / Budget / Income
+- Budget Management, category selection and category-budget editing flows
+- Reports with six-month cash flow, expense/income breakdown and transfer summary
+- grouped Repeated transaction manager for active/inactive recurring rules
+- planning, savings, household and Nepal-specific cards aligned to the same 12px/semibold visual language
+- all 20 supplied Figma references tracked in `docs/figma-thriftly-design-mapping.md`
+
 ## Phase 5.2A — Local due-date reminders
 
 - Explicit opt-in notification permission; Kharcha never asks until reminders are enabled
@@ -31,17 +48,6 @@ Kharcha is a local-first personal money tracker built with Expo / React Native, 
 - Transfers stay out of income, expense, budget and category analytics
 - Transfer links are preserved in CSV export/import and portable backups
 - Transfers remain local-first; no bank or wallet account is contacted
-
-## Visual refresh — finance-first light UI
-
-- Light neutral canvas with white functional surfaces
-- Stronger balance and money hierarchy
-- Accessible Kharcha emerald for actions and selected states
-- Softer elevation, thinner separators and tighter card rhythm
-- Cleaner bottom navigation and circular add action
-- All existing sheets/modals use the same light design language
-- Overview hierarchy prioritizes month net, budget, wallets and recent activity
-- Visual redesign only: no finance logic, storage model, Nepal-first behavior or feature scope changed
 
 ## Phase 4.5 — Local app security
 
