@@ -1,51 +1,81 @@
 import { Platform } from 'react-native';
-import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 
 const CHANNEL_ID='kharcha-reminders';
 const SOURCE='kharcha-reminder';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-  }),
-});
+let notificationsModule=null;
+let notificationHandlerConfigured=false;
 
-function permissionGranted(status) {
+export function isReminderRuntimeSupported() {
+  return !(Platform.OS==='android' && Constants.executionEnvironment==='storeClient');
+}
+
+function getNotifications() {
+  if(!isReminderRuntimeSupported()) return null;
+
+  if(!notificationsModule){
+    // SDK 57's expo-notifications package can crash Android Expo Go merely
+    // by being imported. Keep the native module completely lazy so Expo Go
+    // can run Kharcha while development/production builds retain reminders.
+    notificationsModule=require('expo-notifications');
+  }
+
+  if(!notificationHandlerConfigured){
+    notificationsModule.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowBanner: true,
+        shouldShowList: true,
+        shouldPlaySound: false,
+        shouldSetBadge: false,
+      }),
+    });
+    notificationHandlerConfigured=true;
+  }
+
+  return notificationsModule;
+}
+
+function permissionGranted(status,Notifications) {
   if (status?.granted) return true;
   const iosStatus=status?.ios?.status;
   return [
-    Notifications.IosAuthorizationStatus?.AUTHORIZED,
-    Notifications.IosAuthorizationStatus?.PROVISIONAL,
-    Notifications.IosAuthorizationStatus?.EPHEMERAL,
+    Notifications?.IosAuthorizationStatus?.AUTHORIZED,
+    Notifications?.IosAuthorizationStatus?.PROVISIONAL,
+    Notifications?.IosAuthorizationStatus?.EPHEMERAL,
   ].filter((value)=>value!=null).includes(iosStatus);
 }
 
 export async function ensureReminderChannel() {
-  if (Platform.OS!=='android') return;
+  const Notifications=getNotifications();
+  if(!Notifications) return false;
+  if (Platform.OS!=='android') return true;
   await Notifications.setNotificationChannelAsync(CHANNEL_ID,{
     name:'Kharcha reminders',
     description:'Bills, Udhaaro and savings target reminders',
     importance:Notifications.AndroidImportance.DEFAULT,
     vibrationPattern:[0,200],
   });
+  return true;
 }
 
 export async function getReminderPermission() {
+  const Notifications=getNotifications();
+  if(!Notifications) return false;
   const status=await Notifications.getPermissionsAsync();
-  return permissionGranted(status);
+  return permissionGranted(status,Notifications);
 }
 
 export async function requestReminderPermission() {
+  const Notifications=getNotifications();
+  if(!Notifications) return false;
   await ensureReminderChannel();
   const existing=await Notifications.getPermissionsAsync();
-  if(permissionGranted(existing)) return true;
+  if(permissionGranted(existing,Notifications)) return true;
   const requested=await Notifications.requestPermissionsAsync({
     ios:{allowAlert:true,allowBadge:false,allowSound:false},
   });
-  return permissionGranted(requested);
+  return permissionGranted(requested,Notifications);
 }
 
 function localIsoDate(date=new Date()) {
@@ -70,7 +100,8 @@ function reminderCopy(item,language='en') {
   return {title:lead?'Savings goal reminder':'Savings target today',body:lead?`${item.name}'s target date is tomorrow.`:`${item.name}'s target date is today.`};
 }
 
-async function cancelKharchaReminders() {
+async function cancelKharchaReminders(Notifications) {
+  if(!Notifications) return 0;
   const scheduled=await Notifications.getAllScheduledNotificationsAsync();
   const owned=scheduled.filter((request)=>request?.content?.data?.source===SOURCE);
   await Promise.all(owned.map((request)=>Notifications.cancelScheduledNotificationAsync(request.identifier)));
@@ -78,10 +109,15 @@ async function cancelKharchaReminders() {
 }
 
 export async function syncFinancialReminders(plan=[],language='en') {
-  await cancelKharchaReminders();
-  if(!plan.length) return {scheduled:0,permissionGranted:await getReminderPermission()};
+  const Notifications=getNotifications();
+  if(!Notifications){
+    return {scheduled:0,permissionGranted:false,unsupportedRuntime:true};
+  }
+
+  await cancelKharchaReminders(Notifications);
+  if(!plan.length) return {scheduled:0,permissionGranted:await getReminderPermission(),unsupportedRuntime:false};
   const allowed=await getReminderPermission();
-  if(!allowed) return {scheduled:0,permissionGranted:false};
+  if(!allowed) return {scheduled:0,permissionGranted:false,unsupportedRuntime:false};
   await ensureReminderChannel();
 
   let scheduled=0;
@@ -108,5 +144,5 @@ export async function syncFinancialReminders(plan=[],language='en') {
     });
     scheduled+=1;
   }
-  return {scheduled,permissionGranted:true};
+  return {scheduled,permissionGranted:true,unsupportedRuntime:false};
 }
