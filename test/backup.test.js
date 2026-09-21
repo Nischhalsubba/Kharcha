@@ -132,3 +132,16 @@ test('restoreWithRollback restores the pre-restore snapshot when a write fails',
   );
   assert.deepEqual(writes, [after, before]);
 });
+
+
+test('backup checksum matches JSON serialization when optional fields are undefined', () => {
+  const withOptionalUndefined = {
+    ...sampleState,
+    transactions: [{ ...sampleState.transactions[0], eventId: undefined, householdMember: undefined }],
+  };
+  const envelope = createBackupEnvelope(withOptionalUndefined, {
+    appVersion: '1.4.0',
+    createdAt: '2026-09-21T05:00:00.000Z',
+  });
+  assert.doesNotThrow(() => parseBackup(serializeBackup(envelope)));
+});
