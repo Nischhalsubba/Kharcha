@@ -149,9 +149,9 @@ export default function BudgetScreen({
     <MonthStrip transactions={transactions} currentMonth={currentMonth}/>
     <FinanceCard title="Monthly Budget" action="">
       <View style={s.budgetManagementRows}>
-        <Pressable style={s.budgetManagementRow} onPress={()=>setView('incomeEditor')}><View><Text style={s.meta}>Monthly income</Text><Text style={s.rowTitle}>{m(summary.income)}</Text></View><Text style={s.headerIconText}>›</Text></Pressable>
+        <HapticPressable haptic={null} style={s.budgetManagementRow} onPress={()=>setView('incomeEditor')}><View><Text style={s.meta}>Monthly income</Text><Text style={s.rowTitle}>{m(summary.income)}</Text></View><NativeIcon name="chevron-right" size={18} color={COLORS.muted}/></HapticPressable>
         <View style={s.cardDivider}/>
-        <Pressable style={s.budgetManagementRow} onPress={()=>setView('budgetEditor')}><View><Text style={s.meta}>Monthly budget</Text><Text style={s.rowTitle}>{m(budget.limit)}</Text></View><Text style={s.headerIconText}>›</Text></Pressable>
+        <HapticPressable haptic={null} style={s.budgetManagementRow} onPress={()=>setView('budgetEditor')}><View><Text style={s.meta}>Monthly budget</Text><Text style={s.rowTitle}>{m(budget.limit)}</Text></View><NativeIcon name="chevron-right" size={18} color={COLORS.muted}/></HapticPressable>
         <View style={s.cardDivider}/>
         <View style={s.budgetManagementRow}><View><Text style={s.meta}>Potential savings</Text><Text style={[s.rowTitle,s.income]}>{m(potentialSavings)}</Text></View></View>
       </View>
