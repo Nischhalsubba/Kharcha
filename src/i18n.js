@@ -18,7 +18,7 @@ const NE = {
   borrowedFrom: 'कसबाट लिएको', lentTo: 'कसलाई दिएको', person: 'व्यक्ति', dueDate: 'तिर्ने मिति', partialPayment: 'आंशिक भुक्तानी', paymentAmount: 'भुक्तानी रकम',
   festivalEvent: 'चाडपर्व / कार्यक्रम', eventName: 'कार्यक्रम नाम', eventBudget: 'कार्यक्रम बजेट', spentOf: 'खर्च', addExpense: 'खर्च थप्नुहोस्',
   nothingTracked: 'अहिलेसम्म केही लेखिएको छैन', addFirst: 'पहिलो कारोबार थप्नुहोस्', noMatching: 'मिल्ने कारोबार भेटिएन',
-  planning: 'वित्तीय योजना', obligations: 'बिल, किस्ता र ऋण', addObligation: 'भुक्तानी योजना थप्नुहोस्', noObligations: 'अहिलेसम्म बिल, किस्ता वा ऋण योजना छैन।', due: 'आज तिर्नुपर्ने', overdue: 'म्याद नाघेको', upcoming: 'आउँदैछ', paid: 'भुक्तानी भएको', bill: 'बिल', emi: 'किस्ता', loan: 'ऋण', oneTime: 'एक पटक', monthly: 'मासिक', dueDay: 'तिर्ने दिन', chooseWallet: 'वालेट छान्नुहोस्',
+  planning: 'वित्तीय योजना', obligations: 'बिल, किस्ता र ऋण', addObligation: 'भुक्तानी योजना थप्नुहोस्', noObligations: 'अहिलेसम्म बिल, किस्ता वा ऋण योजना छैन।', due: 'आज तिर्नुपर्ने', overdue: 'म्याद नाघेको', upcoming: 'आउँदैछ', paid: 'भुक्तानी भएको', bill: 'बिल', emi: 'किस्ता', loan: 'ऋण', oneTime: 'एक पटक', monthly: 'मासिक', dueDay: 'तिर्ने दिन', chooseWallet: 'वालेट छान्नुहोस्', savingsGoals: 'बचत लक्ष्य', addGoal: 'बचत लक्ष्य थप्नुहोस्', targetAmount: 'लक्ष्य रकम', targetDate: 'लक्ष्य मिति', deposit: 'बचत थप्नुहोस्', withdraw: 'झिक्नुहोस्', saved: 'बचत भएको', noGoals: 'अहिलेसम्म बचत लक्ष्य छैन।', goalReached: 'लक्ष्य पूरा भयो',
 };
 
 const EN = {};
@@ -29,7 +29,7 @@ export function t(language, key, fallback) {
 }
 
 const CATEGORY_NE = {
-  Food:'खाना', Khaja:'खाजा', Groceries:'किराना / तरकारी', Transport:'यातायात', Fuel:'पेट्रोल / डिजेल', Shopping:'किनमेल', Bills:'बिल', Electricity:'बिजुली', Water:'पानी', Internet:'इन्टरनेट', 'Mobile Recharge':'मोबाइल रिचार्ज', Health:'स्वास्थ्य', Home:'घर', Rent:'भाडा', 'School Fees':'विद्यालय शुल्क', EMI:'किस्ता', 'Loan Repayment':'ऋण भुक्तानी', 'Puja & Donation':'पूजा / दान', Festival:'चाडपर्व', Entertainment:'मनोरञ्जन', Salary:'तलब', Freelance:'फ्रीलान्स', Remittance:'रेमिट्यान्स', Business:'व्यवसाय', 'Rental Income':'भाडा आम्दानी', Allowance:'भत्ता', Gift:'उपहार', Other:'अन्य',
+  Food:'खाना', Khaja:'खाजा', Groceries:'किराना / तरकारी', Transport:'यातायात', Fuel:'पेट्रोल / डिजेल', Shopping:'किनमेल', Bills:'बिल', Electricity:'बिजुली', Water:'पानी', Internet:'इन्टरनेट', 'Mobile Recharge':'मोबाइल रिचार्ज', Health:'स्वास्थ्य', Home:'घर', Rent:'भाडा', 'School Fees':'विद्यालय शुल्क', EMI:'किस्ता', 'Loan Repayment':'ऋण भुक्तानी', 'Puja & Donation':'पूजा / दान', Festival:'चाडपर्व', Entertainment:'मनोरञ्जन', Salary:'तलब', Freelance:'फ्रीलान्स', Remittance:'रेमिट्यान्स', Business:'व्यवसाय', 'Rental Income':'भाडा आम्दानी', Allowance:'भत्ता', Gift:'उपहार', Other:'अन्य', 'Savings Goal':'बचत लक्ष्य',
 };
 
 export function categoryLabel(name, language) {
