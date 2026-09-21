@@ -60,6 +60,13 @@ function normalizeSettings(settings = {}) {
     recurringTransactions: Array.isArray(settings.recurringTransactions)
       ? settings.recurringTransactions.map((rule) => ({ ...rule, walletId: rule.walletId || 'cash' }))
       : [],
+    reminders: {
+      enabled: settings.reminders?.enabled === true,
+      bills: settings.reminders?.bills !== false,
+      udharo: settings.reminders?.udharo !== false,
+      savings: settings.reminders?.savings !== false,
+      leadDays: [0,1,2,3,7].includes(Number(settings.reminders?.leadDays)) ? Number(settings.reminders.leadDays) : 1,
+    },
   };
 }
 

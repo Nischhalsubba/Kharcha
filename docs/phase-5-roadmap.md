@@ -6,7 +6,8 @@ This file is the durable handoff for post-1.8 feature work. Each batch should be
 
 - [x] **5.1A — Wallet-to-wallet transfers** — local transfer records, two-wallet balance movement, activity/filter support, CSV round-trip safety.
 - [x] **5.1B — Smarter local insights** — month-over-month change, savings rate, month-end spending forecast, unusual-spend detection, recurring-transaction suggestions.
-- [ ] **5.2 — Device reminders** — bills/EMI/Udhaaro/budget/savings reminders using Expo notifications with explicit permission controls.
+- [x] **5.2A — Due-date device reminders** — local bills/EMI/loan, Udhaaro and savings-target reminders with explicit permission controls.
+- [ ] **5.2B — Budget threshold alerts** — 80%/100% budget warnings with persistent anti-spam state.
 - [ ] **5.3 — Merchant memory & auto-categorization** — user-confirmed merchant/category rules; no opaque model required.
 - [ ] **5.4 — Receipt capture / OCR** — camera/image input, local-safe extraction workflow, user confirmation before saving.
 - [ ] **5.5 — Salary management** — expected pay, received status, deductions/allowances, salary history.
