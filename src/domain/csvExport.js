@@ -9,7 +9,8 @@ const HEADERS = [
 ];
 
 function safeDate(value) {
-  return /^\d{4}-\d{2}-\d{2}$/.test(String(value || '')) ? String(value) : '';
+  const date = String(value || '');
+  return isValidIsoDate(date) ? date : '';
 }
 
 function filterTransactionsForExport(transactions = [], options = {}) {
