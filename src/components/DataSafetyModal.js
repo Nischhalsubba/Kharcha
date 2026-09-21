@@ -1,12 +1,12 @@
 import React from 'react';
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { COLORS } from '../constants';
 import { t } from '../i18n';
 
-export default function DataSafetyModal({ visible, onClose, onBackup, onRestore, onCsvExport, busy = false, language = 'en' }) {
+export default function DataSafetyModal({ visible, onClose, onBackup, onRestore, onCsvExport, onMonthlyReport, busy = false, language = 'en' }) {
   return <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
     <Pressable style={s.backdrop} onPress={busy ? undefined : onClose}/>
-    <View style={s.sheet}>
+    <ScrollView style={s.sheet} contentContainerStyle={s.body} keyboardShouldPersistTaps="handled">
       <Text style={s.title}>{t(language,'backupRestore','Backup & restore')}</Text>
       <Text style={s.muted}>{t(language,'backupIntro','Keep a portable copy of all your Kharcha data so you can recover it or move to another phone.')}</Text>
 
@@ -34,15 +34,23 @@ export default function DataSafetyModal({ visible, onClose, onBackup, onRestore,
         <Text style={s.secondaryText}>{t(language,'exportCsv','Export CSV')}</Text>
       </Pressable>
 
+      <View style={s.card}>
+        <Text style={s.icon}>📄</Text>
+        <View style={s.copy}><Text style={s.cardTitle}>{t(language,'monthlyReport','Monthly financial report')}</Text><Text style={s.meta}>{t(language,'monthlyReportHint','Create a PDF summary of income, expenses, budget, Udhaaro, bills, savings and household spending.')}</Text></View>
+      </View>
+      <Pressable style={[s.secondary,busy&&s.disabled]} disabled={busy} onPress={onMonthlyReport} accessibilityRole="button">
+        <Text style={s.secondaryText}>{t(language,'generatePdf','Generate PDF')}</Text>
+      </Pressable>
+
       <View style={s.warning}><Text style={s.warningIcon}>⚠️</Text><Text style={s.warningText}>{t(language,'backupWarning','Backup files are not encrypted. Store them somewhere you trust and avoid sharing them publicly.')}</Text></View>
       <Pressable style={s.close} disabled={busy} onPress={onClose}><Text style={s.closeText}>{t(language,'close','Close')}</Text></Pressable>
-    </View>
+    </ScrollView>
   </Modal>;
 }
 
 const s=StyleSheet.create({
   backdrop:{...StyleSheet.absoluteFillObject,backgroundColor:'rgba(0,0,0,.6)'},
-  sheet:{position:'absolute',left:0,right:0,bottom:0,backgroundColor:'#10161E',borderTopLeftRadius:28,borderTopRightRadius:28,borderWidth:1,borderColor:COLORS.border,padding:20,paddingBottom:28},
+  sheet:{position:'absolute',left:0,right:0,bottom:0,maxHeight:'94%',backgroundColor:'#10161E',borderTopLeftRadius:28,borderTopRightRadius:28,borderWidth:1,borderColor:COLORS.border},body:{padding:20,paddingBottom:28},
   title:{color:COLORS.text,fontSize:22,fontWeight:'900'},muted:{color:COLORS.muted,fontSize:13,lineHeight:19,marginTop:4,marginBottom:10},
   card:{flexDirection:'row',gap:12,alignItems:'center',backgroundColor:COLORS.surface,borderRadius:16,borderWidth:1,borderColor:COLORS.border,padding:14,marginTop:12},
   icon:{fontSize:24},copy:{flex:1},cardTitle:{color:COLORS.text,fontSize:14,fontWeight:'800'},meta:{color:COLORS.muted,fontSize:12,lineHeight:17,marginTop:3},
