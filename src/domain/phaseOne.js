@@ -198,7 +198,7 @@ function materializeRecurringTransactions(transactions, recurringRules, throughD
   for (const rule of recurringRules || []) {
     for (const date of recurrenceDates(rule, throughDate)) {
       const id = occurrenceId(rule.id, date);
-      if (existingIds.has(id)) continue;
+      if (existingIds.has(id) || (rule.skippedOccurrences || []).includes(id)) continue;
       const item = {
         id,
         type: rule.type,
