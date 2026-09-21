@@ -157,6 +157,48 @@ function createSavingsGoalTransaction(goal, transactions, rawAmount, date, walle
   };
 }
 
+
+function householdBudgetStatus(household, transactions = [], monthKey) {
+  const limit = safeAmount(household?.monthlyLimit);
+  let spent = 0;
+  const byMember = {};
+  for (const item of transactions) {
+    if (item?.type !== 'expense' || item?.savingsGoalMovement) continue;
+    if (item?.householdBudgetId !== household?.id || String(item?.date || '').slice(0, 7) !== monthKey) continue;
+    const amount = safeAmount(item.amount);
+    spent += amount;
+    const member = item.householdMember || 'Unassigned';
+    byMember[member] = (byMember[member] || 0) + amount;
+  }
+  return {
+    id: household?.id,
+    limit,
+    spent,
+    remaining: Math.max(limit - spent, 0),
+    overBy: Math.max(spent - limit, 0),
+    progress: limit > 0 ? Math.min(spent / limit, 1) : 0,
+    byMember,
+  };
+}
+
+function planningAnalytics(planningData = {}, transactions = [], today) {
+  const monthKey = String(today || '').slice(0, 7);
+  const obligations = (planningData.obligations || []).map((item) => obligationStatus(item, transactions, today));
+  const activeObligations = obligations.filter((item) => item.state !== 'inactive' && item.remaining > 0);
+  const goals = (planningData.savingsGoals || []).map((item) => savingsGoalStatus(item, transactions));
+  const households = (planningData.householdBudgets || []).map((item) => householdBudgetStatus(item, transactions, monthKey));
+  const nextDue = activeObligations.map((item) => item.dueDate).filter(Boolean).sort()[0] || null;
+  return {
+    obligationRemaining: activeObligations.reduce((sum, item) => sum + item.remaining, 0),
+    overdueCount: activeObligations.filter((item) => item.state === 'overdue').length,
+    nextDueDate: nextDue,
+    savingsSaved: goals.reduce((sum, item) => sum + item.saved, 0),
+    savingsTarget: goals.reduce((sum, item) => sum + item.targetAmount, 0),
+    householdSpent: households.reduce((sum, item) => sum + item.spent, 0),
+    householdLimit: households.reduce((sum, item) => sum + item.limit, 0),
+  };
+}
+
 module.exports = {
   normalizePlanningData,
   dueDateForMonth,
@@ -166,4 +208,6 @@ module.exports = {
   reverseUdhaaroPayment,
   savingsGoalStatus,
   createSavingsGoalTransaction,
+  householdBudgetStatus,
+  planningAnalytics,
 };
