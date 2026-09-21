@@ -6,9 +6,17 @@ const BACKUP_FORMAT = 'kharcha-backup';
 const BACKUP_SCHEMA_VERSION = 1;
 
 function stableStringify(value) {
+  if (value === undefined || typeof value === 'function' || typeof value === 'symbol') return undefined;
   if (value === null || typeof value !== 'object') return JSON.stringify(value);
-  if (Array.isArray(value)) return `[${value.map(stableStringify).join(',')}]`;
-  const keys = Object.keys(value).sort();
+  if (Array.isArray(value)) {
+    return `[${value.map((item) => {
+      const serialized = stableStringify(item);
+      return serialized === undefined ? 'null' : serialized;
+    }).join(',')}]`;
+  }
+  const keys = Object.keys(value)
+    .filter((key) => stableStringify(value[key]) !== undefined)
+    .sort();
   return `{${keys.map((key) => `${JSON.stringify(key)}:${stableStringify(value[key])}`).join(',')}}`;
 }
 
