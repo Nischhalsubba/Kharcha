@@ -23,6 +23,8 @@ export default function NativeIcon({name,size=22,color=COLORS.mutedStrong,stroke
       body=<><Line {...props} x1="4" y1="7" x2="20" y2="7"/><Circle {...props} cx="9" cy="7" r="2"/><Line {...props} x1="4" y1="17" x2="20" y2="17"/><Circle {...props} cx="15" cy="17" r="2"/></>;break;
     case 'search':
       body=<><Circle {...props} cx="10.5" cy="10.5" r="6.5"/><Line {...props} x1="15.5" y1="15.5" x2="21" y2="21"/></>;break;
+    case 'bell':
+      body=<><Path {...props} d="M6 9a6 6 0 0 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9Z"/><Path {...props} d="M10 21h4"/></>;break;
     case 'more':
       body=<><Circle cx="5" cy="12" r="1.3" fill={color}/><Circle cx="12" cy="12" r="1.3" fill={color}/><Circle cx="19" cy="12" r="1.3" fill={color}/></>;break;
     case 'transfer':
