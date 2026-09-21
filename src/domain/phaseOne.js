@@ -49,6 +49,9 @@ function normalizeSettings(settings = {}) {
   return {
     currency: String(settings.currency || 'NPR'),
     monthlyBudget: safeNumber(settings.monthlyBudget, 50000),
+    language: settings.language === 'ne' ? 'ne' : 'en',
+    dateSystem: ['AD', 'BS', 'both'].includes(settings.dateSystem) ? settings.dateSystem : 'AD',
+    amountFormat: settings.amountFormat === 'compact' ? 'compact' : 'standard',
     wallets,
     customCategories,
     categoryBudgets: settings.categoryBudgets && typeof settings.categoryBudgets === 'object'
