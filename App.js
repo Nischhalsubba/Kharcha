@@ -50,7 +50,7 @@ const { pickCsvImportText } = require('./src/services/importFiles');
 const { DEFAULT_SECURITY_CONFIG, isValidPin, shouldLockAfterBackground } = require('./src/domain/security');
 const { monthComparison, savingsRate, projectedMonthExpense, detectUnusualSpending, recurringTransactionSuggestions } = require('./src/domain/insights');
 const { buildReminderPlan, normalizeReminderSettings } = require('./src/domain/reminders');
-const { getReminderPermission, requestReminderPermission, syncFinancialReminders } = require('./src/services/notificationReminders');
+const { getReminderPermission, requestReminderPermission, syncFinancialReminders, isReminderRuntimeSupported } = require('./src/services/notificationReminders');
 const { getSecurityConfig, enablePinLock, updatePin, verifyPin, disableAppLock, getBiometricAvailability, setBiometricEnabled, setLockAfterSeconds, authenticateBiometric, getPinAttemptState, attemptPinUnlock } = require('./src/services/appSecurity');
 const APP_VERSION = require('./package.json').version;
 
@@ -153,7 +153,14 @@ export default function App(){
   }
   async function saveReminderSettings(input){
     let next=normalizeReminderSettings(input);
-    if(next.enabled&&!reminderPermission){
+    if(next.enabled&&!isReminderRuntimeSupported()){
+      next={...next,enabled:false};
+      setReminderPermission(false);
+      Alert.alert(
+        'Reminders need a development build',
+        'Android Expo Go cannot safely load notifications with Kharcha\'s current Expo SDK. The app will keep working normally, but reminders stay off in Expo Go. Use a Kharcha development or production build to test reminders.'
+      );
+    }else if(next.enabled&&!reminderPermission){
       const granted=await requestReminderPermission();
       setReminderPermission(granted);
       if(!granted){
