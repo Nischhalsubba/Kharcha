@@ -5,7 +5,7 @@ const HEADERS = [
   'Date AD','Date BS','Type','Amount NPR','Category','Note','Wallet','Payment Method','Event',
   'Household Budget','Household Member','Remittance Sender','Remittance Country',
   'Remittance Original Currency','Remittance Original Amount','Remittance Fee NPR',
-  'Udhaaro Record ID','Obligation ID','Savings Goal','Savings Direction','Recurring ID',
+  'Udhaaro Record ID','Obligation ID','Savings Goal','Savings Direction','Recurring ID','Transaction ID',
 ];
 
 function safeDate(value) {
@@ -102,6 +102,7 @@ function createTransactionsCsv(state = {}, options = {}) {
       csvCell(lookupName(savingsGoals, item.savingsGoalMovement?.goalId)),
       csvCell(item.savingsGoalMovement?.direction),
       csvCell(item.recurringId),
+      csvCell(item.id),
     ].join(',');
   });
 
