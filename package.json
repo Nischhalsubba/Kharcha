@@ -5,13 +5,15 @@
   "main": "index.js",
   "scripts": {
     "start": "expo start --go",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo start --go --android",
+    "ios": "expo start --go --ios",
     "web": "expo start --web",
     "test": "node --test",
     "start:go": "expo start --go",
     "start:go:tunnel": "expo start --go --tunnel",
-    "start:dev": "expo start --dev-client"
+    "start:dev": "expo start --dev-client",
+    "android:dev": "expo start --dev-client --android",
+    "ios:dev": "expo start --dev-client --ios"
   },
   "dependencies": {
     "@inicrea/bikram-sambat-core": "0.1.3",
