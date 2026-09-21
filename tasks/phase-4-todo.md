@@ -9,4 +9,4 @@
 - [x] CSV export
 - [x] monthly report export
 - [x] destructive data-management safety
-- [ ] local app security
+- [x] local app security
