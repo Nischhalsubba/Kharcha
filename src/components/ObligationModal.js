@@ -58,7 +58,7 @@ export default function ObligationModal({visible,onClose,onSave,onPay,paymentTar
     if(!Number.isFinite(day)||day<1||day>31)return Alert.alert('Check due day','Use a day from 1 to 31.');
     onSave({
       id:`obligation-${Date.now()}`,kind,name:name.trim(),amount:value,frequency,
-      dueDay:day,category:categoryFor(kind),active:true,createdAt:new Date().toISOString(),
+      dueDay:day,startMonth:todayIso().slice(0,7),category:categoryFor(kind),active:true,createdAt:new Date().toISOString(),
     });
   }
 
