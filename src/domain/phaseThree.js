@@ -182,6 +182,30 @@ function reverseUdhaaroPayment(record, transactionId) {
   return { ...record, repayments, status: remaining === 0 ? 'settled' : 'active' };
 }
 
+function reconcileUdhaaroRecords(records = [], transactions = []) {
+  const linkedByRecord = new Map();
+  for (const transaction of transactions) {
+    const recordId = transaction?.udharoPayment?.recordId;
+    const amount = safeAmount(transaction?.amount);
+    if (!recordId || !transaction?.id || !amount) continue;
+    const list = linkedByRecord.get(recordId) || [];
+    list.push({ amount, date: transaction.date, transactionId: transaction.id });
+    linkedByRecord.set(recordId, list);
+  }
+
+  return records.map((record) => {
+    const legacy = (record.repayments || []).filter((item) => !item.transactionId);
+    const linked = linkedByRecord.get(record.id) || [];
+    const repayments = [...legacy, ...linked].sort((a, b) => {
+      const byDate = String(a.date || '').localeCompare(String(b.date || ''));
+      if (byDate !== 0) return byDate;
+      return String(a.transactionId || '').localeCompare(String(b.transactionId || ''));
+    });
+    const remaining = Math.max(safeAmount(record.amount) - repayments.reduce((sum, item) => sum + safeAmount(item.amount), 0), 0);
+    return { ...record, repayments, status: remaining === 0 ? 'settled' : 'active' };
+  });
+}
+
 function savingsGoalStatus(goal, transactions = []) {
   const targetAmount = safeAmount(goal?.targetAmount);
   let saved = 0;
@@ -271,6 +295,7 @@ module.exports = {
   createObligationPaymentTransaction,
   recordUdhaaroPayment,
   reverseUdhaaroPayment,
+  reconcileUdhaaroRecords,
   savingsGoalStatus,
   createSavingsGoalTransaction,
   householdBudgetStatus,
