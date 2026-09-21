@@ -139,7 +139,7 @@ function createObligationPaymentTransaction(obligation, transactions, rawAmount,
     note: obligation.name || 'Obligation payment',
     date,
     walletId,
-    paymentMethod: 'bank',
+    paymentMethod: walletId === 'cash' ? 'cash' : 'bank',
     createdAt: meta.createdAt || new Date().toISOString(),
     obligationPayment,
   };
