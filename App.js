@@ -27,7 +27,7 @@ const { categoryBreakdown, monthlyBudgetStatus, normalizeAmount, summarizeTransa
 const { categoryBudgetStatus, filterTransactions, materializeRecurringTransactions, walletBalances } = require('./src/domain/phaseOne');
 const { eventBudgetStatus, remittanceSummary, udharoSummary } = require('./src/domain/phaseTwo');
 const { formatNpr } = require('./src/domain/nepal');
-const { obligationStatus, createObligationPaymentTransaction, recordUdhaaroPayment, reverseUdhaaroPayment, savingsGoalStatus, createSavingsGoalTransaction, householdBudgetStatus, planningAnalytics } = require('./src/domain/phaseThree');
+const { obligationStatus, createObligationPaymentTransaction, recordUdhaaroPayment, reverseUdhaaroPayment, reconcileUdhaaroRecords, savingsGoalStatus, createSavingsGoalTransaction, householdBudgetStatus, planningAnalytics } = require('./src/domain/phaseThree');
 
 function pad2(v){return String(v).padStart(2,'0');}
 function localIsoDate(d=new Date()){return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;}
@@ -59,7 +59,7 @@ export default function App(){
   const householdStatuses=useMemo(()=>planningData.householdBudgets.map(household=>({...household,...householdBudgetStatus(household,transactions,currentMonth)})),[planningData.householdBudgets,transactions,currentMonth]);
   const planningSummary=useMemo(()=>planningAnalytics(planningData,transactions,today),[planningData,transactions,today]);
 
-  useEffect(()=>{let mounted=true;Promise.all([loadTransactions(),loadSettings(),loadNepalData(),loadPlanningData()]).then(async([tx,st,np,pl])=>{if(!mounted)return;const materialized=materializeRecurringTransactions(tx,st.recurringTransactions,localIsoDate());setTransactions(materialized.transactions);setSettings(st);setNepalData(np);setPlanningData(pl);setBudgetDraft(String(st.monthlyBudget));if(materialized.created.length)await saveTransactions(materialized.transactions);}).finally(()=>mounted&&setReady(true));return()=>{mounted=false;};},[]);
+  useEffect(()=>{let mounted=true;Promise.all([loadTransactions(),loadSettings(),loadNepalData(),loadPlanningData()]).then(async([tx,st,np,pl])=>{if(!mounted)return;const materialized=materializeRecurringTransactions(tx,st.recurringTransactions,localIsoDate());const reconciledUdhaaro=reconcileUdhaaroRecords(np.udharo,materialized.transactions);const reconciledNepal={...np,udharo:reconciledUdhaaro};setTransactions(materialized.transactions);setSettings(st);setNepalData(reconciledNepal);setPlanningData(pl);setBudgetDraft(String(st.monthlyBudget));const writes=[];if(materialized.created.length)writes.push(saveTransactions(materialized.transactions));if(JSON.stringify(reconciledUdhaaro)!==JSON.stringify(np.udharo))writes.push(saveNepalData(reconciledNepal));if(writes.length)await Promise.all(writes);}).finally(()=>mounted&&setReady(true));return()=>{mounted=false;};},[]);
 
   async function persistSettings(next){const saved=await saveSettings(next);setSettings(saved);return saved;}
   async function persistNepalData(next){const saved=await saveNepalData(next);setNepalData(saved);return saved;}
