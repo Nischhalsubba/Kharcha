@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import NepalTools from '../components/NepalTools';
 import PlanningTools from '../components/PlanningTools';
 import SavingsGoals from '../components/SavingsGoals';
@@ -9,6 +9,8 @@ import SmartInsights from '../components/SmartInsights';
 import { categoryLabel, t } from '../i18n';
 import s from '../appStyles';
 import { FinanceCard, Progress, Section } from '../components/AppPrimitives';
+import NativeIcon from '../components/NativeIcon';
+import HapticPressable from '../components/HapticPressable';
 
 function shiftMonth(monthKey,offset){
   const match=/^(\d{4})-(\d{2})$/.exec(String(monthKey||''));
@@ -60,13 +62,13 @@ export default function InsightsScreen({
   const incomeTotal=summary.income||0;
 
   return <ScrollView contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
-    <View style={s.screenTitleRow}><Text style={s.screenTitle}>{t(lang,'reports','Reports')}</Text><View style={s.pill}><Text style={s.pillText}>Last 6 Months</Text><Text style={s.pillChevron}>⌄</Text></View></View>
+    <View style={s.screenTitleRow}><Text style={s.screenTitle}>{t(lang,'reports','Reports')}</Text><Text style={s.meta}>Last 6 months</Text></View>
 
     <FinanceCard title="Cash Flow">
       <View style={s.reportLegend}><View style={s.reportLegendItem}><View style={[s.reportDot,{backgroundColor:COLORS_SUCCESS}]}/><Text style={s.meta}>Income</Text></View><View style={s.reportLegendItem}><View style={[s.reportDot,{backgroundColor:COLORS_DANGER}]}/><Text style={s.meta}>Expenses</Text></View></View>
       <View style={s.reportChart}>{history.map(item=><View key={item.key} style={s.reportChartColumn}><View style={s.reportBarPair}><View style={[s.reportBar,{height:`${Math.max(4,item.income/maxFlow*100)}%`,backgroundColor:COLORS_SUCCESS}]}/><View style={[s.reportBar,{height:`${Math.max(4,item.expense/maxFlow*100)}%`,backgroundColor:COLORS_DANGER}]}/></View><Text style={s.chartLabel}>{monthLabel(item.key)}</Text></View>)}</View>
       <View style={s.reportSummaryRow}><View><Text style={s.meta}>Income</Text><Text style={[s.rowTitle,s.income]}>{m(summary.income)}</Text></View><View><Text style={s.meta}>Expenses</Text><Text style={[s.rowTitle,s.danger]}>−{m(summary.expense)}</Text></View><View><Text style={s.meta}>Net cash flow</Text><Text style={s.rowTitle}>{m(summary.balance)}</Text></View></View>
-      <Pressable style={s.secondary} onPress={()=>setTab('activity')}><Text style={s.secondaryText}>View Transactions</Text></Pressable>
+      <HapticPressable style={s.secondary} onPress={()=>setTab('activity')}><Text style={s.secondaryText}>View Transactions</Text></HapticPressable>
     </FinanceCard>
 
     <Section title="Category Breakdown"/>
@@ -88,7 +90,7 @@ export default function InsightsScreen({
     </FinanceCard>
 
     <SmartInsights settings={settings} money={m} comparison={smartInsights?.comparison} savings={smartInsights?.savings} forecast={smartInsights?.forecast} unusual={smartInsights?.unusual} suggestions={smartInsights?.recurringSuggestions} onAddSuggestion={onAddRecurringSuggestion}/>
-    <Pressable style={s.secondary} onPress={onOpenReminders} accessibilityRole="button"><Text style={s.secondaryText}>🔔 {t(lang,'reminders','Reminders')} · {remindersEnabled&&reminderPermission?t(lang,'on','On'):t(lang,'off','Off')}</Text></Pressable>
+    <HapticPressable style={s.secondary} onPress={onOpenReminders} accessibilityRole="button"><View style={s.buttonContent}><NativeIcon name="bell" size={18} color="#111827"/><Text style={s.secondaryText}>{t(lang,'reminders','Reminders')} · {remindersEnabled&&reminderPermission?t(lang,'on','On'):t(lang,'off','Off')}</Text></View></HapticPressable>
     <PlanningSnapshot settings={settings} money={m} analytics={planningSummary}/>
     <PlanningTools settings={settings} money={m} statuses={obligationStatuses} onAdd={()=>{setPaymentObligation(null);setObligationOpen(true);}} onPay={(item)=>{setPaymentObligation({obligation:item,status:item});setObligationOpen(true);}}/>
     <SavingsGoals settings={settings} money={m} statuses={savingsStatuses} onAdd={()=>{setSavingsMovement(null);setSavingsOpen(true);}} onDeposit={(goal)=>{setSavingsMovement({goal,status:goal,direction:'deposit'});setSavingsOpen(true);}} onWithdraw={(goal)=>{setSavingsMovement({goal,status:goal,direction:'withdrawal'});setSavingsOpen(true);}}/>
