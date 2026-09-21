@@ -96,3 +96,39 @@ test('unknown top-level or payload fields do not enter restored app state', () =
   const parsed = parseBackup(serializeBackup(canonical));
   assert.deepEqual(Object.keys(parsed.state).sort(), ['nepalData', 'planningData', 'settings', 'transactions']);
 });
+
+
+test('restoreWithRollback writes the new state after taking a snapshot', async () => {
+  const { restoreWithRollback } = require('../src/domain/backup');
+  const before = { transactions: [], settings: {}, nepalData: {}, planningData: {} };
+  const after = { transactions: [{ id: 'new' }], settings: {}, nepalData: {}, planningData: {} };
+  const writes = [];
+  const result = await restoreWithRollback(after, {
+    readState: async () => before,
+    writeState: async (state) => writes.push(state),
+  });
+  assert.deepEqual(result, after);
+  assert.deepEqual(writes, [after]);
+});
+
+test('restoreWithRollback restores the pre-restore snapshot when a write fails', async () => {
+  const { restoreWithRollback } = require('../src/domain/backup');
+  const before = { transactions: [{ id: 'old' }], settings: {}, nepalData: {}, planningData: {} };
+  const after = { transactions: [{ id: 'new' }], settings: {}, nepalData: {}, planningData: {} };
+  const writes = [];
+  let first = true;
+  await assert.rejects(
+    () => restoreWithRollback(after, {
+      readState: async () => before,
+      writeState: async (state) => {
+        writes.push(state);
+        if (first) {
+          first = false;
+          throw new Error('disk write failed');
+        }
+      },
+    }),
+    /Restore failed/,
+  );
+  assert.deepEqual(writes, [after, before]);
+});
