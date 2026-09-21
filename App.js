@@ -45,6 +45,7 @@ const { shareCsvExport } = require('./src/services/exportFiles');
 const { shareMonthlyPdf } = require('./src/services/reportFiles');
 const { pickCsvImportText } = require('./src/services/importFiles');
 const { DEFAULT_SECURITY_CONFIG, isValidPin, shouldLockAfterBackground } = require('./src/domain/security');
+const { monthComparison, savingsRate, projectedMonthExpense, detectUnusualSpending, recurringTransactionSuggestions } = require('./src/domain/insights');
 const { getSecurityConfig, enablePinLock, updatePin, verifyPin, disableAppLock, getBiometricAvailability, setBiometricEnabled, setLockAfterSeconds, authenticateBiometric, getPinAttemptState, attemptPinUnlock } = require('./src/services/appSecurity');
 const APP_VERSION = require('./package.json').version;
 
@@ -78,6 +79,13 @@ export default function App(){
   const savingsStatuses=useMemo(()=>planningData.savingsGoals.map(goal=>({...goal,...savingsGoalStatus(goal,transactions)})),[planningData.savingsGoals,transactions]);
   const householdStatuses=useMemo(()=>planningData.householdBudgets.map(household=>({...household,...householdBudgetStatus(household,transactions,currentMonth)})),[planningData.householdBudgets,transactions,currentMonth]);
   const planningSummary=useMemo(()=>planningAnalytics(planningData,transactions,today),[planningData,transactions,today]);
+  const smartInsights=useMemo(()=>({
+    comparison:monthComparison(transactions,currentMonth),
+    savings:savingsRate(transactions,currentMonth),
+    forecast:projectedMonthExpense(transactions,currentMonth,today),
+    unusual:detectUnusualSpending(transactions,currentMonth),
+    recurringSuggestions:recurringTransactionSuggestions(transactions,settings.recurringTransactions),
+  }),[transactions,currentMonth,today,settings.recurringTransactions]);
 
   useEffect(()=>{let mounted=true;(async()=>{let recovered=false;try{recovered=await recoverInterruptedRestore();}catch(error){if(mounted)Alert.alert('Recovery issue',error?.message||'Kharcha could not recover an interrupted restore.');}try{const [tx,st,np,pl]=await Promise.all([loadTransactions(),loadSettings(),loadNepalData(),loadPlanningData()]);if(!mounted)return;const materialized=materializeRecurringTransactions(tx,st.recurringTransactions,localIsoDate());const reconciledUdhaaro=reconcileUdhaaroRecords(np.udharo,materialized.transactions);const reconciledNepal={...np,udharo:reconciledUdhaaro};setTransactions(materialized.transactions);setSettings(st);setNepalData(reconciledNepal);setPlanningData(pl);setBudgetDraft(String(st.monthlyBudget));const writes=[];if(materialized.created.length)writes.push(saveTransactions(materialized.transactions));if(JSON.stringify(reconciledUdhaaro)!==JSON.stringify(np.udharo))writes.push(saveNepalData(reconciledNepal));if(writes.length)await Promise.all(writes);if(recovered)Alert.alert('Restore recovered','Kharcha recovered the data that existed before an interrupted restore.');}finally{if(mounted)setReady(true);}})();return()=>{mounted=false;};},[]);
 
@@ -116,6 +124,22 @@ export default function App(){
   async function addRecurring(rule){const nextSettings=await persistSettings({...settings,recurringTransactions:[...settings.recurringTransactions,rule]});const materialized=materializeRecurringTransactions(transactions,nextSettings.recurringTransactions,today);setTransactions(materialized.transactions);if(materialized.created.length)await saveTransactions(materialized.transactions);setRecurringOpen(false);}
   async function toggleRecurring(id){const rules=settings.recurringTransactions.map(rule=>rule.id===id?{...rule,active:!rule.active}:rule);const nextSettings=await persistSettings({...settings,recurringTransactions:rules});const materialized=materializeRecurringTransactions(transactions,nextSettings.recurringTransactions,today);setTransactions(materialized.transactions);if(materialized.created.length)await saveTransactions(materialized.transactions);}
   async function deleteRecurring(id){await persistSettings({...settings,recurringTransactions:settings.recurringTransactions.filter(rule=>rule.id!==id)});}
+  async function addRecurringSuggestion(suggestion){
+    if(!suggestion?.nextDate)return;
+    await addRecurring({
+      id:`suggested-${Date.now()}`,
+      type:suggestion.type,
+      amount:suggestion.amount,
+      category:suggestion.category,
+      note:suggestion.note,
+      walletId:suggestion.walletId,
+      frequency:suggestion.frequency,
+      startDate:suggestion.nextDate,
+      active:true,
+      skippedOccurrences:[],
+    });
+    Alert.alert('Recurring rule added',`${suggestion.note||suggestion.category} will repeat ${suggestion.frequency}.`);
+  }
   function clearFilters(){setQuery('');setFilterType('all');setFilterWallet('all');setFilterCategory('all');setFilterPeriod('all');}
   async function saveRemittance(tx){await saveTransaction(tx);setRemittanceOpen(false);}
   async function addUdhaaro(record){await persistNepalData({...nepalData,udharo:[record,...nepalData.udharo]});setUdhaaroOpen(false);}
@@ -305,7 +329,7 @@ export default function App(){
       {tab==='overview'&&<OverviewScreen lang={lang} summary={summary} m={m} wallets={wallets} settings={settings} setWalletOpen={setWalletOpen} onTransfer={()=>setTransferOpen(true)} budget={budget} transactions={transactions} setTab={setTab} remove={remove} openEdit={openEdit} openAdd={openAdd}/>} 
       {tab==='activity'&&<ActivityScreen lang={lang} query={query} setQuery={setQuery} filterType={filterType} setFilterType={setFilterType} filterWallet={filterWallet} setFilterWallet={setFilterWallet} filterCategory={filterCategory} setFilterCategory={setFilterCategory} filterPeriod={filterPeriod} setFilterPeriod={setFilterPeriod} clearFilters={clearFilters} settings={settings} activityCategories={activityCategories} filteredTransactions={filteredTransactions} transactions={transactions} remove={remove} openEdit={openEdit} openAdd={openAdd} m={m}/>} 
       {tab==='budget'&&<BudgetScreen lang={lang} budgetDraft={budgetDraft} setBudgetDraft={setBudgetDraft} updateBudget={updateBudget} expenseCategories={expenseCategories} categoryBudgetCategory={categoryBudgetCategory} setCategoryBudgetCategory={setCategoryBudgetCategory} categoryBudgetDraft={categoryBudgetDraft} setCategoryBudgetDraft={setCategoryBudgetDraft} settings={settings} saveCategoryBudget={saveCategoryBudget} categoryBudgets={categoryBudgets} removeCategoryBudget={removeCategoryBudget} m={m} breakdown={breakdown} budget={budget} setWalletOpen={setWalletOpen} setCategoryOpen={setCategoryOpen} setRecurringOpen={setRecurringOpen} setSettingsOpen={setSettingsOpen} removeCategory={removeCategory} toggleRecurring={toggleRecurring} deleteRecurring={deleteRecurring} today={today}/>} 
-      {tab==='insights'&&<InsightsScreen lang={lang} breakdown={breakdown} m={m} transactions={transactions} currentMonth={currentMonth} today={today} summary={summary} settings={settings} remittance={remittance} udharo={udharo} nepalData={nepalData} eventStatuses={eventStatuses} obligationStatuses={obligationStatuses} savingsStatuses={savingsStatuses} householdStatuses={householdStatuses} planningSummary={planningSummary} setSettingsOpen={setSettingsOpen} setRemittanceOpen={setRemittanceOpen} setPaymentRecord={setPaymentRecord} setUdhaaroOpen={setUdhaaroOpen} setEventOpen={setEventOpen} setObligationOpen={setObligationOpen} setPaymentObligation={setPaymentObligation} setSavingsOpen={setSavingsOpen} setSavingsMovement={setSavingsMovement} setHouseholdOpen={setHouseholdOpen} setTab={setTab} openAdd={openAdd}/>} 
+      {tab==='insights'&&<InsightsScreen lang={lang} breakdown={breakdown} m={m} transactions={transactions} currentMonth={currentMonth} today={today} summary={summary} settings={settings} remittance={remittance} udharo={udharo} nepalData={nepalData} eventStatuses={eventStatuses} obligationStatuses={obligationStatuses} savingsStatuses={savingsStatuses} householdStatuses={householdStatuses} planningSummary={planningSummary} smartInsights={smartInsights} onAddRecurringSuggestion={addRecurringSuggestion} setSettingsOpen={setSettingsOpen} setRemittanceOpen={setRemittanceOpen} setPaymentRecord={setPaymentRecord} setUdhaaroOpen={setUdhaaroOpen} setEventOpen={setEventOpen} setObligationOpen={setObligationOpen} setPaymentObligation={setPaymentObligation} setSavingsOpen={setSavingsOpen} setSavingsMovement={setSavingsMovement} setHouseholdOpen={setHouseholdOpen} setTab={setTab} openAdd={openAdd}/>} 
     </View>
     <View style={s.bottom}>{[['overview','⌂',t(lang,'overview','Overview')],['activity','≡',t(lang,'activity','Activity')]].map(([k,i,l])=><Tab key={k} active={tab===k} icon={i} label={l} onPress={()=>setTab(k)}/>)}<Pressable style={s.fab} onPress={()=>openAdd()} accessibilityRole="button" accessibilityLabel="Add transaction"><Text style={s.fabText}>＋</Text></Pressable>{[['budget','◫',t(lang,'budget','Budget')],['insights','◔',t(lang,'insights','Insights')]].map(([k,i,l])=><Tab key={k} active={tab===k} icon={i} label={l} onPress={()=>setTab(k)}/>)}</View>
     <AddTransactionModal visible={transactionOpen} initialTransaction={editing} wallets={settings.wallets} customCategories={settings.customCategories} events={nepalData.events} householdBudgets={planningData.householdBudgets} settings={settings} initialEventId={draftEventId} onClose={()=>{setTransactionOpen(false);setEditing(null);setDraftEventId('');}} onSave={saveTransaction}/>
