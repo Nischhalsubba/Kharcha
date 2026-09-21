@@ -34,10 +34,12 @@ export async function pickBackupText() {
   const asset = result.assets?.[0];
   if (!asset?.uri) throw new Error('Kharcha could not read the selected file.');
   const file = new File(asset.uri);
+  const size = asset.size ?? file.size ?? null;
+  if (size != null && size > 25 * 1024 * 1024) throw new Error('This backup is larger than 25 MB and was not opened.');
   const text = await file.text();
   return {
     text,
     name: asset.name || file.name || 'Kharcha backup',
-    size: asset.size ?? file.size ?? null,
+    size,
   };
 }
