@@ -7,4 +7,4 @@
 - [x] savings goals
 - [x] household budgeting
 - [x] planning analytics
-- [ ] release verification
+- [x] release verification
