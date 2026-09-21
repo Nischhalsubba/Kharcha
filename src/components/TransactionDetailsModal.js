@@ -1,6 +1,8 @@
 import React from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
-import { COLORS, categoryIcon } from '../constants';
+import { COLORS } from '../constants';
+import NativeIcon, { categoryIconName } from './NativeIcon';
+import HapticPressable from './HapticPressable';
 import { categoryLabel, t } from '../i18n';
 const { transactionDateLabel } = require('../domain/nepal');
 
@@ -20,7 +22,7 @@ export default function TransactionDetailsModal({visible,item,settings={},wallet
     <Pressable style={styles.backdrop} onPress={onClose}/>
     <View style={styles.sheet}>
       <View style={styles.handle}/>
-      <View style={styles.header}><View style={[styles.icon,expense?styles.expense:transfer?styles.transfer:styles.income]}><Text style={styles.iconText}>{transfer?'⇄':categoryIcon(item.type,item.category,settings.customCategories)}</Text></View><View style={{flex:1}}><Text style={styles.title}>{title}</Text><Text style={styles.meta}>{categoryLabel(item.category,lang)}</Text></View></View>
+      <View style={styles.header}><View style={[styles.icon,expense?styles.expense:transfer?styles.transfer:styles.income]}><NativeIcon name={transfer?'transfer':categoryIconName(item.category,item.type)} size={20} color={transfer?COLORS.accent:expense?COLORS.danger:COLORS.income}/></View><View style={{flex:1}}><Text style={styles.title}>{title}</Text><Text style={styles.meta}>{categoryLabel(item.category,lang)}</Text></View></View>
       <Text style={[styles.amount,expense&&styles.amountExpense,!expense&&!transfer&&styles.amountIncome]}>{transfer?'':expense?'−':'+'}{money(item.amount)}</Text>
       <View style={styles.card}>
         <Field label={t(lang,'date','Date')} value={date.secondary?`${date.primary} · ${date.secondary}`:date.primary}/>
@@ -31,7 +33,7 @@ export default function TransactionDetailsModal({visible,item,settings={},wallet
         {item.paymentMethod?<><View style={styles.divider}/><Field label={t(lang,'paymentMethod','Payment method')} value={item.paymentMethod}/></>:null}
         {item.note?<><View style={styles.divider}/><Field label={t(lang,'note','Note')} value={item.note}/></>:null}
       </View>
-      <View style={styles.actions}>{!linked?<Pressable style={styles.primary} onPress={()=>onEdit(item)} accessibilityRole="button"><Text style={styles.primaryText}>{t(lang,'edit','Edit')}</Text></Pressable>:null}<Pressable style={styles.dangerButton} onPress={()=>onDelete(item.id)} accessibilityRole="button"><Text style={styles.dangerText}>{t(lang,'delete','Delete')}</Text></Pressable></View>
+      <View style={styles.actions}>{!linked?<HapticPressable style={styles.primary} onPress={()=>onEdit(item)} accessibilityRole="button"><Text style={styles.primaryText}>{t(lang,'edit','Edit')}</Text></HapticPressable>:null}<HapticPressable haptic={null} style={styles.dangerButton} onPress={()=>onDelete(item.id)} accessibilityRole="button"><Text style={styles.dangerText}>{t(lang,'delete','Delete')}</Text></HapticPressable></View>
     </View>
   </Modal>;
 }
@@ -41,7 +43,7 @@ const styles=StyleSheet.create({
   handle:{width:36,height:4,borderRadius:99,backgroundColor:COLORS.borderStrong,alignSelf:'center',marginBottom:20},
   header:{flexDirection:'row',alignItems:'center',gap:12},icon:{width:40,height:40,borderRadius:20,alignItems:'center',justifyContent:'center'},expense:{backgroundColor:'#FFF0F0'},income:{backgroundColor:'#DDF8EF'},transfer:{backgroundColor:COLORS.accentSoft},iconText:{fontSize:18},
   title:{color:COLORS.text,fontSize:16,lineHeight:24,fontWeight:'600'},meta:{color:COLORS.muted,fontSize:12,lineHeight:16},
-  amount:{color:COLORS.text,fontSize:28,lineHeight:38,fontWeight:'600',letterSpacing:-0.7,marginTop:20,marginBottom:16},amountExpense:{color:COLORS.danger},amountIncome:{color:COLORS.income},
+  amount:{color:COLORS.text,fontSize:28,lineHeight:38,fontWeight:'600',letterSpacing:-0.7,marginTop:20,marginBottom:16,fontVariant:['tabular-nums']},amountExpense:{color:COLORS.danger},amountIncome:{color:COLORS.income},
   card:{backgroundColor:COLORS.surface,borderRadius:12,paddingHorizontal:16},field:{paddingVertical:12},label:{color:COLORS.muted,fontSize:12,lineHeight:16},value:{color:COLORS.text,fontSize:14,lineHeight:21,fontWeight:'600',marginTop:3},divider:{height:1,backgroundColor:COLORS.border},
   actions:{gap:10,marginTop:18},primary:{height:48,borderRadius:10,backgroundColor:COLORS.nav,alignItems:'center',justifyContent:'center'},primaryText:{color:'#fff',fontSize:14,fontWeight:'600'},dangerButton:{height:48,borderRadius:10,borderWidth:1,borderColor:'#FFDADA',backgroundColor:'#FFF7F7',alignItems:'center',justifyContent:'center'},dangerText:{color:COLORS.danger,fontSize:14,fontWeight:'600'},
 });
