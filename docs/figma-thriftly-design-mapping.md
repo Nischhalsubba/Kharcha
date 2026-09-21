@@ -25,15 +25,15 @@ The Figma kit is used as a visual/design-system reference. Kharcha keeps its own
 - [x] `25021:719` — Spending → Kharcha Overview/Spending shell
 - [x] `25021:1075` — Transaction Record → Activity screen
 - [x] `25021:2292` — Transaction Record Details → transaction detail sheet
-- [ ] `25021:2449` — Breakdown & budget (Expenses) → Budget > Expenses
-- [ ] `25021:3122` — Breakdown & budget (Income) → Budget > Income
-- [ ] `25021:2764` — Breakdown & budget (Budget) → Budget > Budget
-- [ ] `25021:3436` — Breakdown & budget (Scroll Down) → category/transaction drill-down
-- [ ] `25021:1657` — Budget Management → budget manager
-- [ ] `25021:2150` — Monthly income management → income planning editor
-- [ ] `25021:2239` — Monthly budget management → monthly budget editor
-- [ ] `25021:1744` — Add Category management → category creation state
-- [ ] `25021:1974` — Add Category selected state → category creation confirmation state
+- [x] `25021:2449` — Breakdown & budget (Expenses) → Budget > Expenses
+- [x] `25021:3122` — Breakdown & budget (Income) → Budget > Income
+- [x] `25021:2764` — Breakdown & budget (Budget) → Budget > Budget
+- [x] `25021:3436` — Breakdown & budget (Scroll Down) → category/transaction drill-down
+- [x] `25021:1657` — Budget Management → budget manager
+- [x] `25021:2150` — Monthly income management → income planning editor
+- [x] `25021:2239` — Monthly budget management → monthly budget editor
+- [x] `25021:1744` — Add Category management → category creation state
+- [x] `25021:1974` — Add Category selected state → category creation confirmation state
 - [ ] `25021:1191` — Reports → Insights/Reports
 - [ ] `25021:1511` — Repeated transaction → recurring transaction manager
 - [x] `25021:3610` — reference label: Spending
@@ -49,3 +49,7 @@ The Figma kit is used as a visual/design-system reference. Kharcha keeps its own
 3. **Batch 3** — Reports + Repeated transaction + cross-screen polish and release version bump.
 
 Every batch must pass domain tests, dependency audit, Expo configuration validation and Android JS bundling before merge.
+
+
+### Batch 2 implementation note
+The nine budget references are implemented as one navigable Kharcha flow instead of duplicated routes: Breakdown tabs (Expenses / Budget / Income), category drill-down, Budget Management, monthly-income view, monthly-budget editor, category selector, and category-budget editor. Values come from existing Kharcha transactions, monthly budget, and category-budget settings.
