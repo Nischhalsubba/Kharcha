@@ -18,10 +18,13 @@ const s=StyleSheet.create({
   center:{alignItems:'center',justifyContent:'center',paddingHorizontal:24},
   content:{flex:1},
 
-  top:{paddingHorizontal:20,paddingTop:10,paddingBottom:12,flexDirection:'row',justifyContent:'space-between',alignItems:'center'},
+  top:{paddingHorizontal:20,paddingTop:8,paddingBottom:12,flexDirection:'row',justifyContent:'space-between',alignItems:'center'},
+  brandLockup:{minHeight:44,justifyContent:'center'},
+  brandLogo:{width:142,height:36,marginLeft:-6},
+  loadingLogo:{width:170,height:44,marginBottom:10},
   eyebrow:{color:COLORS.muted,fontSize:12,lineHeight:16,fontWeight:'400',letterSpacing:-0.12},
   brand:{color:COLORS.text,fontSize:24,lineHeight:32,fontWeight:'600',letterSpacing:-0.72},
-  badge:{minHeight:32,paddingHorizontal:12,borderRadius:99,backgroundColor:COLORS.nav,flexDirection:'row',alignItems:'center',gap:6},
+  badge:{minHeight:44,paddingHorizontal:12,borderRadius:99,backgroundColor:COLORS.nav,flexDirection:'row',alignItems:'center',gap:6},
   dot:{color:COLORS.success,fontSize:8},
   badgeText:{color:'#FFFFFF',fontSize:12,lineHeight:16,fontWeight:'500'},
 
@@ -29,7 +32,7 @@ const s=StyleSheet.create({
   screen:{flex:1,paddingHorizontal:20},
   screenTitleRow:{minHeight:44,flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginBottom:12},
   screenTitle:{color:COLORS.text,fontSize:20,lineHeight:30,fontWeight:'600',letterSpacing:-0.4},
-  headerIconButton:{width:36,height:36,alignItems:'center',justifyContent:'center',borderRadius:18},
+  headerIconButton:{width:44,height:44,alignItems:'center',justifyContent:'center',borderRadius:18},
   headerIconText:{color:COLORS.text,fontSize:18,fontWeight:'600'},
 
   hero:{paddingTop:8,paddingBottom:4},
@@ -132,7 +135,7 @@ const s=StyleSheet.create({
 
   search:{minHeight:44,borderRadius:10,borderWidth:1,borderColor:COLORS.borderStrong,backgroundColor:COLORS.surface,color:COLORS.text,paddingHorizontal:14,marginBottom:8,fontSize:14},
   filters:{paddingVertical:4,paddingRight:16},
-  filterChip:{minHeight:36,paddingHorizontal:12,borderRadius:99,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface,justifyContent:'center',marginRight:7},
+  filterChip:{minHeight:44,paddingHorizontal:12,borderRadius:99,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface,justifyContent:'center',marginRight:7},
   filterChipActive:{borderColor:COLORS.borderStrong,backgroundColor:COLORS.surface2},
   filterChipText:{color:COLORS.muted,fontSize:12,lineHeight:16,fontWeight:'500'},
   filterChipTextActive:{color:COLORS.text,fontWeight:'600'},
