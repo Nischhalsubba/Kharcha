@@ -7,6 +7,6 @@
 - [x] document-picker restore
 - [ ] full regression / Android bundle verification
 - [x] CSV export
-- [ ] monthly report export
+- [x] monthly report export
 - [ ] destructive data-management safety
 - [ ] local app security
