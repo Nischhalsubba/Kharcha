@@ -23,10 +23,12 @@ Export every Kharcha state store into one portable file and restore it safely on
 3. Verify checksum.
 4. Normalize every payload section using the existing Phase 1–3 normalizers.
 5. Reject malformed or structurally unsafe backups before writing any user data.
-6. Create an in-memory pre-restore snapshot of the current stores.
+6. Persist a pre-restore recovery journal containing the current normalized stores.
 7. Write all normalized stores.
 8. If a write fails, restore the pre-restore snapshot best-effort and report failure.
-9. Reload app state from the successful normalized restore result.
+9. If the app is killed mid-restore, recover the journal on the next launch before loading normal app state.
+10. Remove the recovery journal only after a successful restore.
+11. Reload app state from the successful normalized restore result.
 
 ## Transport
 - Android/iOS export: create a file in app cache and open the system share sheet.
@@ -39,6 +41,7 @@ Export every Kharcha state store into one portable file and restore it safely on
 - Unknown future schema is rejected.
 - Invalid payload is rejected before storage writes.
 - Restore failure attempts rollback to the pre-restore snapshot.
+- Interrupted restore is recoverable on next launch from the persisted journal.
 - Existing users need no migration action.
 
 ## Verification
