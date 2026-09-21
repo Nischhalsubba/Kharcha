@@ -107,3 +107,44 @@ test('createSavingsGoalTransaction caps deposits at remaining target and withdra
   assert.equal(withdrawal.type, 'income');
   assert.deepEqual(withdrawal.savingsGoalMovement, { goalId: 'g1', direction: 'withdrawal' });
 });
+
+test('householdBudgetStatus totals linked expenses and breaks spend down by member', () => {
+  const { householdBudgetStatus } = require('../src/domain/phaseThree');
+  const household = { id: 'home-1', name: 'Home', monthlyLimit: 30000, members: ['Nischhal', 'Reeja'] };
+  const tx = [
+    { type: 'expense', amount: 5000, date: '2026-09-02', householdBudgetId: 'home-1', householdMember: 'Nischhal' },
+    { type: 'expense', amount: 3000, date: '2026-09-03', householdBudgetId: 'home-1', householdMember: 'Reeja' },
+    { type: 'expense', amount: 999, date: '2026-08-30', householdBudgetId: 'home-1', householdMember: 'Reeja' },
+    { type: 'expense', amount: 1000, date: '2026-09-04', householdBudgetId: 'other', householdMember: 'Reeja' },
+  ];
+  assert.deepEqual(householdBudgetStatus(household, tx, '2026-09'), {
+    id: 'home-1', limit: 30000, spent: 8000, remaining: 22000, overBy: 0, progress: 8000 / 30000,
+    byMember: { Nischhal: 5000, Reeja: 3000 },
+  });
+});
+
+test('planningAnalytics summarizes obligations savings household burn and nearest due date', () => {
+  const { planningAnalytics } = require('../src/domain/phaseThree');
+  const planning = {
+    obligations: [
+      { id: 'b1', kind: 'bill', amount: 2000, frequency: 'monthly', dueDay: 10, active: true },
+      { id: 'b2', kind: 'emi', amount: 5000, frequency: 'monthly', dueDay: 25, active: true },
+    ],
+    savingsGoals: [{ id: 'g1', targetAmount: 10000 }],
+    householdBudgets: [{ id: 'h1', monthlyLimit: 20000, members: ['A'] }],
+  };
+  const tx = [
+    { type: 'expense', amount: 1000, date: '2026-09-05', obligationPayment: { obligationId: 'b1', cycleKey: '2026-09' } },
+    { type: 'expense', amount: 2500, date: '2026-09-04', savingsGoalMovement: { goalId: 'g1', direction: 'deposit' } },
+    { type: 'expense', amount: 4000, date: '2026-09-02', householdBudgetId: 'h1', householdMember: 'A' },
+  ];
+  assert.deepEqual(planningAnalytics(planning, tx, '2026-09-21'), {
+    obligationRemaining: 6000,
+    overdueCount: 1,
+    nextDueDate: '2026-09-10',
+    savingsSaved: 2500,
+    savingsTarget: 10000,
+    householdSpent: 4000,
+    householdLimit: 20000,
+  });
+});
