@@ -33,7 +33,7 @@ test('CSV export is UTF-8 BOM compatible and includes Nepal/planning columns', (
   assert.equal(result.rowCount,2);
   assert.equal(result.filename,'kharcha-transactions-all-20260921.csv');
   assert.equal(result.csv.charCodeAt(0),0xFEFF);
-  assert.match(result.csv,/Date AD,Date BS,Type,Amount NPR,Category,Note,Wallet,Payment Method,Event,Household Budget,Household Member/);
+  assert.match(result.csv,/Date AD,Date BS,Type,Amount NPR,Category,Note,Wallet,Payment Method,Transfer From,Transfer To,Event,Household Budget,Household Member/);
   assert.match(result.csv,/2026-09-21,2083-/);
   assert.match(result.csv,/"खाजा, tea"/);
   assert.match(result.csv,/Home,Reeja/);
