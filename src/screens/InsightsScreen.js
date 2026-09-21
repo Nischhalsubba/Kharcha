@@ -59,7 +59,7 @@ export default function InsightsScreen({
   const expenseTotal=summary.expense||0;
   const incomeTotal=summary.income||0;
 
-  return <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
+  return <ScrollView contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
     <View style={s.screenTitleRow}><Text style={s.screenTitle}>{t(lang,'reports','Reports')}</Text><View style={s.pill}><Text style={s.pillText}>Last 6 Months</Text><Text style={s.pillChevron}>⌄</Text></View></View>
 
     <FinanceCard title="Cash Flow">
