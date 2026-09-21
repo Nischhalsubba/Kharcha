@@ -73,3 +73,24 @@ test('PDF HTML escapes transaction notes and renders key report sections',()=>{
 test('invalid report month fails closed',()=>{
   assert.throws(()=>buildMonthlyReport(state,'2026-13'),/month/i);
 });
+
+
+test('historical monthly report ignores later savings and Udhaaro repayments',()=>{
+  const futureState={
+    ...state,
+    transactions:[
+      ...state.transactions,
+      {id:'future-saving',type:'expense',amount:2500,category:'Savings Goal',date:'2026-10-02',walletId:'bank',savingsGoalMovement:{goalId:'g1',direction:'deposit'}},
+    ],
+    nepalData:{
+      ...state.nepalData,
+      udharo:[{...state.nepalData.udharo[0],repayments:[
+        ...state.nepalData.udharo[0].repayments,
+        {amount:3000,date:'2026-10-01'},
+      ]}],
+    },
+  };
+  const report=buildMonthlyReport(futureState,'2026-09',{asOfDate:'2026-09-30'});
+  assert.equal(report.savings.saved,3000);
+  assert.equal(report.udharo.lent,5000);
+});
