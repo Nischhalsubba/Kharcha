@@ -2,6 +2,20 @@
 
 Kharcha is a local-first personal money tracker built with Expo / React Native, designed around everyday Nepali spending.
 
+## Phase 3 — Financial planning
+
+- Bills, EMI and loan plans with one-time or monthly due schedules
+- Monthly dues carry unpaid cycles forward instead of resetting at the month boundary
+- Partial payments allocate to the oldest unpaid monthly cycle first
+- Obligation payments create normal wallet transactions, so balances and activity stay consistent
+- Udhaaro repayments now move the selected wallet and reconcile automatically with debt records on startup
+- Savings goals with target amounts, optional target dates, deposits and withdrawals
+- Savings movements change wallet balances but are excluded from income/spending analytics
+- Household budgets with monthly limits and optional member attribution on expenses
+- Planning snapshot for outstanding obligations, overdue count, savings progress, household spend and nearest due date
+- Phase 3 planning data remains local-first in a migration-safe on-device store
+- Pull-request CI runs the full test suite, validates Expo configuration and bundles Android JavaScript before merge
+
 ## Phase 2 — Nepal-first
 
 - English and नेपाली interface preferences
@@ -58,7 +72,7 @@ npm test
 
 - NPR is the default currency.
 - Data stays on the device and is not sent to a backend.
-- Existing older transactions remain readable and migrate safely to Phase 1/Phase 2 defaults.
+- Existing older transactions remain readable and migrate safely through Phase 1, Phase 2 and Phase 3 defaults.
 - Canonical transaction dates remain AD `YYYY-MM-DD` internally so sorting and existing data stay stable.
-- Phase 2 does not connect to live bank/wallet accounts or fetch live foreign-exchange rates.
+- Kharcha does not connect to live bank/wallet/lender accounts or fetch live foreign-exchange rates in Phase 3.
 - The current database is not app-level encrypted with SQLCipher; highly sensitive production use should add encrypted storage/key management.

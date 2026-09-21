@@ -7,7 +7,7 @@ export const COLORS = {
 export const EXPENSE_CATEGORIES = [
   ['Food', '🍲'], ['Khaja', '🥟'], ['Groceries', '🥬'], ['Transport', '🚕'], ['Fuel', '⛽'], ['Shopping', '🛍️'],
   ['Bills', '🧾'], ['Electricity', '💡'], ['Water', '💧'], ['Internet', '🌐'], ['Mobile Recharge', '📱'],
-  ['Health', '🩺'], ['Home', '🏠'], ['Rent', '🔑'], ['School Fees', '🎓'], ['EMI', '📆'], ['Puja & Donation', '🙏'],
+  ['Health', '🩺'], ['Home', '🏠'], ['Rent', '🔑'], ['School Fees', '🎓'], ['EMI', '📆'], ['Loan Repayment', '🏦'], ['Puja & Donation', '🙏'],
   ['Festival', '🪔'], ['Entertainment', '🎬'], ['Other', '✨'],
 ];
 
@@ -40,5 +40,7 @@ export function categoryPairs(type, customCategories = { expense: [], income: []
 }
 
 export function categoryIcon(type, category, customCategories) {
+  if (category === 'Savings Goal') return '🎯';
+  if (category === 'Udhaaro Repayment') return '🤝';
   return categoryPairs(type, customCategories).find(([name]) => name === category)?.[1] || '•';
 }

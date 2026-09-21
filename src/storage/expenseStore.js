@@ -1,10 +1,12 @@
 import Storage from 'expo-sqlite/kv-store';
 const { normalizeSettings, normalizeTransactions } = require('../domain/phaseOne');
 const { normalizeNepalData } = require('../domain/phaseTwo');
+const { normalizePlanningData } = require('../domain/phaseThree');
 
 const TRANSACTIONS_KEY = 'kharcha.transactions.v1';
 const SETTINGS_KEY = 'kharcha.settings.v1';
 const NEPAL_KEY = 'kharcha.nepal.v1';
+const PLANNING_KEY = 'kharcha.planning.v1';
 
 export const defaultSettings = normalizeSettings({
   currency: 'NPR',
@@ -57,5 +59,24 @@ export async function loadNepalData() {
 export async function saveNepalData(data) {
   const normalized = normalizeNepalData(data);
   await Storage.setItem(NEPAL_KEY, JSON.stringify(normalized));
+  return normalized;
+}
+
+
+export const defaultPlanningData = normalizePlanningData();
+
+export async function loadPlanningData() {
+  const raw = await Storage.getItem(PLANNING_KEY);
+  if (!raw) return defaultPlanningData;
+  try {
+    return normalizePlanningData(JSON.parse(raw));
+  } catch {
+    return defaultPlanningData;
+  }
+}
+
+export async function savePlanningData(data) {
+  const normalized = normalizePlanningData(data);
+  await Storage.setItem(PLANNING_KEY, JSON.stringify(normalized));
   return normalized;
 }
