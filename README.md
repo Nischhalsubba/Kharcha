@@ -2,6 +2,15 @@
 
 Kharcha is a local-first personal money tracker built with Expo / React Native, designed around everyday Nepali spending.
 
+## Phase 5.1 — Wallet-to-wallet transfers
+
+- Move money between Kharcha wallets without creating fake income or spending
+- One transfer record updates both source and destination wallet balances
+- Transfers are searchable/filterable from either participating wallet
+- Transfers stay out of income, expense, budget and category analytics
+- Transfer links are preserved in CSV export/import and portable backups
+- Transfers remain local-first; no bank or wallet account is contacted
+
 ## Visual refresh — finance-first light UI
 
 - Light neutral canvas with white functional surfaces

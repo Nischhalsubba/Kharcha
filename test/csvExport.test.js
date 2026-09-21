@@ -81,3 +81,18 @@ test('CSV includes stable transaction IDs for future safe imports', () => {
   assert.match(result.csv,/t1/);
   assert.match(result.csv,/t2/);
 });
+
+
+test('CSV preserves wallet transfer endpoints for safe round trips', () => {
+  const transferState={
+    ...state,
+    transactions:[...state.transactions,{
+      id:'t3',type:'transfer',amount:5000,category:'Transfer',note:'Cash to bank',date:'2026-09-22',
+      walletId:'cash',fromWalletId:'cash',toWalletId:'bank',paymentMethod:'transfer',
+    }],
+  };
+  const result=createTransactionsCsv(transferState,{scope:'all',exportedAt:'2026-09-22T06:00:00.000Z'});
+  const header=result.csv.replace(/^\uFEFF/,'').split('\n')[0];
+  assert.match(header,/Wallet,Payment Method,Transfer From,Transfer To,Event/);
+  assert.match(result.csv,/transfer,5000,Transfer,Cash to bank,Cash,transfer,Cash,Bank,/);
+});

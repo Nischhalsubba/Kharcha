@@ -86,6 +86,8 @@ function transactionSignature(item) {
     item?.category || '',
     item?.note || '',
     item?.walletId || '',
+    item?.fromWalletId || '',
+    item?.toWalletId || '',
   ].join('|');
 }
 
@@ -125,7 +127,7 @@ function prepareTransactionImport(rawCsv, state = {}) {
     const amount = positiveNumber(row['Amount NPR']);
     const category = String(row.Category || '').trim();
 
-    if (!isValidIsoDate(date) || !['income', 'expense'].includes(type) || !amount || !category) {
+    if (!isValidIsoDate(date) || !['income', 'expense', 'transfer'].includes(type) || !amount || !category) {
       invalid.push({ rowNumber, transactionId, reason: 'Invalid date, type, amount, or category.' });
       return;
     }
@@ -147,6 +149,21 @@ function prepareTransactionImport(rawCsv, state = {}) {
       walletId: wallet.id,
       paymentMethod: lower(row['Payment Method']) || (wallet.id === 'cash' ? 'cash' : 'bank'),
     };
+
+    if (type === 'transfer') {
+      const fromName = String(row['Transfer From'] || row.Wallet || '').trim();
+      const toName = String(row['Transfer To'] || '').trim();
+      const fromWallet = walletMap.get(lower(fromName));
+      const toWallet = walletMap.get(lower(toName));
+      if (!fromWallet || !toWallet || fromWallet.id === toWallet.id) {
+        invalid.push({ rowNumber, transactionId, reason: 'Transfer wallets must both exist and be different.' });
+        return;
+      }
+      base.walletId = fromWallet.id;
+      base.fromWalletId = fromWallet.id;
+      base.toWalletId = toWallet.id;
+      base.paymentMethod = 'transfer';
+    }
 
     const signature = transactionSignature(base);
     if ((transactionId && existingIds.has(transactionId)) || (!transactionId && existingSignatures.has(signature))) {

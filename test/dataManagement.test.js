@@ -78,3 +78,26 @@ test('clear month permanently skips deleted recurring occurrences and reconciles
 test('clear month rejects an invalid month',()=>{
   assert.throws(()=>prepareMonthDeletion(state,'2026-13'),/month/i);
 });
+
+
+test('transaction import restores wallet transfer endpoints without changing them into income or expense',()=>{
+  const transferCsv='\uFEFFDate AD,Date BS,Type,Amount NPR,Category,Note,Wallet,Payment Method,Transfer From,Transfer To,Event,Household Budget,Household Member,Remittance Sender,Remittance Country,Remittance Original Currency,Remittance Original Amount,Remittance Fee NPR,Udhaaro Record ID,Obligation ID,Savings Goal,Savings Direction,Recurring ID,Transaction ID\n'
+    +'2026-09-10,,transfer,5000,Transfer,Cash to bank,Cash,transfer,Cash,Bank,,,,,,,,,,,,,,,transfer-1\n';
+  const preview=prepareTransactionImport(transferCsv,state);
+  assert.equal(preview.invalid.length,0);
+  assert.equal(preview.transactions.length,1);
+  assert.equal(preview.transactions[0].type,'transfer');
+  assert.equal(preview.transactions[0].fromWalletId,'cash');
+  assert.equal(preview.transactions[0].toWalletId,'bank');
+  assert.equal(preview.transactions[0].walletId,'cash');
+  assert.equal(preview.transactions[0].paymentMethod,'transfer');
+});
+
+test('transaction import rejects transfers with missing or identical wallets',()=>{
+  const transferCsv='\uFEFFDate AD,Type,Amount NPR,Category,Note,Wallet,Payment Method,Transfer From,Transfer To,Transaction ID\n'
+    +'2026-09-10,transfer,5000,Transfer,Bad transfer,Cash,transfer,Cash,Cash,transfer-bad\n';
+  const preview=prepareTransactionImport(transferCsv,state);
+  assert.equal(preview.transactions.length,0);
+  assert.equal(preview.invalid.length,1);
+  assert.match(preview.invalid[0].reason,/different/i);
+});

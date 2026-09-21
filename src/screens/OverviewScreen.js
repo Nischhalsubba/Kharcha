@@ -1,10 +1,10 @@
 import React from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { t } from '../i18n';
 import s from '../appStyles';
 import { Empty, Progress, Section, TransactionRow } from '../components/AppPrimitives';
 
-export default function OverviewScreen({ lang, summary, m, wallets, settings, setWalletOpen, budget, transactions, setTab, remove, openEdit, openAdd }) {
+export default function OverviewScreen({ lang, summary, m, wallets, settings, setWalletOpen, onTransfer, budget, transactions, setTab, remove, openEdit, openAdd }) {
   return <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
     <View style={s.hero}>
       <Text style={s.meta}>{t(lang,'thisMonthNet','This month net')}</Text>
@@ -49,6 +49,7 @@ export default function OverviewScreen({ lang, summary, m, wallets, settings, se
         </View>;
       })}
     </ScrollView>
+    {wallets.length>1?<Pressable style={s.secondary} onPress={onTransfer} accessibilityRole="button" accessibilityLabel={t(lang,'transferFunds','Transfer between wallets')}><Text style={s.secondaryText}>⇄ {t(lang,'transferFunds','Transfer between wallets')}</Text></Pressable>:null}
 
     <Section title={t(lang,'recentActivity','Recent activity')} action={transactions.length?t(lang,'seeAll','See all'):null} onPress={()=>setTab('activity')}/>
     {transactions.length?
