@@ -1,18 +1,22 @@
-# Kharcha — Expo expense tracker
+# Kharcha — Nepal-first Expo expense tracker
 
-A focused personal expense tracker built for Expo / React Native.
+Kharcha is a local-first personal money tracker built with Expo / React Native, designed around everyday Nepali spending.
 
-## What is included
+## Phase 1 features
 
-- Overview with current balance, total income, total spending and monthly budget progress
-- Add expense or income with category, note and date
-- Persistent on-device storage using `expo-sqlite/kv-store`
-- Full transaction history with deletion
-- Editable monthly budget
-- Category spending breakdown
-- Simple spending insights (top category and daily average)
-- Dark, mobile-first UI with accessible contrast and large tap targets
-- Pure finance-domain tests using Node's built-in test runner
+- Overview with monthly net, income, spending and budget progress
+- Add, edit and delete expense or income transactions
+- Search transactions by note, category, amount and date
+- Filter activity by type, wallet, category and current month
+- Multiple wallets/accounts, including Cash, Bank, eSewa, Khalti, IME Pay and custom wallets
+- Wallet opening balances and calculated current balances
+- Custom expense and income categories
+- Overall monthly budget plus category-specific monthly budgets
+- Weekly and monthly recurring transactions for items such as rent, salary and bills
+- Category spending breakdown and simple insights
+- Migration-safe on-device persistence using `expo-sqlite/kv-store`
+- Dark, mobile-first UI with accessible labels and large tap targets
+- Finance and Phase 1 domain tests using Node's built-in test runner
 
 ## Stack
 
@@ -36,9 +40,10 @@ Then open in Expo Go or a development build.
 npm test
 ```
 
-## Notes
+## Data and privacy
 
 - Currency defaults to NPR.
-- Data stays on the device in v1 and is not sent to a backend.
-- The v1 database is not app-level encrypted with SQLCipher; production use with highly sensitive data should add encrypted storage/key management.
-- The persistence layer is isolated in `src/storage/expenseStore.js`, so cloud sync/auth can be added later without changing the finance-domain logic.
+- Data stays on the device and is not sent to a backend.
+- Existing pre-Phase-1 transactions are migrated to the Cash wallet automatically.
+- The current database is not app-level encrypted with SQLCipher; highly sensitive production use should add encrypted storage/key management.
+- Persistence is isolated in `src/storage/expenseStore.js`, so optional cloud sync/auth can be added later without replacing the finance-domain logic.
