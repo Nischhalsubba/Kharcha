@@ -11,7 +11,7 @@ const state = {
     {
       id:'t1', type:'income', amount:100000, category:'Remittance', note:'=SUM(A1:A2)', date:'2026-08-15',
       walletId:'bank', paymentMethod:'bank', eventId:'event-1',
-      remittance:{sender:'Dai',country:'Qatar',currency:'QAR',foreignAmount:2700,feeNpr:500},
+      remittance:{sender:'Dai',country:'Qatar',currency:'QAR',foreignAmount:2700,fees:500},
     },
   ],
   settings:{
@@ -66,4 +66,10 @@ test('custom export rejects impossible calendar dates', () => {
     ()=>filterTransactionsForExport(state.transactions,{scope:'range',startDate:'2026-13-01',endDate:'2026-13-05'}),
     /date range/i,
   );
+});
+
+
+test('CSV export uses the persisted remittance fees field', () => {
+  const result=createTransactionsCsv(state,{scope:'all',exportedAt:'2026-09-21T06:00:00.000Z'});
+  assert.match(result.csv,/Dai,Qatar,QAR,2700,500,/);
 });
