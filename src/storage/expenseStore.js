@@ -139,7 +139,11 @@ export async function recoverInterruptedRestore() {
     throw new Error('Kharcha found an unreadable restore journal. Existing app data was left untouched.');
   }
 
-  const snapshot = normalizeFullState(journal?.state);
+  const state = journal?.state;
+  if (!state || !Array.isArray(state.transactions) || !state.settings || typeof state.settings !== 'object' || Array.isArray(state.settings) || !state.nepalData || typeof state.nepalData !== 'object' || Array.isArray(state.nepalData) || !state.planningData || typeof state.planningData !== 'object' || Array.isArray(state.planningData)) {
+    throw new Error('Kharcha found an invalid restore journal. Existing app data was left untouched.');
+  }
+  const snapshot = normalizeFullState(state);
   await writeFullState(snapshot);
   await Storage.removeItem(RESTORE_JOURNAL_KEY);
   return true;
