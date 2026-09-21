@@ -34,11 +34,11 @@ export default function DataSafetyModal({ visible, onClose, onBackup, onRestore,
 
 const s=StyleSheet.create({
   backdrop:{...StyleSheet.absoluteFillObject,backgroundColor:'rgba(0,0,0,.6)'},
-  sheet:{position:'absolute',left:0,right:0,bottom:0,backgroundColor:'#10161E',borderTopLeftRadius:28,borderTopRightRadius:28,borderWidth:1,borderColor:COLORS.border,padding:20,paddingBottom:28},
+  sheet:{position:'absolute',left:0,right:0,bottom:0,backgroundColor:COLORS.surface,borderTopLeftRadius:28,borderTopRightRadius:28,borderWidth:1,borderColor:COLORS.border,padding:20,paddingBottom:28},
   title:{color:COLORS.text,fontSize:22,fontWeight:'900'},muted:{color:COLORS.muted,fontSize:13,lineHeight:19,marginTop:4,marginBottom:10},
   card:{flexDirection:'row',gap:12,alignItems:'center',backgroundColor:COLORS.surface,borderRadius:16,borderWidth:1,borderColor:COLORS.border,padding:14,marginTop:12},
   icon:{fontSize:24},copy:{flex:1},cardTitle:{color:COLORS.text,fontSize:14,fontWeight:'800'},meta:{color:COLORS.muted,fontSize:12,lineHeight:17,marginTop:3},
-  primary:{height:50,borderRadius:14,backgroundColor:COLORS.accent,alignItems:'center',justifyContent:'center',marginTop:10},primaryText:{color:'#07130F',fontWeight:'900'},
+  primary:{height:50,borderRadius:14,backgroundColor:COLORS.accent,alignItems:'center',justifyContent:'center',marginTop:10},primaryText:{color:COLORS.onAccent,fontWeight:'900'},
   secondary:{height:50,borderRadius:14,borderWidth:1,borderColor:COLORS.accent,backgroundColor:COLORS.accentSoft,alignItems:'center',justifyContent:'center',marginTop:10},secondaryText:{color:COLORS.text,fontWeight:'900'},
   warning:{flexDirection:'row',gap:9,backgroundColor:COLORS.surface2,borderRadius:14,padding:12,marginTop:14},warningIcon:{fontSize:16},warningText:{flex:1,color:COLORS.muted,fontSize:11,lineHeight:16},
   close:{height:44,alignItems:'center',justifyContent:'center',marginTop:8},closeText:{color:COLORS.muted,fontWeight:'700'},disabled:{opacity:.55},
