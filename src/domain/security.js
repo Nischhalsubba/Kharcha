@@ -36,6 +36,29 @@ function cooldownSecondsForFailures(failureCount) {
   return 0;
 }
 
+
+function normalizePinAttemptState(state = {}) {
+  return {
+    failureCount: Math.max(0, Math.trunc(Number(state.failureCount) || 0)),
+    cooldownUntil: Math.max(0, Number(state.cooldownUntil) || 0),
+  };
+}
+
+function nextPinAttemptState(state = {}, now = Date.now()) {
+  const current = normalizePinAttemptState(state);
+  const failureCount = current.failureCount + 1;
+  const cooldownSeconds = cooldownSecondsForFailures(failureCount);
+  return {
+    failureCount,
+    cooldownUntil: cooldownSeconds ? Number(now) + cooldownSeconds * 1000 : 0,
+  };
+}
+
+function isPinAttemptBlocked(state = {}, now = Date.now()) {
+  const current = normalizePinAttemptState(state);
+  return current.cooldownUntil > Number(now);
+}
+
 module.exports = {
   DEFAULT_SECURITY_CONFIG,
   SUPPORTED_LOCK_TIMEOUTS,
@@ -43,4 +66,7 @@ module.exports = {
   normalizeSecurityConfig,
   shouldLockAfterBackground,
   cooldownSecondsForFailures,
+  normalizePinAttemptState,
+  nextPinAttemptState,
+  isPinAttemptBlocked,
 };
