@@ -50,9 +50,9 @@ const s = StyleSheet.create({
     letterSpacing: -0.5,
   },
   badge: {
-    minHeight: 36,
+    minHeight: 44,
     paddingHorizontal: 12,
-    borderRadius: 18,
+    borderRadius: 22,
     backgroundColor: COLORS.surface,
     borderWidth: 1,
     borderColor: COLORS.border,
@@ -145,6 +145,7 @@ const s = StyleSheet.create({
     letterSpacing: -0.2,
   },
   action: { color: COLORS.accent, fontSize: 12, fontWeight: '800' },
+  sectionAction: { minHeight: 44, justifyContent: 'center', paddingLeft: 12 },
 
   list: {
     backgroundColor: COLORS.surface,
@@ -332,9 +333,9 @@ const s = StyleSheet.create({
   },
   filters: { paddingVertical: 5, paddingRight: 16 },
   filterChip: {
-    minHeight: 36,
+    minHeight: 44,
     paddingHorizontal: 13,
-    borderRadius: 18,
+    borderRadius: 22,
     borderWidth: 1,
     borderColor: COLORS.border,
     backgroundColor: COLORS.surface,
