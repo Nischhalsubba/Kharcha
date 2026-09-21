@@ -12,7 +12,7 @@ export default function SavingsGoals({settings,money,statuses,onAdd,onDeposit,on
     {statuses.length?<View style={s.list}>{statuses.map(goal=><View key={goal.id} style={s.item}>
       <View style={s.between}><View style={s.copy}><Text style={s.itemTitle}>🎯 {goal.name}</Text><Text style={s.meta}>{money(goal.saved)} / {money(goal.targetAmount)}{goal.targetDate?` · ${dateLabel(goal.targetDate)}`:''}</Text></View><Text style={s.percent}>{Math.round(goal.progress*100)}%</Text></View>
       <View style={s.track}><View style={[s.fill,{width:`${goal.progress*100}%`}]} /></View>
-      <View style={s.actions}><Pressable onPress={()=>onDeposit(goal)}><Text style={s.link}>{t(lang,'deposit','Add savings')}</Text></Pressable>{goal.saved>0?<Pressable onPress={()=>onWithdraw(goal)}><Text style={s.withdraw}>{t(lang,'withdraw','Withdraw')}</Text></Pressable>:null}{goal.remaining===0?<Text style={s.success}>✓ {t(lang,'goalReached','Goal reached')}</Text>:null}</View>
+      <View style={s.actions}>{goal.remaining>0?<Pressable onPress={()=>onDeposit(goal)}><Text style={s.link}>{t(lang,'deposit','Add savings')}</Text></Pressable>:null}{goal.saved>0?<Pressable onPress={()=>onWithdraw(goal)}><Text style={s.withdraw}>{t(lang,'withdraw','Withdraw')}</Text></Pressable>:null}{goal.remaining===0?<Text style={s.success}>✓ {t(lang,'goalReached','Goal reached')}</Text>:null}</View>
     </View>)}</View>:<Text style={s.empty}>{t(lang,'noGoals','No savings goals yet.')}</Text>}
   </View>;
 }
