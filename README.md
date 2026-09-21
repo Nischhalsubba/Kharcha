@@ -2,6 +2,19 @@
 
 Kharcha is a local-first personal money tracker built with Expo / React Native, designed around everyday Nepali spending.
 
+## Phase 4.1 — Backup & restore
+
+- Full portable `.kharcha.json` backup covering transactions, settings/wallets/categories/recurring rules, Nepal data, and Phase 3 planning data
+- Versioned backup schema with deterministic corruption checksum
+- Unknown future backup versions fail closed until a migration exists
+- Backup imports are normalized through the existing Phase 1–3 compatibility layers before any restore
+- Restore creates a persistent pre-restore recovery journal
+- If a restore write fails, Kharcha attempts to roll back to the previous state
+- If the app is interrupted during restore, the journal is recovered on the next launch before normal data loading
+- Android/iOS export uses the system share sheet; import uses the system document picker
+- Backup files remain local unless the user explicitly chooses a destination
+- Backup files are not encrypted yet and should be stored somewhere trusted
+
 ## Phase 3 — Financial planning
 
 - Bills, EMI and loan plans with one-time or monthly due schedules
