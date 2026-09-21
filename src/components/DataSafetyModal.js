@@ -13,7 +13,7 @@ function ActionCard({icon,title,copy,label,onPress,busy,primary=false}) {
 }
 
 export default function DataSafetyModal({
-  visible,onClose,onBackup,onRestore,onCsvExport,onMonthlyReport,onDataManagement,busy=false,language='en',
+  visible,onClose,onBackup,onRestore,onCsvExport,onMonthlyReport,onDataManagement,onSecurity,busy=false,language='en',
 }) {
   return <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
     <Pressable style={s.backdrop} onPress={busy?undefined:onClose}/>
@@ -26,6 +26,7 @@ export default function DataSafetyModal({
       <ActionCard icon="▤" title={t(language,'exportTransactions','Export transactions')} copy={t(language,'exportTransactionsHint','Create an Excel-compatible CSV with AD + BS dates and Kharcha money details.')} label={t(language,'exportCsv','Export CSV')} onPress={onCsvExport} busy={busy}/>
       <ActionCard icon="▧" title={t(language,'monthlyReport','Monthly financial report')} copy={t(language,'monthlyReportHint','Create a PDF summary of income, expenses, budget, Udhaaro, bills, savings and household spending.')} label={t(language,'generatePdf','Generate PDF')} onPress={onMonthlyReport} busy={busy}/>
       <ActionCard icon="⚙" title={t(language,'manageData','Manage data')} copy={t(language,'manageDataHint','Import Kharcha CSV, clear a month, recover a safety snapshot, or reset the app safely.')} label={t(language,'openDataManager','Open data manager')} onPress={onDataManagement} busy={busy}/>
+      <ActionCard icon="⌾" title={t(language,'appLock','App lock')} copy={t(language,'appLockHint','Protect Kharcha with a device-local PIN and optional biometrics.')} label={t(language,'securitySettings','Security settings')} onPress={onSecurity} busy={busy}/>
 
       <View style={s.warning}><Text style={s.warningIcon}>⚠️</Text><Text style={s.warningText}>{t(language,'backupWarning','Backup and export files are not encrypted. Store them somewhere you trust and avoid sharing them publicly.')}</Text></View>
       <Pressable style={s.close} disabled={busy} onPress={onClose}><Text style={s.closeText}>{t(language,'close','Close')}</Text></Pressable>
