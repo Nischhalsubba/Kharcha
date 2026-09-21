@@ -4,6 +4,7 @@ import { COLORS } from '../constants';
 import { categoryLabel, t } from '../i18n';
 import s from '../appStyles';
 import { Chip, Empty, TransactionRow } from '../components/AppPrimitives';
+import HapticPressable from '../components/HapticPressable';
 
 function groupByDate(items){
   const groups=[];
@@ -20,7 +21,7 @@ export default function ActivityScreen({ lang, query, setQuery, filterType, setF
   const groups=useMemo(()=>groupByDate(filteredTransactions),[filteredTransactions]);
   const filtersActive=query||filterType!=='all'||filterWallet!=='all'||filterCategory!=='all'||filterPeriod!=='all';
   return <ScrollView contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false} contentContainerStyle={[s.scroll,{paddingTop:0}]}>
-    <View style={s.screenTitleRow}><Text style={s.screenTitle}>{t(lang,'transactionRecord','Transaction record')}</Text>{filtersActive?<Text onPress={clearFilters} style={s.action}>{t(lang,'clear','Clear')}</Text>:<View style={s.pill}><Text style={s.pillText}>{t(lang,'newest','Newest')}</Text><Text style={s.pillChevron}>⌄</Text></View>}</View>
+    <View style={s.screenTitleRow}><Text style={s.screenTitle}>{t(lang,'transactionRecord','Transaction record')}</Text>{filtersActive?<HapticPressable haptic={null} style={s.sectionAction} onPress={clearFilters}><Text style={s.action}>{t(lang,'clear','Clear')}</Text></HapticPressable>:<Text style={s.meta}>{t(lang,'newest','Newest')} first</Text>}</View>
     <TextInput value={query} onChangeText={setQuery} placeholder={t(lang,'searchPlaceholder','Search note, category, amount…')} placeholderTextColor={COLORS.muted} style={s.search}/>
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.filters}><Chip label={t(lang,'all','All')} active={filterType==='all'} onPress={()=>{setFilterType('all');setFilterCategory('all');}}/><Chip label={t(lang,'expense','Expense')} active={filterType==='expense'} onPress={()=>{setFilterType('expense');setFilterCategory('all');}}/><Chip label={t(lang,'income','Income')} active={filterType==='income'} onPress={()=>{setFilterType('income');setFilterCategory('all');}}/><Chip label={t(lang,'transfer','Transfer')} active={filterType==='transfer'} onPress={()=>{setFilterType('transfer');setFilterCategory('all');}}/><Chip label={t(lang,'thisMonth','This month')} active={filterPeriod==='month'} onPress={()=>setFilterPeriod(filterPeriod==='month'?'all':'month')}/></ScrollView>
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.filters}><Chip label={t(lang,'allWallets','All wallets')} active={filterWallet==='all'} onPress={()=>setFilterWallet('all')}/>{settings.wallets.map(wallet=><Chip key={wallet.id} label={wallet.name} active={filterWallet===wallet.id} onPress={()=>setFilterWallet(wallet.id)}/>)}</ScrollView>
