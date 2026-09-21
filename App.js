@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Alert, Pressable, SafeAreaView, StatusBar, Text, View } from 'react-native';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Alert, AppState, Pressable, SafeAreaView, StatusBar, Text, View } from 'react-native';
 import AddTransactionModal from './src/components/AddTransactionModal';
 import WalletModal from './src/components/WalletModal';
 import CategoryModal from './src/components/CategoryModal';
@@ -15,6 +15,8 @@ import DataSafetyModal from './src/components/DataSafetyModal';
 import CsvExportModal from './src/components/CsvExportModal';
 import MonthlyReportModal from './src/components/MonthlyReportModal';
 import DataManagementModal from './src/components/DataManagementModal';
+import SecuritySettingsModal from './src/components/SecuritySettingsModal';
+import LockScreen from './src/components/LockScreen';
 import { COLORS, categoryPairs } from './src/constants';
 import { t } from './src/i18n';
 import s from './src/appStyles';
@@ -41,6 +43,8 @@ const { prepareTransactionImport, mergeImportedTransactions, prepareMonthDeletio
 const { shareCsvExport } = require('./src/services/exportFiles');
 const { shareMonthlyPdf } = require('./src/services/reportFiles');
 const { pickCsvImportText } = require('./src/services/importFiles');
+const { DEFAULT_SECURITY_CONFIG, isValidPin, shouldLockAfterBackground, cooldownSecondsForFailures } = require('./src/domain/security');
+const { getSecurityConfig, enablePinLock, updatePin, verifyPin, disableAppLock, getBiometricAvailability, setBiometricEnabled, setLockAfterSeconds, authenticateBiometric } = require('./src/services/appSecurity');
 const APP_VERSION = require('./package.json').version;
 
 function pad2(v){return String(v).padStart(2,'0');}
@@ -51,10 +55,11 @@ function money(value,settings){if(settings.currency==='NPR')return formatNpr(val
 export default function App(){
   const [ready,setReady]=useState(false),[tab,setTab]=useState('overview'),[transactions,setTransactions]=useState([]),[settings,setSettings]=useState(defaultSettings),[nepalData,setNepalData]=useState(defaultNepalData),[planningData,setPlanningData]=useState(defaultPlanningData);
   const [transactionOpen,setTransactionOpen]=useState(false),[editing,setEditing]=useState(null),[draftEventId,setDraftEventId]=useState('');
-  const [walletOpen,setWalletOpen]=useState(false),[categoryOpen,setCategoryOpen]=useState(false),[recurringOpen,setRecurringOpen]=useState(false),[settingsOpen,setSettingsOpen]=useState(false),[remittanceOpen,setRemittanceOpen]=useState(false),[udharoOpen,setUdhaaroOpen]=useState(false),[eventOpen,setEventOpen]=useState(false),[paymentRecord,setPaymentRecord]=useState(null),[obligationOpen,setObligationOpen]=useState(false),[paymentObligation,setPaymentObligation]=useState(null),[savingsOpen,setSavingsOpen]=useState(false),[savingsMovement,setSavingsMovement]=useState(null),[householdOpen,setHouseholdOpen]=useState(false),[dataSafetyOpen,setDataSafetyOpen]=useState(false),[backupBusy,setBackupBusy]=useState(false),[csvExportOpen,setCsvExportOpen]=useState(false),[monthlyReportOpen,setMonthlyReportOpen]=useState(false),[dataManagementOpen,setDataManagementOpen]=useState(false),[snapshotInfo,setSnapshotInfo]=useState(null);
+  const [walletOpen,setWalletOpen]=useState(false),[categoryOpen,setCategoryOpen]=useState(false),[recurringOpen,setRecurringOpen]=useState(false),[settingsOpen,setSettingsOpen]=useState(false),[remittanceOpen,setRemittanceOpen]=useState(false),[udharoOpen,setUdhaaroOpen]=useState(false),[eventOpen,setEventOpen]=useState(false),[paymentRecord,setPaymentRecord]=useState(null),[obligationOpen,setObligationOpen]=useState(false),[paymentObligation,setPaymentObligation]=useState(null),[savingsOpen,setSavingsOpen]=useState(false),[savingsMovement,setSavingsMovement]=useState(null),[householdOpen,setHouseholdOpen]=useState(false),[dataSafetyOpen,setDataSafetyOpen]=useState(false),[backupBusy,setBackupBusy]=useState(false),[csvExportOpen,setCsvExportOpen]=useState(false),[monthlyReportOpen,setMonthlyReportOpen]=useState(false),[dataManagementOpen,setDataManagementOpen]=useState(false),[snapshotInfo,setSnapshotInfo]=useState(null),[securityOpen,setSecurityOpen]=useState(false),[securityReady,setSecurityReady]=useState(false),[securityConfig,setSecurityConfig]=useState(DEFAULT_SECURITY_CONFIG),[biometricAvailable,setBiometricAvailable]=useState(false),[locked,setLocked]=useState(false),[securityBusy,setSecurityBusy]=useState(false),[failedAttempts,setFailedAttempts]=useState(0),[cooldownUntil,setCooldownUntil]=useState(0);
   const [budgetDraft,setBudgetDraft]=useState(String(defaultSettings.monthlyBudget));
   const [query,setQuery]=useState(''),[filterType,setFilterType]=useState('all'),[filterWallet,setFilterWallet]=useState('all'),[filterCategory,setFilterCategory]=useState('all'),[filterPeriod,setFilterPeriod]=useState('all');
   const [categoryBudgetCategory,setCategoryBudgetCategory]=useState('Food'),[categoryBudgetDraft,setCategoryBudgetDraft]=useState('');
+  const appStateRef=useRef(AppState.currentState),backgroundAtRef=useRef(null);
   const currentMonth=monthKey(),today=localIsoDate();
   const summary=useMemo(()=>summarizeTransactions(transactions,currentMonth),[transactions,currentMonth]);
   const breakdown=useMemo(()=>categoryBreakdown(transactions,currentMonth),[transactions,currentMonth]);
@@ -74,6 +79,24 @@ export default function App(){
   const planningSummary=useMemo(()=>planningAnalytics(planningData,transactions,today),[planningData,transactions,today]);
 
   useEffect(()=>{let mounted=true;(async()=>{let recovered=false;try{recovered=await recoverInterruptedRestore();}catch(error){if(mounted)Alert.alert('Recovery issue',error?.message||'Kharcha could not recover an interrupted restore.');}try{const [tx,st,np,pl]=await Promise.all([loadTransactions(),loadSettings(),loadNepalData(),loadPlanningData()]);if(!mounted)return;const materialized=materializeRecurringTransactions(tx,st.recurringTransactions,localIsoDate());const reconciledUdhaaro=reconcileUdhaaroRecords(np.udharo,materialized.transactions);const reconciledNepal={...np,udharo:reconciledUdhaaro};setTransactions(materialized.transactions);setSettings(st);setNepalData(reconciledNepal);setPlanningData(pl);setBudgetDraft(String(st.monthlyBudget));const writes=[];if(materialized.created.length)writes.push(saveTransactions(materialized.transactions));if(JSON.stringify(reconciledUdhaaro)!==JSON.stringify(np.udharo))writes.push(saveNepalData(reconciledNepal));if(writes.length)await Promise.all(writes);if(recovered)Alert.alert('Restore recovered','Kharcha recovered the data that existed before an interrupted restore.');}finally{if(mounted)setReady(true);}})();return()=>{mounted=false;};},[]);
+
+  useEffect(()=>{let mounted=true;(async()=>{try{const [config,bio]=await Promise.all([getSecurityConfig(),getBiometricAvailability()]);if(!mounted)return;setSecurityConfig(config);setBiometricAvailable(bio);setLocked(config.enabled);}catch(error){if(mounted)Alert.alert('Security unavailable',error?.message||'Kharcha could not load app-lock settings.');}finally{if(mounted)setSecurityReady(true);}})();return()=>{mounted=false;};},[]);
+
+  useEffect(()=>{
+    const subscription=AppState.addEventListener('change',(nextState)=>{
+      const previous=appStateRef.current;
+      if(nextState==='active'){
+        if(securityConfig.enabled&&shouldLockAfterBackground(backgroundAtRef.current,Date.now(),securityConfig.lockAfterSeconds))setLocked(true);
+        backgroundAtRef.current=null;
+      }else if(previous==='active'){
+        backgroundAtRef.current=Date.now();
+        if(securityConfig.enabled&&securityConfig.lockAfterSeconds===0)setLocked(true);
+      }
+      appStateRef.current=nextState;
+    });
+    return()=>subscription.remove();
+  },[securityConfig.enabled,securityConfig.lockAfterSeconds]);
+
 
   async function persistSettings(next){const saved=await saveSettings(next);setSettings(saved);return saved;}
   async function persistNepalData(next){const saved=await saveNepalData(next);setNepalData(saved);return saved;}
@@ -211,6 +234,37 @@ export default function App(){
     finally{setBackupBusy(false);}
   }
 
+  async function enableSecurityPin(pin){
+    if(!isValidPin(pin))return Alert.alert('Check PIN','Use 4 to 6 numeric digits.');
+    setSecurityBusy(true);try{const config=await enablePinLock(pin);setSecurityConfig(config);setBiometricAvailable(await getBiometricAvailability());Alert.alert('App lock enabled','Kharcha will lock when you leave the app based on your auto-lock setting.');}catch(error){Alert.alert('Could not enable lock',error?.message||'Try again.');}finally{setSecurityBusy(false);}
+  }
+  async function updateSecurityPin(currentPin,newPin){
+    if(!isValidPin(newPin))return Alert.alert('Check new PIN','Use 4 to 6 numeric digits.');
+    setSecurityBusy(true);try{if(!(await verifyPin(currentPin)))return Alert.alert('Incorrect PIN','The current PIN did not match.');await updatePin(newPin);Alert.alert('PIN updated','Your Kharcha app-lock PIN has been changed.');}catch(error){Alert.alert('Could not update PIN',error?.message||'Try again.');}finally{setSecurityBusy(false);}
+  }
+  async function disableSecurity(currentPin){
+    setSecurityBusy(true);try{if(!(await verifyPin(currentPin)))return Alert.alert('Incorrect PIN','The current PIN did not match.');const config=await disableAppLock();setSecurityConfig(config);setLocked(false);setSecurityOpen(false);setFailedAttempts(0);setCooldownUntil(0);Alert.alert('App lock disabled','Kharcha will no longer ask for a PIN when reopened.');}catch(error){Alert.alert('Could not disable lock',error?.message||'Try again.');}finally{setSecurityBusy(false);}
+  }
+  async function toggleSecurityBiometric(enabled){
+    setSecurityBusy(true);try{
+      if(enabled){const result=await authenticateBiometric();if(!result.success)return Alert.alert('Biometric not enabled','Authentication was not completed.');}
+      const config=await setBiometricEnabled(enabled);setSecurityConfig(config);
+    }catch(error){Alert.alert('Biometric unavailable',error?.message||'Kharcha could not update biometric unlock.');}finally{setSecurityBusy(false);}
+  }
+  async function changeSecurityTimeout(seconds){
+    setSecurityBusy(true);try{const config=await setLockAfterSeconds(seconds);setSecurityConfig(config);}catch(error){Alert.alert('Could not update auto-lock',error?.message||'Try again.');}finally{setSecurityBusy(false);}
+  }
+  async function unlockWithPin(pin){
+    const ok=await verifyPin(pin);
+    if(ok){setLocked(false);setFailedAttempts(0);setCooldownUntil(0);return true;}
+    const next=failedAttempts+1;setFailedAttempts(next);const cooldown=cooldownSecondsForFailures(next);if(cooldown)setCooldownUntil(Date.now()+cooldown*1000);return false;
+  }
+  async function unlockWithBiometric(){
+    const result=await authenticateBiometric();
+    if(result.success){setLocked(false);setFailedAttempts(0);setCooldownUntil(0);return true;}
+    return false;
+  }
+
   async function chooseBackupToRestore(){
     setBackupBusy(true);
     let picked;
@@ -237,7 +291,8 @@ export default function App(){
   }
 
 
-  if(!ready)return <SafeAreaView style={[s.safe,s.center]}><StatusBar barStyle="dark-content"/><Text style={s.brand}>Kharcha</Text><Text style={s.meta}>Loading your money view…</Text></SafeAreaView>;
+  if(!ready||!securityReady)return <SafeAreaView style={[s.safe,s.center]}><StatusBar barStyle="dark-content"/><Text style={s.brand}>Kharcha</Text><Text style={s.meta}>Loading your money view…</Text></SafeAreaView>;
+  if(locked)return <LockScreen onUnlockPin={unlockWithPin} onUnlockBiometric={unlockWithBiometric} biometricEnabled={securityConfig.biometricEnabled} biometricAvailable={biometricAvailable} cooldownUntil={cooldownUntil} failedAttempts={failedAttempts}/>;
   const lang=settings.language;
   const m=(value)=>money(value,settings);
   return <SafeAreaView style={s.safe}><StatusBar barStyle="dark-content" backgroundColor={COLORS.bg}/><View style={s.app}>
@@ -251,6 +306,6 @@ export default function App(){
     <View style={s.bottom}>{[['overview','⌂',t(lang,'overview','Overview')],['activity','≡',t(lang,'activity','Activity')]].map(([k,i,l])=><Tab key={k} active={tab===k} icon={i} label={l} onPress={()=>setTab(k)}/>)}<Pressable style={s.fab} onPress={()=>openAdd()} accessibilityRole="button" accessibilityLabel="Add transaction"><Text style={s.fabText}>＋</Text></Pressable>{[['budget','◫',t(lang,'budget','Budget')],['insights','◔',t(lang,'insights','Insights')]].map(([k,i,l])=><Tab key={k} active={tab===k} icon={i} label={l} onPress={()=>setTab(k)}/>)}</View>
     <AddTransactionModal visible={transactionOpen} initialTransaction={editing} wallets={settings.wallets} customCategories={settings.customCategories} events={nepalData.events} householdBudgets={planningData.householdBudgets} settings={settings} initialEventId={draftEventId} onClose={()=>{setTransactionOpen(false);setEditing(null);setDraftEventId('');}} onSave={saveTransaction}/>
     <WalletModal visible={walletOpen} language={lang} onClose={()=>setWalletOpen(false)} onSave={addWallet}/><CategoryModal visible={categoryOpen} language={lang} onClose={()=>setCategoryOpen(false)} onSave={addCategory}/><RecurringModal visible={recurringOpen} settings={settings} onClose={()=>setRecurringOpen(false)} onSave={addRecurring} wallets={settings.wallets} customCategories={settings.customCategories}/>
-    <NepalSettingsModal visible={settingsOpen} settings={settings} onClose={()=>setSettingsOpen(false)} onSave={async(next)=>{await persistSettings(next);setSettingsOpen(false);}} onDataSafety={()=>{setSettingsOpen(false);setDataSafetyOpen(true);}}/><RemittanceModal visible={remittanceOpen} wallets={settings.wallets} settings={settings} onClose={()=>setRemittanceOpen(false)} onSave={saveRemittance}/><UdhaaroModal visible={udharoOpen} paymentRecord={paymentRecord} settings={settings} wallets={settings.wallets} onClose={()=>{setUdhaaroOpen(false);setPaymentRecord(null);}} onSave={addUdhaaro} onPay={payUdhaaro}/><EventBudgetModal visible={eventOpen} settings={settings} onClose={()=>setEventOpen(false)} onSave={addEvent}/><ObligationModal visible={obligationOpen} paymentTarget={paymentObligation} settings={settings} wallets={settings.wallets} onClose={()=>{setObligationOpen(false);setPaymentObligation(null);}} onSave={addObligation} onPay={payObligation}/><SavingsGoalModal visible={savingsOpen} movementTarget={savingsMovement} settings={settings} wallets={settings.wallets} onClose={()=>{setSavingsOpen(false);setSavingsMovement(null);}} onSaveGoal={addSavingsGoal} onMove={moveSavingsGoal}/><HouseholdBudgetModal visible={householdOpen} settings={settings} onClose={()=>setHouseholdOpen(false)} onSave={addHouseholdBudget}/><DataSafetyModal visible={dataSafetyOpen} language={settings.language} busy={backupBusy} onClose={()=>setDataSafetyOpen(false)} onBackup={createPortableBackup} onRestore={chooseBackupToRestore} onCsvExport={()=>{setDataSafetyOpen(false);setCsvExportOpen(true);}} onMonthlyReport={()=>{setDataSafetyOpen(false);setMonthlyReportOpen(true);}} onDataManagement={async()=>{setDataSafetyOpen(false);await refreshSafetySnapshot();setDataManagementOpen(true);}}/><CsvExportModal visible={csvExportOpen} language={settings.language} busy={backupBusy} onClose={()=>setCsvExportOpen(false)} onExport={exportTransactionsCsv}/><MonthlyReportModal visible={monthlyReportOpen} language={settings.language} busy={backupBusy} onClose={()=>setMonthlyReportOpen(false)} onGenerate={generateMonthlyPdf}/><DataManagementModal visible={dataManagementOpen} busy={backupBusy} snapshotInfo={snapshotInfo} onClose={()=>setDataManagementOpen(false)} onImport={chooseCsvImport} onClearMonth={clearMonthSafely} onDeleteAll={deleteAllSafely} onRestoreSnapshot={restoreSafetySnapshot}/>
+    <NepalSettingsModal visible={settingsOpen} settings={settings} onClose={()=>setSettingsOpen(false)} onSave={async(next)=>{await persistSettings(next);setSettingsOpen(false);}} onDataSafety={()=>{setSettingsOpen(false);setDataSafetyOpen(true);}}/><RemittanceModal visible={remittanceOpen} wallets={settings.wallets} settings={settings} onClose={()=>setRemittanceOpen(false)} onSave={saveRemittance}/><UdhaaroModal visible={udharoOpen} paymentRecord={paymentRecord} settings={settings} wallets={settings.wallets} onClose={()=>{setUdhaaroOpen(false);setPaymentRecord(null);}} onSave={addUdhaaro} onPay={payUdhaaro}/><EventBudgetModal visible={eventOpen} settings={settings} onClose={()=>setEventOpen(false)} onSave={addEvent}/><ObligationModal visible={obligationOpen} paymentTarget={paymentObligation} settings={settings} wallets={settings.wallets} onClose={()=>{setObligationOpen(false);setPaymentObligation(null);}} onSave={addObligation} onPay={payObligation}/><SavingsGoalModal visible={savingsOpen} movementTarget={savingsMovement} settings={settings} wallets={settings.wallets} onClose={()=>{setSavingsOpen(false);setSavingsMovement(null);}} onSaveGoal={addSavingsGoal} onMove={moveSavingsGoal}/><HouseholdBudgetModal visible={householdOpen} settings={settings} onClose={()=>setHouseholdOpen(false)} onSave={addHouseholdBudget}/><DataSafetyModal visible={dataSafetyOpen} language={settings.language} busy={backupBusy} onClose={()=>setDataSafetyOpen(false)} onBackup={createPortableBackup} onRestore={chooseBackupToRestore} onCsvExport={()=>{setDataSafetyOpen(false);setCsvExportOpen(true);}} onMonthlyReport={()=>{setDataSafetyOpen(false);setMonthlyReportOpen(true);}} onDataManagement={async()=>{setDataSafetyOpen(false);await refreshSafetySnapshot();setDataManagementOpen(true);}} onSecurity={()=>{setDataSafetyOpen(false);setSecurityOpen(true);}}/><CsvExportModal visible={csvExportOpen} language={settings.language} busy={backupBusy} onClose={()=>setCsvExportOpen(false)} onExport={exportTransactionsCsv}/><MonthlyReportModal visible={monthlyReportOpen} language={settings.language} busy={backupBusy} onClose={()=>setMonthlyReportOpen(false)} onGenerate={generateMonthlyPdf}/><DataManagementModal visible={dataManagementOpen} busy={backupBusy} snapshotInfo={snapshotInfo} onClose={()=>setDataManagementOpen(false)} onImport={chooseCsvImport} onClearMonth={clearMonthSafely} onDeleteAll={deleteAllSafely} onRestoreSnapshot={restoreSafetySnapshot}/><SecuritySettingsModal visible={securityOpen} onClose={()=>setSecurityOpen(false)} config={securityConfig} biometricAvailable={biometricAvailable} busy={securityBusy} onEnable={enableSecurityPin} onUpdatePin={updateSecurityPin} onDisable={disableSecurity} onToggleBiometric={toggleSecurityBiometric} onSetTimeout={changeSecurityTimeout}/>
   </View></SafeAreaView>;
 }
