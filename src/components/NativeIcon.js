@@ -92,6 +92,8 @@ export default function NativeIcon({name,size=22,color=COLORS.mutedStrong,stroke
       body=<><Path {...props} d="M3 12V4h8l10 10-7 7Z"/><Circle {...props} cx="8" cy="8" r="1.5"/></>;break;
     case 'chevron-right':
       body=<Polyline {...props} points="9 5 16 12 9 19"/>;break;
+    case 'chevron-left':
+      body=<Polyline {...props} points="15 5 8 12 15 19"/>;break;
     case 'close':
       body=<><Line {...props} x1="6" y1="6" x2="18" y2="18"/><Line {...props} x1="18" y1="6" x2="6" y2="18"/></>;break;
     default:
