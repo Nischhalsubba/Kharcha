@@ -26,6 +26,9 @@ test('normalizeSettings migrates old settings to Phase 1 defaults', () => {
   const settings = normalizeSettings({ currency: 'NPR', monthlyBudget: 42000 });
   assert.equal(settings.currency, 'NPR');
   assert.equal(settings.monthlyBudget, 42000);
+  assert.equal(settings.language, 'en');
+  assert.equal(settings.dateSystem, 'AD');
+  assert.equal(settings.amountFormat, 'standard');
   assert.ok(settings.wallets.some((wallet) => wallet.id === 'cash'));
   assert.deepEqual(settings.customCategories, { expense: [], income: [] });
   assert.deepEqual(settings.categoryBudgets, {});
