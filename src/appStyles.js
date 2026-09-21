@@ -1,16 +1,8 @@
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { COLORS, DESIGN_TOKENS } from './constants';
 
-const cardShadow = Platform.select({
-  ios: { shadowColor: COLORS.shadow, shadowOpacity: 0.13, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } },
-  android: { elevation: 2 },
-  default: {},
-});
-const floatingShadow = Platform.select({
-  ios: { shadowColor: COLORS.shadow, shadowOpacity: 0.12, shadowRadius: 20, shadowOffset: { width: 0, height: 12 } },
-  android: { elevation: 10 },
-  default: {},
-});
+const cardShadow = { boxShadow:'0 1px 8px rgba(17,24,39,0.04)' };
+const floatingShadow = { boxShadow:'0 8px 24px rgba(17,24,39,0.12)' };
 
 const s=StyleSheet.create({
   safe:{flex:1,backgroundColor:COLORS.bg},
@@ -18,9 +10,10 @@ const s=StyleSheet.create({
   center:{alignItems:'center',justifyContent:'center',paddingHorizontal:24},
   content:{flex:1},
 
-  top:{paddingHorizontal:20,paddingTop:8,paddingBottom:12,flexDirection:'row',justifyContent:'space-between',alignItems:'center'},
+  top:{minHeight:56,paddingHorizontal:20,paddingVertical:6,flexDirection:'row',justifyContent:'space-between',alignItems:'center'},
   brandLockup:{minHeight:52,justifyContent:'center'},
-  brandRow:{flexDirection:'row',alignItems:'center',gap:8},
+  brandRow:{flexDirection:'row',alignItems:'center',gap:9},
+  headerAction:{width:44,height:44,borderRadius:22,alignItems:'center',justifyContent:'center',backgroundColor:COLORS.surface,borderWidth:StyleSheet.hairlineWidth,borderColor:COLORS.borderStrong},
   brandMark:{width:30,height:30},
   loadingBrand:{flexDirection:'row',alignItems:'center',gap:10,marginBottom:10},
   eyebrow:{color:COLORS.muted,fontSize:12,lineHeight:16,fontWeight:'400',letterSpacing:-0.12},
@@ -41,13 +34,13 @@ const s=StyleSheet.create({
   metrics:{flexDirection:'row',alignItems:'center',marginTop:16},
   metric:{flex:1},
   metricValue:{fontSize:14,lineHeight:21,fontWeight:'600',marginTop:3},
-  metricValueLarge:{color:COLORS.text,fontSize:24,lineHeight:36,fontWeight:'600',letterSpacing:-0.72},
+  metricValueLarge:{color:COLORS.text,fontSize:24,lineHeight:36,fontWeight:'600',letterSpacing:-0.72,fontVariant:['tabular-nums']},
   divider:{width:1,height:30,backgroundColor:COLORS.border,marginHorizontal:18},
   income:{color:COLORS.income},
   danger:{color:COLORS.danger},
 
-  card:{backgroundColor:COLORS.surface,borderRadius:12,marginTop:12,overflow:'hidden',...cardShadow},
-  financeCard:{backgroundColor:COLORS.surface,borderRadius:12,overflow:'hidden',...cardShadow},
+  card:{backgroundColor:COLORS.surface,borderRadius:12,marginTop:12,overflow:'hidden',borderWidth:StyleSheet.hairlineWidth,borderColor:COLORS.border,...cardShadow},
+  financeCard:{backgroundColor:COLORS.surface,borderRadius:12,overflow:'hidden',borderWidth:StyleSheet.hairlineWidth,borderColor:COLORS.border,...cardShadow},
   financeCardHeader:{minHeight:48,paddingHorizontal:16,paddingVertical:10,flexDirection:'row',alignItems:'center',justifyContent:'space-between'},
   financeCardBody:{padding:16,gap:16},
   cardDivider:{height:1,backgroundColor:COLORS.border},
@@ -75,12 +68,12 @@ const s=StyleSheet.create({
   track:{height:6,borderRadius:99,backgroundColor:COLORS.surface2,overflow:'hidden',marginTop:12,marginBottom:8},
   fill:{height:'100%',backgroundColor:COLORS.accent,borderRadius:99},
 
-  sectionHead:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginTop:20,marginBottom:12,paddingLeft:12},
+  sectionHead:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginTop:22,marginBottom:10},
   sectionTitle:{color:COLORS.text,fontSize:16,lineHeight:24,fontWeight:'600',letterSpacing:-0.32},
   action:{color:COLORS.accent,fontSize:12,lineHeight:16,fontWeight:'600'},
   sectionAction:{minHeight:44,justifyContent:'center',paddingLeft:12},
 
-  list:{backgroundColor:COLORS.surface,borderRadius:12,overflow:'hidden',...cardShadow},
+  list:{backgroundColor:COLORS.surface,borderRadius:12,overflow:'hidden',borderWidth:StyleSheet.hairlineWidth,borderColor:COLORS.border,...cardShadow},
   row:{minHeight:56,flexDirection:'row',alignItems:'center',paddingHorizontal:16,paddingVertical:10},
   icon:{width:32,height:32,borderRadius:16,backgroundColor:COLORS.accentSoft,alignItems:'center',justifyContent:'center',marginRight:12,borderWidth:1,borderColor:'rgba(255,255,255,0.8)'},
   iconIncome:{backgroundColor:'#DDF8EF'},
@@ -90,24 +83,25 @@ const s=StyleSheet.create({
   rowCopy:{flex:1},
   rowTitle:{color:COLORS.text,fontSize:14,lineHeight:21,fontWeight:'600',letterSpacing:-0.28},
   rowRight:{alignItems:'flex-end',marginLeft:8},
-  amount:{fontSize:14,lineHeight:21,fontWeight:'600',letterSpacing:-0.28},
+  amount:{fontSize:14,lineHeight:21,fontWeight:'600',letterSpacing:-0.28,fontVariant:['tabular-nums']},
   rowActions:{flexDirection:'row',gap:12,marginTop:4},
   edit:{color:COLORS.accent,fontSize:10,fontWeight:'600'},
   delete:{color:COLORS.danger,fontSize:10,fontWeight:'600'},
   rowDivider:{height:1,backgroundColor:COLORS.border,marginLeft:60},
 
   empty:{alignItems:'center',padding:28,backgroundColor:COLORS.surface,borderRadius:12,...cardShadow},
-  emptyEmoji:{fontSize:28},
+  emptyIcon:{width:44,height:44,borderRadius:22,backgroundColor:COLORS.surface2,alignItems:'center',justifyContent:'center'},
   emptyTitle:{color:COLORS.text,fontSize:16,lineHeight:24,fontWeight:'600',marginTop:10},
   emptyCopy:{color:COLORS.muted,textAlign:'center',fontSize:13,lineHeight:19,marginTop:6,maxWidth:280},
 
   secondary:{marginTop:12,paddingHorizontal:16,minHeight:44,borderRadius:10,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface,alignItems:'center',justifyContent:'center'},
   secondaryText:{color:COLORS.text,fontSize:14,lineHeight:21,fontWeight:'600'},
+  buttonContent:{flexDirection:'row',alignItems:'center',justifyContent:'center',gap:8},
 
   listPad:{paddingBottom:120},
   listSingle:{backgroundColor:COLORS.surface,borderRadius:12,overflow:'hidden',marginBottom:8,...cardShadow},
   groupedList:{gap:12,paddingBottom:120},
-  dateGroup:{backgroundColor:COLORS.surface,borderRadius:12,paddingTop:12,overflow:'hidden',...cardShadow},
+  dateGroup:{backgroundColor:COLORS.surface,borderRadius:12,paddingTop:12,overflow:'hidden',borderWidth:StyleSheet.hairlineWidth,borderColor:COLORS.border,...cardShadow},
   dateGroupLabel:{color:COLORS.muted,fontSize:12,lineHeight:16,paddingHorizontal:20,paddingBottom:8},
 
   form:{backgroundColor:COLORS.surface,borderRadius:12,padding:20,...cardShadow},
@@ -134,7 +128,8 @@ const s=StyleSheet.create({
   fab:{width:44,height:44,borderRadius:22,backgroundColor:COLORS.accent,alignItems:'center',justifyContent:'center',marginHorizontal:2},
   fabText:{color:'#FFFFFF',fontSize:24,lineHeight:26,fontWeight:'500'},
 
-  search:{minHeight:44,borderRadius:10,borderWidth:1,borderColor:COLORS.borderStrong,backgroundColor:COLORS.surface,color:COLORS.text,paddingHorizontal:14,marginBottom:8,fontSize:14},
+  search:{minHeight:44,borderRadius:12,borderWidth:StyleSheet.hairlineWidth,borderColor:COLORS.borderStrong,backgroundColor:COLORS.surface,flexDirection:'row',alignItems:'center',gap:8,paddingHorizontal:12,marginBottom:8},
+  searchInput:{flex:1,minHeight:42,color:COLORS.text,fontSize:14,paddingVertical:0},
   filters:{paddingVertical:4,paddingRight:16},
   filterChip:{minHeight:44,paddingHorizontal:12,borderRadius:99,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface,justifyContent:'center',marginRight:7},
   filterChipActive:{borderColor:COLORS.borderStrong,backgroundColor:COLORS.surface2},
@@ -142,17 +137,20 @@ const s=StyleSheet.create({
   filterChipTextActive:{color:COLORS.text,fontWeight:'600'},
 
   walletRow:{paddingRight:20,gap:10},
-  walletCard:{width:150,minHeight:96,backgroundColor:COLORS.surface,borderRadius:12,padding:14,...cardShadow},
+  walletCard:{width:150,minHeight:96,backgroundColor:COLORS.surface,borderRadius:12,padding:14,borderWidth:StyleSheet.hairlineWidth,borderColor:COLORS.border,...cardShadow},
   walletIcon:{fontSize:20},
+  walletIconSurface:{width:36,height:36,borderRadius:18,backgroundColor:COLORS.accentSoft,alignItems:'center',justifyContent:'center'},
   walletName:{color:COLORS.muted,fontSize:12,lineHeight:16,fontWeight:'400',marginTop:8},
-  walletBalance:{color:COLORS.text,fontSize:16,lineHeight:24,fontWeight:'600',marginTop:3},
+  walletBalance:{color:COLORS.text,fontSize:16,lineHeight:24,fontWeight:'600',marginTop:3,fontVariant:['tabular-nums']},
 
   setupGrid:{flexDirection:'row',flexWrap:'wrap',gap:10},
-  setupCard:{width:'48%',minHeight:118,backgroundColor:COLORS.surface,borderRadius:12,padding:15,...cardShadow},
+  setupCard:{width:'48%',minHeight:118,backgroundColor:COLORS.surface,borderRadius:12,padding:15,borderWidth:StyleSheet.hairlineWidth,borderColor:COLORS.border,...cardShadow},
   setupIcon:{fontSize:22,marginBottom:12},
+  setupIconSurface:{width:40,height:40,borderRadius:12,backgroundColor:COLORS.accentSoft,alignItems:'center',justifyContent:'center',marginBottom:12},
 
   manageRow:{minHeight:62,paddingHorizontal:16,paddingVertical:12,flexDirection:'row',alignItems:'center',justifyContent:'space-between',borderBottomWidth:1,borderBottomColor:COLORS.border},
   manageRight:{alignItems:'flex-end',gap:6},
+  customCategoryTitle:{flex:1,flexDirection:'row',alignItems:'center'},
 
   budgetFlowHeader:{minHeight:48,flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginBottom:4},
   budgetFlowTitle:{color:COLORS.text,fontSize:20,lineHeight:30,fontWeight:'600',letterSpacing:-0.4,textAlign:'center'},
@@ -165,7 +163,7 @@ const s=StyleSheet.create({
   monthBar:{width:20,minHeight:4,borderRadius:4},
   cashflowCard:{backgroundColor:COLORS.surface,borderRadius:12,flexDirection:'row',paddingVertical:16,paddingHorizontal:12,alignItems:'center',...cardShadow},
   cashflowItem:{flex:1,alignItems:'center',gap:4},
-  cashflowValue:{color:COLORS.text,fontSize:14,lineHeight:21,fontWeight:'600'},
+  cashflowValue:{color:COLORS.text,fontSize:14,lineHeight:21,fontWeight:'600',fontVariant:['tabular-nums']},
   cashflowDivider:{width:1,height:36,backgroundColor:COLORS.border},
   breakdownTabs:{height:36,borderRadius:99,backgroundColor:COLORS.surface2,padding:3,flexDirection:'row'},
   breakdownTab:{flex:1,borderRadius:99,alignItems:'center',justifyContent:'center'},

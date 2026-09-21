@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
+import HapticPressable from './HapticPressable';
 import { COLORS } from '../constants';
 
 export default function LockScreen({onUnlockPin,onUnlockBiometric,biometricEnabled=false,biometricAvailable=false,cooldownUntil=0,failedAttempts=0}) {
@@ -38,9 +39,9 @@ export default function LockScreen({onUnlockPin,onUnlockBiometric,biometricEnabl
     finally{setBusy(false);}
   }
 
-  return <SafeAreaView style={s.safe}>
+  return <View style={s.safe}>
     <KeyboardAvoidingView style={s.center} behavior={Platform.OS==='ios'?'padding':undefined}>
-      <View style={s.mark}><Text style={s.markText}>K</Text></View>
+      <Image source={require('../../assets/images/splash-icon.png')} style={s.markImage} resizeMode="contain"/>
       <Text style={s.brand}>Kharcha</Text>
       <Text style={s.title}>Locked</Text>
       <Text style={s.copy}>Enter your PIN to view your financial data.</Text>
@@ -57,16 +58,16 @@ export default function LockScreen({onUnlockPin,onUnlockBiometric,biometricEnabl
         onSubmitEditing={unlockPin}
       />
       {blocked?<Text style={s.warning}>Too many attempts. Try again in {remaining}s.</Text>:message?<Text style={s.warning}>{message}</Text>:failedAttempts>0?<Text style={s.meta}>{failedAttempts} failed attempt{failedAttempts===1?'':'s'}</Text>:null}
-      <Pressable style={[s.primary,(blocked||busy)&&s.disabled]} disabled={blocked||busy} onPress={unlockPin}><Text style={s.primaryText}>{busy?'Checking…':'Unlock'}</Text></Pressable>
-      {biometricEnabled&&biometricAvailable?<Pressable style={[s.secondary,(blocked||busy)&&s.disabled]} disabled={blocked||busy} onPress={unlockBiometric}><Text style={s.secondaryText}>Use biometrics</Text></Pressable>:null}
+      <HapticPressable haptic="impact" style={[s.primary,(blocked||busy)&&s.disabled]} disabled={blocked||busy} onPress={unlockPin}><Text style={s.primaryText}>{busy?'Checking…':'Unlock'}</Text></HapticPressable>
+      {biometricEnabled&&biometricAvailable?<HapticPressable style={[s.secondary,(blocked||busy)&&s.disabled]} disabled={blocked||busy} onPress={unlockBiometric}><Text style={s.secondaryText}>Use biometrics</Text></HapticPressable>:null}
       <Text style={s.privacy}>Your Kharcha data stays on this device.</Text>
     </KeyboardAvoidingView>
-  </SafeAreaView>;
+  </View>;
 }
 
 const s=StyleSheet.create({
   safe:{flex:1,backgroundColor:COLORS.bg},center:{flex:1,alignItems:'center',justifyContent:'center',paddingHorizontal:28},
-  mark:{width:58,height:58,borderRadius:12,backgroundColor:COLORS.accent,alignItems:'center',justifyContent:'center'},markText:{color:COLORS.onAccent,fontSize:28,fontWeight:'600'},
+  markImage:{width:64,height:64},
   brand:{color:COLORS.text,fontSize:18,fontWeight:'600',marginTop:14},title:{color:COLORS.text,fontSize:30,fontWeight:'600',marginTop:26},copy:{color:COLORS.muted,fontSize:13,textAlign:'center',marginTop:6},
   input:{width:'100%',height:48,borderRadius:12,borderWidth:1,borderColor:COLORS.border,backgroundColor:COLORS.surface,color:COLORS.text,textAlign:'center',fontSize:24,letterSpacing:12,marginTop:24},
   primary:{width:'100%',height:48,borderRadius:10,backgroundColor:COLORS.accent,alignItems:'center',justifyContent:'center',marginTop:16},primaryText:{color:COLORS.onAccent,fontWeight:'600'},

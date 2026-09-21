@@ -4,6 +4,8 @@ import { COLORS } from '../constants';
 import { categoryLabel, t } from '../i18n';
 import s from '../appStyles';
 import { Chip, Empty, TransactionRow } from '../components/AppPrimitives';
+import HapticPressable from '../components/HapticPressable';
+import NativeIcon from '../components/NativeIcon';
 
 function groupByDate(items){
   const groups=[];
@@ -19,9 +21,9 @@ function groupByDate(items){
 export default function ActivityScreen({ lang, query, setQuery, filterType, setFilterType, filterWallet, setFilterWallet, filterCategory, setFilterCategory, filterPeriod, setFilterPeriod, clearFilters, settings, activityCategories, filteredTransactions, transactions, remove, openEdit, openDetails, openAdd, m }) {
   const groups=useMemo(()=>groupByDate(filteredTransactions),[filteredTransactions]);
   const filtersActive=query||filterType!=='all'||filterWallet!=='all'||filterCategory!=='all'||filterPeriod!=='all';
-  return <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[s.scroll,{paddingTop:0}]}>
-    <View style={s.screenTitleRow}><Text style={s.screenTitle}>{t(lang,'transactionRecord','Transaction record')}</Text>{filtersActive?<Text onPress={clearFilters} style={s.action}>{t(lang,'clear','Clear')}</Text>:<View style={s.pill}><Text style={s.pillText}>{t(lang,'newest','Newest')}</Text><Text style={s.pillChevron}>⌄</Text></View>}</View>
-    <TextInput value={query} onChangeText={setQuery} placeholder={t(lang,'searchPlaceholder','Search note, category, amount…')} placeholderTextColor={COLORS.muted} style={s.search}/>
+  return <ScrollView contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false} contentContainerStyle={[s.scroll,{paddingTop:0}]}>
+    <View style={s.screenTitleRow}><Text style={s.screenTitle}>{t(lang,'transactionRecord','Transaction record')}</Text>{filtersActive?<HapticPressable haptic={null} style={s.sectionAction} onPress={clearFilters}><Text style={s.action}>{t(lang,'clear','Clear')}</Text></HapticPressable>:<Text style={s.meta}>{t(lang,'newest','Newest')} first</Text>}</View>
+    <View style={s.search}><NativeIcon name="search" size={18} color={COLORS.muted}/><TextInput value={query} onChangeText={setQuery} placeholder={t(lang,'searchPlaceholder','Search note, category, amount…')} placeholderTextColor={COLORS.muted} style={s.searchInput} clearButtonMode="while-editing" returnKeyType="search"/></View>
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.filters}><Chip label={t(lang,'all','All')} active={filterType==='all'} onPress={()=>{setFilterType('all');setFilterCategory('all');}}/><Chip label={t(lang,'expense','Expense')} active={filterType==='expense'} onPress={()=>{setFilterType('expense');setFilterCategory('all');}}/><Chip label={t(lang,'income','Income')} active={filterType==='income'} onPress={()=>{setFilterType('income');setFilterCategory('all');}}/><Chip label={t(lang,'transfer','Transfer')} active={filterType==='transfer'} onPress={()=>{setFilterType('transfer');setFilterCategory('all');}}/><Chip label={t(lang,'thisMonth','This month')} active={filterPeriod==='month'} onPress={()=>setFilterPeriod(filterPeriod==='month'?'all':'month')}/></ScrollView>
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.filters}><Chip label={t(lang,'allWallets','All wallets')} active={filterWallet==='all'} onPress={()=>setFilterWallet('all')}/>{settings.wallets.map(wallet=><Chip key={wallet.id} label={wallet.name} active={filterWallet===wallet.id} onPress={()=>setFilterWallet(wallet.id)}/>)}</ScrollView>
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.filters}><Chip label={t(lang,'allCategories','All categories')} active={filterCategory==='all'} onPress={()=>setFilterCategory('all')}/>{activityCategories.map(name=><Chip key={name} label={categoryLabel(name,lang)} active={filterCategory===name} onPress={()=>setFilterCategory(name)}/>)}</ScrollView>
