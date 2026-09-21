@@ -5,10 +5,14 @@ const {
   DEFAULT_SECURITY_CONFIG,
   isValidPin,
   normalizeSecurityConfig,
+  normalizePinAttemptState,
+  nextPinAttemptState,
+  isPinAttemptBlocked,
 } = require('../domain/security');
 
 const CONFIG_KEY = 'kharcha.security.config.v1';
 const PIN_KEY = 'kharcha.security.pin.v1';
+const ATTEMPT_KEY = 'kharcha.security.attempts.v1';
 const STORE_OPTIONS = { keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY };
 
 async function hashPin(pin, salt) {
@@ -74,6 +78,40 @@ export async function updatePin(pin) {
   return config;
 }
 
+export async function getPinAttemptState() {
+  const raw = await SecureStore.getItemAsync(ATTEMPT_KEY, STORE_OPTIONS);
+  if (!raw) return normalizePinAttemptState();
+  try { return normalizePinAttemptState(JSON.parse(raw)); }
+  catch { return normalizePinAttemptState(); }
+}
+
+async function savePinAttemptState(state) {
+  const normalized = normalizePinAttemptState(state);
+  await SecureStore.setItemAsync(ATTEMPT_KEY, JSON.stringify(normalized), STORE_OPTIONS);
+  return normalized;
+}
+
+export async function clearPinAttemptState() {
+  await SecureStore.deleteItemAsync(ATTEMPT_KEY, STORE_OPTIONS);
+  return normalizePinAttemptState();
+}
+
+export async function attemptPinUnlock(pin) {
+  const now = Date.now();
+  const state = await getPinAttemptState();
+  if (isPinAttemptBlocked(state, now)) {
+    return { success: false, blocked: true, state };
+  }
+  const success = await verifyPin(pin);
+  if (success) {
+    const cleared = await clearPinAttemptState();
+    return { success: true, blocked: false, state: cleared };
+  }
+  const next = nextPinAttemptState(state, now);
+  await savePinAttemptState(next);
+  return { success: false, blocked: isPinAttemptBlocked(next, now), state: next };
+}
+
 export async function verifyPin(pin) {
   if (!isValidPin(pin)) return false;
   const record = await readPinRecord();
@@ -84,7 +122,10 @@ export async function verifyPin(pin) {
 
 export async function disableAppLock() {
   const disabled = await saveSecurityConfig(DEFAULT_SECURITY_CONFIG);
-  await SecureStore.deleteItemAsync(PIN_KEY, STORE_OPTIONS);
+  await Promise.all([
+    SecureStore.deleteItemAsync(PIN_KEY, STORE_OPTIONS),
+    SecureStore.deleteItemAsync(ATTEMPT_KEY, STORE_OPTIONS),
+  ]);
   return disabled;
 }
 
