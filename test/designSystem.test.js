@@ -10,12 +10,16 @@ test('Kharcha uses light system chrome', () => {
   assert.equal(app.expo.userInterfaceStyle, 'light');
 });
 
-test('core design tokens follow the Figma-derived finance palette', () => {
+test('core design tokens combine the Figma system with official Kharcha branding', () => {
   const source = fs.readFileSync(path.join(root, 'src/constants.js'), 'utf8');
+  assert.match(source, /primary: '#0074FC'/);
+  assert.match(source, /iconBackground: '#F7FAFF'/);
+  assert.match(source, /dark: '#0F172A'/);
+  assert.match(source, /text: '#111827'/);
   assert.match(source, /canvas: '#F3F3F3'/);
   assert.match(source, /surface: '#FFFFFF'/);
-  assert.match(source, /text: '#262730'/);
-  assert.match(source, /primary: '#1F6FEB'/);
+  assert.match(source, /text: BRAND_TOKENS\.text/);
+  assert.match(source, /primary: BRAND_TOKENS\.primary/);
   assert.match(source, /success: '#40C79A'/);
   assert.match(source, /danger: '#F26969'/);
   assert.match(source, /nav: '#262730'/);
