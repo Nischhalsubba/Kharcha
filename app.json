@@ -6,7 +6,7 @@
     "scheme": "kharcha",
     "version": "1.4.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.kharcha.expensetracker"
