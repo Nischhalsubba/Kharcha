@@ -128,10 +128,29 @@ function parseBackup(raw) {
   };
 }
 
+async function restoreWithRollback(nextState, adapter) {
+  if (!adapter || typeof adapter.readState !== 'function' || typeof adapter.writeState !== 'function') {
+    throw new Error('Restore adapter is invalid.');
+  }
+  const before = await adapter.readState();
+  try {
+    await adapter.writeState(nextState);
+    return nextState;
+  } catch (error) {
+    try {
+      await adapter.writeState(before);
+    } catch (rollbackError) {
+      throw new Error(`Restore failed and rollback failed: ${error?.message || error}; rollback: ${rollbackError?.message || rollbackError}`);
+    }
+    throw new Error(`Restore failed; previous Kharcha data was restored: ${error?.message || error}`);
+  }
+}
+
 module.exports = {
   BACKUP_FORMAT,
   BACKUP_SCHEMA_VERSION,
   createBackupEnvelope,
   serializeBackup,
   parseBackup,
+  restoreWithRollback,
 };
