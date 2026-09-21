@@ -2,6 +2,16 @@
 
 Kharcha is a local-first personal money tracker built with Expo / React Native, designed around everyday Nepali spending.
 
+## Phase 4.3 — Monthly PDF reports
+
+- Generate a shareable PDF for any AD month
+- Report period shows both AD and Bikram Sambat boundaries
+- Summary includes income, expenses, net, transaction count and monthly budget
+- Includes category spending, remittance, Udhaaro, bills/EMI, savings goals and household budgets
+- Historical reports are bounded to that report date so later savings/Udhaaro activity does not rewrite the past
+- User-entered text is HTML-escaped before rendering
+- PDF is generated locally on-device with Expo Print and only leaves the app through the user-invoked share sheet
+
 ## Phase 4.2 — CSV / Excel-compatible export
 
 - Export all transactions, the current month, or an inclusive custom AD date range
