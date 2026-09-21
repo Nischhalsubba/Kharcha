@@ -41,16 +41,17 @@ function buildMonthlyReport(state={},monthKey,options={}) {
   const categories=categoryBreakdown(state.transactions||[],monthKey);
   const budget=monthlyBudgetStatus(state.transactions||[],monthKey,state.settings?.monthlyBudget);
   const remittance=remittanceSummary(state.transactions||[],monthKey);
-  const udharo=udharoSummary(state.nepalData?.udharo||[]);
+  const throughAsOf=(state.transactions||[]).filter(item=>!item?.date||item.date<=asOfDate);
+  const udharoRecords=(state.nepalData?.udharo||[]).map(record=>({...record,repayments:(record.repayments||[]).filter(item=>!item?.date||item.date<=asOfDate)}));
+  const udharo=udharoSummary(udharoRecords);
 
   const obligationStates=(state.planningData?.obligations||[])
     .map(item=>({...item,...obligationStatus(item,state.transactions||[],asOfDate)}));
   const savingsStates=(state.planningData?.savingsGoals||[])
-    .map(item=>({...item,...savingsGoalStatus(item,state.transactions||[])}));
+    .map(item=>({...item,...savingsGoalStatus(item,throughAsOf)}));
   const householdStates=(state.planningData?.householdBudgets||[])
     .map(item=>({...item,...householdBudgetStatus(item,state.transactions||[],monthKey)}));
 
-  const throughAsOf=(state.transactions||[]).filter(item=>!item?.date||item.date<=asOfDate);
   const wallets=walletBalances(throughAsOf,state.settings?.wallets||[]);
 
   return {
