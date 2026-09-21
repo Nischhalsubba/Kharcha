@@ -25,18 +25,18 @@ function seriesFor(transactions,currentMonth){
   }));
 }
 
-export default function OverviewScreen({ lang, summary, m, wallets, settings, setWalletOpen, onTransfer, budget, transactions, currentMonth, setTab, remove, openEdit, openDetails, openAdd }) {
+export default function OverviewScreen({ lang, summary, m, wallets, settings, onSettings, setWalletOpen, onTransfer, budget, transactions, currentMonth, setTab, remove, openEdit, openDetails, openAdd }) {
   const series=useMemo(()=>seriesFor(transactions,currentMonth),[transactions,currentMonth]);
   const max=Math.max(...series.map(item=>item.amount),budget.limit||0,1);
   const previous=series.at(-2)?.amount||0;
   const delta=previous?Math.round(((summary.expense-previous)/previous)*100):null;
   return <ScrollView contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
-    <View style={s.screenTitleRow}><Text style={s.screenTitle}>{t(lang,'overview','Overview')}</Text><View style={s.pill}><Text style={s.pillText}>{monthLabel(currentMonth)}</Text><Text style={s.pillChevron}>⌄</Text></View></View>
+    <View style={s.screenTitleRow}><View><Text style={s.screenTitle}>{t(lang,'overview','Overview')}</Text><Text style={s.meta}>{monthLabel(currentMonth)}</Text></View><HapticPressable style={s.headerIconButton} onPress={onSettings} accessibilityRole="button" accessibilityLabel={t(lang,'settings','Settings')}><NativeIcon name="settings" size={21} color="#111827"/></HapticPressable></View>
 
     <FinanceCard title={t(lang,'totalExpenses','Total expenses')}>
       <View style={s.between}>
         <View><Text style={s.kicker}>{t(lang,'expenses','Expenses')}</Text><Text style={s.metricValueLarge}>{m(summary.expense)}</Text></View>
-        <View style={s.compareBlock}><Text style={s.kicker}>{t(lang,'compareWith','Compare with')}</Text><View style={s.pill}><Text style={s.pillText}>{monthLabel(series.at(-2)?.key)||'—'}</Text><Text style={s.pillChevron}>⌄</Text></View></View>
+        <View style={s.compareBlock}><Text style={s.kicker}>{t(lang,'compareWith','Compare with')}</Text><Text style={s.pillText}>{monthLabel(series.at(-2)?.key)||'—'}</Text></View>
       </View>
       <View style={s.chart}>
         <View style={s.chartBudgetLine}/>
