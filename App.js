@@ -11,6 +11,7 @@ import EventBudgetModal from './src/components/EventBudgetModal';
 import ObligationModal from './src/components/ObligationModal';
 import SavingsGoalModal from './src/components/SavingsGoalModal';
 import HouseholdBudgetModal from './src/components/HouseholdBudgetModal';
+import DataSafetyModal from './src/components/DataSafetyModal';
 import { COLORS, categoryPairs } from './src/constants';
 import { t } from './src/i18n';
 import s from './src/appStyles';
@@ -21,13 +22,16 @@ import BudgetScreen from './src/screens/BudgetScreen';
 import InsightsScreen from './src/screens/InsightsScreen';
 import {
   defaultSettings, defaultNepalData, defaultPlanningData, loadSettings, loadTransactions, loadNepalData, loadPlanningData,
-  saveSettings, saveTransactions, saveNepalData, savePlanningData,
+  saveSettings, saveTransactions, saveNepalData, savePlanningData, loadFullState, restoreFullState, recoverInterruptedRestore,
 } from './src/storage/expenseStore';
 const { categoryBreakdown, monthlyBudgetStatus, normalizeAmount, summarizeTransactions } = require('./src/domain/finance');
 const { categoryBudgetStatus, filterTransactions, materializeRecurringTransactions, walletBalances } = require('./src/domain/phaseOne');
 const { eventBudgetStatus, remittanceSummary, udharoSummary } = require('./src/domain/phaseTwo');
 const { formatNpr } = require('./src/domain/nepal');
 const { obligationStatus, createObligationPaymentTransaction, recordUdhaaroPayment, reverseUdhaaroPayment, reconcileUdhaaroRecords, savingsGoalStatus, createSavingsGoalTransaction, householdBudgetStatus, planningAnalytics } = require('./src/domain/phaseThree');
+const { createBackupEnvelope, serializeBackup, parseBackup } = require('./src/domain/backup');
+const { shareBackupText, pickBackupText } = require('./src/services/backupFiles');
+const APP_VERSION = require('./package.json').version;
 
 function pad2(v){return String(v).padStart(2,'0');}
 function localIsoDate(d=new Date()){return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;}
@@ -37,7 +41,7 @@ function money(value,settings){if(settings.currency==='NPR')return formatNpr(val
 export default function App(){
   const [ready,setReady]=useState(false),[tab,setTab]=useState('overview'),[transactions,setTransactions]=useState([]),[settings,setSettings]=useState(defaultSettings),[nepalData,setNepalData]=useState(defaultNepalData),[planningData,setPlanningData]=useState(defaultPlanningData);
   const [transactionOpen,setTransactionOpen]=useState(false),[editing,setEditing]=useState(null),[draftEventId,setDraftEventId]=useState('');
-  const [walletOpen,setWalletOpen]=useState(false),[categoryOpen,setCategoryOpen]=useState(false),[recurringOpen,setRecurringOpen]=useState(false),[settingsOpen,setSettingsOpen]=useState(false),[remittanceOpen,setRemittanceOpen]=useState(false),[udharoOpen,setUdhaaroOpen]=useState(false),[eventOpen,setEventOpen]=useState(false),[paymentRecord,setPaymentRecord]=useState(null),[obligationOpen,setObligationOpen]=useState(false),[paymentObligation,setPaymentObligation]=useState(null),[savingsOpen,setSavingsOpen]=useState(false),[savingsMovement,setSavingsMovement]=useState(null),[householdOpen,setHouseholdOpen]=useState(false);
+  const [walletOpen,setWalletOpen]=useState(false),[categoryOpen,setCategoryOpen]=useState(false),[recurringOpen,setRecurringOpen]=useState(false),[settingsOpen,setSettingsOpen]=useState(false),[remittanceOpen,setRemittanceOpen]=useState(false),[udharoOpen,setUdhaaroOpen]=useState(false),[eventOpen,setEventOpen]=useState(false),[paymentRecord,setPaymentRecord]=useState(null),[obligationOpen,setObligationOpen]=useState(false),[paymentObligation,setPaymentObligation]=useState(null),[savingsOpen,setSavingsOpen]=useState(false),[savingsMovement,setSavingsMovement]=useState(null),[householdOpen,setHouseholdOpen]=useState(false),[dataSafetyOpen,setDataSafetyOpen]=useState(false),[backupBusy,setBackupBusy]=useState(false);
   const [budgetDraft,setBudgetDraft]=useState(String(defaultSettings.monthlyBudget));
   const [query,setQuery]=useState(''),[filterType,setFilterType]=useState('all'),[filterWallet,setFilterWallet]=useState('all'),[filterCategory,setFilterCategory]=useState('all'),[filterPeriod,setFilterPeriod]=useState('all');
   const [categoryBudgetCategory,setCategoryBudgetCategory]=useState('Food'),[categoryBudgetDraft,setCategoryBudgetDraft]=useState('');
@@ -59,7 +63,7 @@ export default function App(){
   const householdStatuses=useMemo(()=>planningData.householdBudgets.map(household=>({...household,...householdBudgetStatus(household,transactions,currentMonth)})),[planningData.householdBudgets,transactions,currentMonth]);
   const planningSummary=useMemo(()=>planningAnalytics(planningData,transactions,today),[planningData,transactions,today]);
 
-  useEffect(()=>{let mounted=true;Promise.all([loadTransactions(),loadSettings(),loadNepalData(),loadPlanningData()]).then(async([tx,st,np,pl])=>{if(!mounted)return;const materialized=materializeRecurringTransactions(tx,st.recurringTransactions,localIsoDate());const reconciledUdhaaro=reconcileUdhaaroRecords(np.udharo,materialized.transactions);const reconciledNepal={...np,udharo:reconciledUdhaaro};setTransactions(materialized.transactions);setSettings(st);setNepalData(reconciledNepal);setPlanningData(pl);setBudgetDraft(String(st.monthlyBudget));const writes=[];if(materialized.created.length)writes.push(saveTransactions(materialized.transactions));if(JSON.stringify(reconciledUdhaaro)!==JSON.stringify(np.udharo))writes.push(saveNepalData(reconciledNepal));if(writes.length)await Promise.all(writes);}).finally(()=>mounted&&setReady(true));return()=>{mounted=false;};},[]);
+  useEffect(()=>{let mounted=true;(async()=>{let recovered=false;try{recovered=await recoverInterruptedRestore();}catch(error){if(mounted)Alert.alert('Recovery issue',error?.message||'Kharcha could not recover an interrupted restore.');}try{const [tx,st,np,pl]=await Promise.all([loadTransactions(),loadSettings(),loadNepalData(),loadPlanningData()]);if(!mounted)return;const materialized=materializeRecurringTransactions(tx,st.recurringTransactions,localIsoDate());const reconciledUdhaaro=reconcileUdhaaroRecords(np.udharo,materialized.transactions);const reconciledNepal={...np,udharo:reconciledUdhaaro};setTransactions(materialized.transactions);setSettings(st);setNepalData(reconciledNepal);setPlanningData(pl);setBudgetDraft(String(st.monthlyBudget));const writes=[];if(materialized.created.length)writes.push(saveTransactions(materialized.transactions));if(JSON.stringify(reconciledUdhaaro)!==JSON.stringify(np.udharo))writes.push(saveNepalData(reconciledNepal));if(writes.length)await Promise.all(writes);if(recovered)Alert.alert('Restore recovered','Kharcha recovered the data that existed before an interrupted restore.');}finally{if(mounted)setReady(true);}})();return()=>{mounted=false;};},[]);
 
   async function persistSettings(next){const saved=await saveSettings(next);setSettings(saved);return saved;}
   async function persistNepalData(next){const saved=await saveNepalData(next);setNepalData(saved);return saved;}
@@ -87,6 +91,62 @@ export default function App(){
   async function addSavingsGoal(goal){await persistPlanningData({...planningData,savingsGoals:[goal,...planningData.savingsGoals]});setSavingsOpen(false);}
   async function moveSavingsGoal(id,amount,date,walletId,direction){const goal=planningData.savingsGoals.find(item=>item.id===id);const movement=createSavingsGoalTransaction(goal,transactions,amount,date,walletId,direction);if(!movement)return Alert.alert('Savings movement not recorded','Check the amount and wallet.');await saveTransaction(movement);setSavingsMovement(null);setSavingsOpen(false);}
   async function addHouseholdBudget(household){await persistPlanningData({...planningData,householdBudgets:[household,...planningData.householdBudgets]});setHouseholdOpen(false);}
+  async function createPortableBackup(){
+    setBackupBusy(true);
+    try{
+      const state=await loadFullState();
+      const envelope=createBackupEnvelope(state,{appVersion:APP_VERSION});
+      await shareBackupText(serializeBackup(envelope),envelope.metadata.createdAt);
+    }catch(error){
+      Alert.alert('Backup failed',error?.message||'Kharcha could not create the backup.');
+    }finally{
+      setBackupBusy(false);
+    }
+  }
+
+  async function applyBackupRestore(parsed){
+    setBackupBusy(true);
+    try{
+      const restored=await restoreFullState(parsed.state);
+      setTransactions(restored.transactions);
+      setSettings(restored.settings);
+      setNepalData(restored.nepalData);
+      setPlanningData(restored.planningData);
+      setBudgetDraft(String(restored.settings.monthlyBudget));
+      setDataSafetyOpen(false);
+      Alert.alert('Backup restored','Kharcha restored the selected backup successfully.');
+    }catch(error){
+      Alert.alert('Restore failed',error?.message||'Kharcha could not restore this backup.');
+    }finally{
+      setBackupBusy(false);
+    }
+  }
+
+  async function chooseBackupToRestore(){
+    setBackupBusy(true);
+    let picked;
+    let parsed;
+    try{
+      picked=await pickBackupText();
+      if(!picked)return;
+      parsed=parseBackup(picked.text);
+    }catch(error){
+      Alert.alert('Backup not accepted',error?.message||'Kharcha could not validate this backup.');
+      return;
+    }finally{
+      setBackupBusy(false);
+    }
+    const created=parsed.metadata.createdAt?new Date(parsed.metadata.createdAt).toLocaleString():'Unknown date';
+    Alert.alert(
+      'Restore this backup?',
+      `${picked.name}\nCreated: ${created}\nKharcha version: ${parsed.metadata.appVersion}\n\nYour current Kharcha data will be replaced. A recovery snapshot is created before the restore starts.`,
+      [
+        {text:'Cancel',style:'cancel'},
+        {text:'Restore',style:'destructive',onPress:()=>applyBackupRestore(parsed)},
+      ],
+    );
+  }
+
 
   if(!ready)return <SafeAreaView style={[s.safe,s.center]}><StatusBar barStyle="light-content"/><Text style={s.brand}>Kharcha</Text><Text style={s.meta}>Loading your money view…</Text></SafeAreaView>;
   const lang=settings.language;
@@ -102,6 +162,6 @@ export default function App(){
     <View style={s.bottom}>{[['overview','⌂',t(lang,'overview','Overview')],['activity','↕',t(lang,'activity','Activity')]].map(([k,i,l])=><Tab key={k} active={tab===k} icon={i} label={l} onPress={()=>setTab(k)}/>)}<Pressable style={s.fab} onPress={()=>openAdd()} accessibilityRole="button" accessibilityLabel="Add transaction"><Text style={s.fabText}>＋</Text></Pressable>{[['budget','◎',t(lang,'budget','Budget')],['insights','◔',t(lang,'insights','Insights')]].map(([k,i,l])=><Tab key={k} active={tab===k} icon={i} label={l} onPress={()=>setTab(k)}/>)}</View>
     <AddTransactionModal visible={transactionOpen} initialTransaction={editing} wallets={settings.wallets} customCategories={settings.customCategories} events={nepalData.events} householdBudgets={planningData.householdBudgets} settings={settings} initialEventId={draftEventId} onClose={()=>{setTransactionOpen(false);setEditing(null);setDraftEventId('');}} onSave={saveTransaction}/>
     <WalletModal visible={walletOpen} language={lang} onClose={()=>setWalletOpen(false)} onSave={addWallet}/><CategoryModal visible={categoryOpen} language={lang} onClose={()=>setCategoryOpen(false)} onSave={addCategory}/><RecurringModal visible={recurringOpen} settings={settings} onClose={()=>setRecurringOpen(false)} onSave={addRecurring} wallets={settings.wallets} customCategories={settings.customCategories}/>
-    <NepalSettingsModal visible={settingsOpen} settings={settings} onClose={()=>setSettingsOpen(false)} onSave={async(next)=>{await persistSettings(next);setSettingsOpen(false);}}/><RemittanceModal visible={remittanceOpen} wallets={settings.wallets} settings={settings} onClose={()=>setRemittanceOpen(false)} onSave={saveRemittance}/><UdhaaroModal visible={udharoOpen} paymentRecord={paymentRecord} settings={settings} wallets={settings.wallets} onClose={()=>{setUdhaaroOpen(false);setPaymentRecord(null);}} onSave={addUdhaaro} onPay={payUdhaaro}/><EventBudgetModal visible={eventOpen} settings={settings} onClose={()=>setEventOpen(false)} onSave={addEvent}/><ObligationModal visible={obligationOpen} paymentTarget={paymentObligation} settings={settings} wallets={settings.wallets} onClose={()=>{setObligationOpen(false);setPaymentObligation(null);}} onSave={addObligation} onPay={payObligation}/><SavingsGoalModal visible={savingsOpen} movementTarget={savingsMovement} settings={settings} wallets={settings.wallets} onClose={()=>{setSavingsOpen(false);setSavingsMovement(null);}} onSaveGoal={addSavingsGoal} onMove={moveSavingsGoal}/><HouseholdBudgetModal visible={householdOpen} settings={settings} onClose={()=>setHouseholdOpen(false)} onSave={addHouseholdBudget}/>
+    <NepalSettingsModal visible={settingsOpen} settings={settings} onClose={()=>setSettingsOpen(false)} onSave={async(next)=>{await persistSettings(next);setSettingsOpen(false);}} onDataSafety={()=>{setSettingsOpen(false);setDataSafetyOpen(true);}}/><RemittanceModal visible={remittanceOpen} wallets={settings.wallets} settings={settings} onClose={()=>setRemittanceOpen(false)} onSave={saveRemittance}/><UdhaaroModal visible={udharoOpen} paymentRecord={paymentRecord} settings={settings} wallets={settings.wallets} onClose={()=>{setUdhaaroOpen(false);setPaymentRecord(null);}} onSave={addUdhaaro} onPay={payUdhaaro}/><EventBudgetModal visible={eventOpen} settings={settings} onClose={()=>setEventOpen(false)} onSave={addEvent}/><ObligationModal visible={obligationOpen} paymentTarget={paymentObligation} settings={settings} wallets={settings.wallets} onClose={()=>{setObligationOpen(false);setPaymentObligation(null);}} onSave={addObligation} onPay={payObligation}/><SavingsGoalModal visible={savingsOpen} movementTarget={savingsMovement} settings={settings} wallets={settings.wallets} onClose={()=>{setSavingsOpen(false);setSavingsMovement(null);}} onSaveGoal={addSavingsGoal} onMove={moveSavingsGoal}/><HouseholdBudgetModal visible={householdOpen} settings={settings} onClose={()=>setHouseholdOpen(false)} onSave={addHouseholdBudget}/><DataSafetyModal visible={dataSafetyOpen} language={settings.language} busy={backupBusy} onClose={()=>setDataSafetyOpen(false)} onBackup={createPortableBackup} onRestore={chooseBackupToRestore}/>
   </View></SafeAreaView>;
 }
