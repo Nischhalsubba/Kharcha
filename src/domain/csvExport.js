@@ -95,7 +95,7 @@ function createTransactionsCsv(state = {}, options = {}) {
       csvCell(remittance.country),
       csvCell(remittance.currency),
       csvCell(remittance.foreignAmount, { numeric: true }),
-      csvCell(remittance.feeNpr, { numeric: true }),
+      csvCell(remittance.fees, { numeric: true }),
       csvCell(item.udharoPayment?.recordId),
       csvCell(item.obligationPayment?.obligationId),
       csvCell(lookupName(savingsGoals, item.savingsGoalMovement?.goalId)),
