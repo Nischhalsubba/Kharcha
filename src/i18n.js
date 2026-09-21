@@ -29,7 +29,7 @@ export function t(language, key, fallback) {
 }
 
 const CATEGORY_NE = {
-  Food:'खाना', Khaja:'खाजा', Groceries:'किराना / तरकारी', Transport:'यातायात', Fuel:'पेट्रोल / डिजेल', Shopping:'किनमेल', Bills:'बिल', Electricity:'बिजुली', Water:'पानी', Internet:'इन्टरनेट', 'Mobile Recharge':'मोबाइल रिचार्ज', Health:'स्वास्थ्य', Home:'घर', Rent:'भाडा', 'School Fees':'विद्यालय शुल्क', EMI:'किस्ता', 'Loan Repayment':'ऋण भुक्तानी', 'Puja & Donation':'पूजा / दान', Festival:'चाडपर्व', Entertainment:'मनोरञ्जन', Salary:'तलब', Freelance:'फ्रीलान्स', Remittance:'रेमिट्यान्स', Business:'व्यवसाय', 'Rental Income':'भाडा आम्दानी', Allowance:'भत्ता', Gift:'उपहार', Other:'अन्य', 'Savings Goal':'बचत लक्ष्य',
+  Food:'खाना', Khaja:'खाजा', Groceries:'किराना / तरकारी', Transport:'यातायात', Fuel:'पेट्रोल / डिजेल', Shopping:'किनमेल', Bills:'बिल', Electricity:'बिजुली', Water:'पानी', Internet:'इन्टरनेट', 'Mobile Recharge':'मोबाइल रिचार्ज', Health:'स्वास्थ्य', Home:'घर', Rent:'भाडा', 'School Fees':'विद्यालय शुल्क', EMI:'किस्ता', 'Loan Repayment':'ऋण भुक्तानी', 'Puja & Donation':'पूजा / दान', Festival:'चाडपर्व', Entertainment:'मनोरञ्जन', Salary:'तलब', Freelance:'फ्रीलान्स', Remittance:'रेमिट्यान्स', Business:'व्यवसाय', 'Rental Income':'भाडा आम्दानी', Allowance:'भत्ता', Gift:'उपहार', Other:'अन्य', 'Savings Goal':'बचत लक्ष्य', 'Udhaaro Repayment':'उधारो भुक्तानी',
 };
 
 export function categoryLabel(name, language) {
