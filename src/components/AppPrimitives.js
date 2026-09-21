@@ -1,8 +1,9 @@
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { categoryIcon } from '../constants';
 import { categoryLabel, t } from '../i18n';
 import s from '../appStyles';
+import HapticPressable from './HapticPressable';
+import NativeIcon, { categoryIconName } from './NativeIcon';
 const { transactionDateLabel } = require('../domain/nepal');
 
 export function Progress({ value, tone='primary' }) {
@@ -11,18 +12,18 @@ export function Progress({ value, tone='primary' }) {
 }
 
 export function Section({ title, action, onPress }) {
-  return <View style={s.sectionHead}><Text style={s.sectionTitle}>{title}</Text>{action?<Pressable style={s.sectionAction} onPress={onPress} hitSlop={6} accessibilityRole="button"><Text style={s.action}>{action}</Text></Pressable>:null}</View>;
+  return <View style={s.sectionHead}><Text style={s.sectionTitle}>{title}</Text>{action?<HapticPressable style={s.sectionAction} onPress={onPress} hitSlop={6} accessibilityRole="button"><Text style={s.action}>{action}</Text></HapticPressable>:null}</View>;
 }
 
 export function Chip({ label, active, onPress }) {
-  return <Pressable onPress={onPress} style={[s.filterChip,active&&s.filterChipActive]} accessibilityRole="button" accessibilityState={{selected:active}} hitSlop={4}><Text style={[s.filterChipText,active&&s.filterChipTextActive]}>{label}</Text></Pressable>;
+  return <HapticPressable onPress={onPress} style={[s.filterChip,active&&s.filterChipActive]} accessibilityRole="button" accessibilityState={{selected:active}} hitSlop={4}><Text style={[s.filterChipText,active&&s.filterChipTextActive]}>{label}</Text></HapticPressable>;
 }
 
 export function FigmaReferenceLabel({ children }) {
   return <View style={s.referenceLabel}><View style={s.referenceLabelBlock}><Text style={s.referenceLabelText}>{children}</Text></View><View style={s.referenceLabelLine}/></View>;
 }
 
-export function FinanceCard({ title, action='•••', children }) {
+export function FinanceCard({ title, action=null, children }) {
   return <View style={s.financeCard}>
     <View style={s.financeCardHeader}><Text style={s.cardHeaderTitle}>{title}</Text>{action?<Text style={s.cardMenu}>{action}</Text>:null}</View>
     <View style={s.cardDivider}/>
@@ -44,21 +45,20 @@ export function TransactionRow({ item, settings, money, onDelete, onEdit, onPres
     : `${date.primary}${date.secondary?` · ${date.secondary}`:''} · ${categoryLabel(item.category,settings.language)}`;
   const pressHandler=onPress?()=>onPress(item):(!linkedMovement&&onEdit?()=>onEdit(item):undefined);
   const iconStyle=transfer?s.iconTransfer:expense?s.iconExpense:s.iconIncome;
+  const iconColor=transfer?'#0074FC':expense?'#E45757':'#239B78';
   return <View style={s.row}>
-    <View style={[s.icon,iconStyle]}><Text style={s.iconText}>{transfer?'⇄':categoryIcon(item.type,item.category,customCategories)}</Text></View>
-    <Pressable style={s.rowCopy} onPress={pressHandler} disabled={!pressHandler} accessibilityRole={pressHandler?'button':undefined} accessibilityLabel={pressHandler?`View ${title}`:undefined}>
+    <View style={[s.icon,iconStyle]}><NativeIcon name={transfer?'transfer':categoryIconName(item.category,item.type)} size={18} color={iconColor}/></View>
+    <HapticPressable haptic={null} style={s.rowCopy} onPress={pressHandler} disabled={!pressHandler} accessibilityRole={pressHandler?'button':undefined} accessibilityLabel={pressHandler?`View ${title}`:undefined}>
       <Text style={s.rowTitle} numberOfLines={1}>{title}</Text><Text style={s.meta} numberOfLines={1}>{meta}</Text>
-    </Pressable>
-    <View style={s.rowRight}><Text style={[s.amount,transfer?null:expense?s.danger:s.income]}>{transfer?'':expense?'−':'+'}{money(item.amount)}</Text>
+    </HapticPressable>
+    <View style={s.rowRight}><Text selectable style={[s.amount,transfer?null:expense?s.danger:s.income]}>{transfer?'':expense?'−':'+'}{money(item.amount)}</Text>
       {showActions?<View style={s.rowActions}>{!linkedMovement&&onEdit?<Pressable onPress={()=>onEdit(item)} hitSlop={8}><Text style={s.edit}>{t(settings.language,'edit','Edit')}</Text></Pressable>:null}{onDelete?<Pressable onPress={()=>onDelete(item.id)} hitSlop={8}><Text style={s.delete}>{t(settings.language,'delete','Delete')}</Text></Pressable>:null}</View>:null}
     </View>
   </View>;
 }
 
 export function Empty({ onAdd, filtered=false, language='en' }) {
-  return <View style={s.empty}><Text style={s.emptyEmoji}>{filtered?'⌕':'＋'}</Text><Text style={s.emptyTitle}>{filtered?t(language,'noMatching','No matching transactions'):t(language,'nothingTracked','Nothing tracked yet')}</Text><Text style={s.emptyCopy}>{filtered?(language==='ne'?'फिल्टर हटाउनुहोस् वा खोज बदल्नुहोस्।':'Try clearing a filter or changing your search.'):(language==='ne'?'पहिलो खर्च वा आम्दानी थप्नुहोस्।':'Add your first expense or income and Kharcha will start building the picture for you.')}</Text>{!filtered?<Pressable style={s.secondary} onPress={onAdd}><Text style={s.secondaryText}>{t(language,'addFirst','Add first transaction')}</Text></Pressable>:null}</View>;
+  return <View style={s.empty}><View style={s.emptyIcon}><NativeIcon name={filtered?'search':'plus'} size={24} color={COLORS_FOR_EMPTY}/></View><Text style={s.emptyTitle}>{filtered?t(language,'noMatching','No matching transactions'):t(language,'nothingTracked','Nothing tracked yet')}</Text><Text style={s.emptyCopy}>{filtered?(language==='ne'?'फिल्टर हटाउनुहोस् वा खोज बदल्नुहोस्।':'Try clearing a filter or changing your search.'):(language==='ne'?'पहिलो खर्च वा आम्दानी थप्नुहोस्।':'Add your first expense or income and Kharcha will start building the picture for you.')}</Text>{!filtered?<HapticPressable haptic="impact" style={s.secondary} onPress={onAdd}><Text style={s.secondaryText}>{t(language,'addFirst','Add first transaction')}</Text></HapticPressable>:null}</View>;
 }
 
-export function Tab({ active, icon, label, onPress }) {
-  return <Pressable style={[s.tab,active&&s.tabActive]} onPress={onPress} accessibilityRole="tab" accessibilityState={{selected:active}}><Text style={[s.tabIcon,active&&s.active]}>{icon}</Text><Text style={[s.tabLabel,active&&s.active]}>{label}</Text></Pressable>;
-}
+const COLORS_FOR_EMPTY='#5A5D72';
