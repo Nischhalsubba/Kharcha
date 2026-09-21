@@ -44,11 +44,11 @@ function buildMonthlyReport(state={},monthKey,options={}) {
   const udharo=udharoSummary(state.nepalData?.udharo||[]);
 
   const obligationStates=(state.planningData?.obligations||[])
-    .map(item=>obligationStatus(item,state.transactions||[],asOfDate));
+    .map(item=>({...item,...obligationStatus(item,state.transactions||[],asOfDate)}));
   const savingsStates=(state.planningData?.savingsGoals||[])
-    .map(item=>savingsGoalStatus(item,state.transactions||[]));
+    .map(item=>({...item,...savingsGoalStatus(item,state.transactions||[])}));
   const householdStates=(state.planningData?.householdBudgets||[])
-    .map(item=>householdBudgetStatus(item,state.transactions||[],monthKey));
+    .map(item=>({...item,...householdBudgetStatus(item,state.transactions||[],monthKey)}));
 
   const throughAsOf=(state.transactions||[]).filter(item=>!item?.date||item.date<=asOfDate);
   const wallets=walletBalances(throughAsOf,state.settings?.wallets||[]);
@@ -126,7 +126,7 @@ function renderMonthlyReportHtml(report,settings={}) {
     : '<tr><td colspan="5" class="muted">No transactions this month.</td></tr>';
 
   const goalRows=report.savings.items.length
-    ? report.savings.items.map(item=>`<li><span>${escapeHtml(item.id)}</span><strong>${escapeHtml(money(item.saved,settings))} / ${escapeHtml(money(item.targetAmount,settings))}</strong></li>`).join('')
+    ? report.savings.items.map(item=>`<li><span>${escapeHtml(item.name||item.id)}</span><strong>${escapeHtml(money(item.saved,settings))} / ${escapeHtml(money(item.targetAmount,settings))}</strong></li>`).join('')
     : '<li class="muted">No savings goals.</li>';
 
   return `<!DOCTYPE html>
