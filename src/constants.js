@@ -7,7 +7,7 @@ export const COLORS = {
 export const EXPENSE_CATEGORIES = [
   ['Food', '🍲'], ['Khaja', '🥟'], ['Groceries', '🥬'], ['Transport', '🚕'], ['Fuel', '⛽'], ['Shopping', '🛍️'],
   ['Bills', '🧾'], ['Electricity', '💡'], ['Water', '💧'], ['Internet', '🌐'], ['Mobile Recharge', '📱'],
-  ['Health', '🩺'], ['Home', '🏠'], ['Rent', '🔑'], ['School Fees', '🎓'], ['EMI', '📆'], ['Puja & Donation', '🙏'],
+  ['Health', '🩺'], ['Home', '🏠'], ['Rent', '🔑'], ['School Fees', '🎓'], ['EMI', '📆'], ['Loan Repayment', '🏦'], ['Puja & Donation', '🙏'],
   ['Festival', '🪔'], ['Entertainment', '🎬'], ['Other', '✨'],
 ];
 
