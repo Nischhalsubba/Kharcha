@@ -35,23 +35,75 @@ function linkedPaymentTotal(obligationId, cycleKey, transactions = []) {
   return transactions.reduce((sum, item) => {
     if (item?.type !== 'expense') return sum;
     if (item?.obligationPayment?.obligationId !== obligationId) return sum;
-    if (item?.obligationPayment?.cycleKey !== cycleKey) return sum;
+    const allocations = item.obligationPayment.allocations;
+    if (Array.isArray(allocations)) {
+      const allocated = allocations.find((entry) => entry.cycleKey === cycleKey);
+      return sum + safeAmount(allocated?.amount);
+    }
+    if (item.obligationPayment.cycleKey !== cycleKey) return sum;
     return sum + safeAmount(item.amount);
   }, 0);
 }
 
+function nextMonthKey(monthKey) {
+  const match = /^(\d{4})-(\d{2})$/.exec(String(monthKey || ''));
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const next = new Date(Date.UTC(year, month, 1));
+  return `${next.getUTCFullYear()}-${String(next.getUTCMonth() + 1).padStart(2, '0')}`;
+}
+
+function monthlyCycles(obligation, transactions, today) {
+  const currentMonth = String(today || '').slice(0, 7);
+  const configuredStart = /^(\d{4})-(\d{2})$/.test(String(obligation?.startMonth || ''))
+    ? obligation.startMonth
+    : currentMonth;
+  const cycles = [];
+  let cursor = configuredStart;
+  for (let count = 0; cursor && cursor <= currentMonth && count < 240; count += 1) {
+    const amountDue = safeAmount(obligation?.amount);
+    const paid = Math.min(linkedPaymentTotal(obligation?.id, cursor, transactions), amountDue);
+    cycles.push({
+      cycleKey: cursor,
+      dueDate: dueDateForMonth(cursor, obligation?.dueDay),
+      amountDue,
+      paid,
+      remaining: Math.max(amountDue - paid, 0),
+    });
+    cursor = nextMonthKey(cursor);
+  }
+  return cycles;
+}
+
 function obligationStatus(obligation, transactions = [], today) {
-  const cycleKey = cycleFor(obligation, today);
-  const dueDate = dueDateFor(obligation, cycleKey);
-  const amountDue = safeAmount(obligation?.amount);
-  const paid = Math.min(linkedPaymentTotal(obligation?.id, cycleKey, transactions), amountDue);
+  if (obligation?.frequency === 'once') {
+    const cycleKey = 'once';
+    const dueDate = obligation.dueDate || null;
+    const amountDue = safeAmount(obligation?.amount);
+    const paid = Math.min(linkedPaymentTotal(obligation?.id, cycleKey, transactions), amountDue);
+    const remaining = Math.max(amountDue - paid, 0);
+    let state = 'upcoming';
+    if (obligation?.active === false) state = 'inactive';
+    else if (remaining === 0 && amountDue > 0) state = 'paid';
+    else if (dueDate && today > dueDate) state = 'overdue';
+    else if (dueDate && today === dueDate) state = 'due';
+    return { id: obligation?.id, cycleKey, dueDate, amountDue, paid, remaining, state };
+  }
+
+  const cycles = monthlyCycles(obligation, transactions, today);
+  const amountDue = cycles.reduce((sum, cycle) => sum + cycle.amountDue, 0);
+  const paid = cycles.reduce((sum, cycle) => sum + cycle.paid, 0);
   const remaining = Math.max(amountDue - paid, 0);
+  const oldestUnpaid = cycles.find((cycle) => cycle.remaining > 0)
+    || cycles.at(-1)
+    || { cycleKey: String(today || '').slice(0, 7), dueDate: dueDateForMonth(String(today || '').slice(0, 7), obligation?.dueDay) };
   let state = 'upcoming';
   if (obligation?.active === false) state = 'inactive';
   else if (remaining === 0 && amountDue > 0) state = 'paid';
-  else if (dueDate && today > dueDate) state = 'overdue';
-  else if (dueDate && today === dueDate) state = 'due';
-  return { id: obligation?.id, cycleKey, dueDate, amountDue, paid, remaining, state };
+  else if (oldestUnpaid.dueDate && today > oldestUnpaid.dueDate) state = 'overdue';
+  else if (oldestUnpaid.dueDate && today === oldestUnpaid.dueDate) state = 'due';
+  return { id: obligation?.id, cycleKey: oldestUnpaid.cycleKey, dueDate: oldestUnpaid.dueDate, amountDue, paid, remaining, state };
 }
 
 function defaultObligationCategory(kind) {
@@ -66,6 +118,19 @@ function createObligationPaymentTransaction(obligation, transactions, rawAmount,
   const amount = Math.min(requested, status.remaining);
   if (!amount || !walletId) return null;
   const id = meta.id || `obligation-payment-${Date.now()}`;
+  let obligationPayment = { obligationId: obligation.id, cycleKey: status.cycleKey };
+  if (obligation.frequency !== 'once') {
+    let unallocated = amount;
+    const allocations = [];
+    for (const cycle of monthlyCycles(obligation, transactions, date)) {
+      if (!cycle.remaining || !unallocated) continue;
+      const allocated = Math.min(cycle.remaining, unallocated);
+      allocations.push({ cycleKey: cycle.cycleKey, amount: allocated });
+      unallocated -= allocated;
+    }
+    if (allocations.length > 1) obligationPayment = { obligationId: obligation.id, cycleKey: allocations[0].cycleKey, allocations };
+    else if (allocations.length === 1) obligationPayment = { obligationId: obligation.id, cycleKey: allocations[0].cycleKey };
+  }
   return {
     id,
     type: 'expense',
@@ -76,7 +141,7 @@ function createObligationPaymentTransaction(obligation, transactions, rawAmount,
     walletId,
     paymentMethod: 'bank',
     createdAt: meta.createdAt || new Date().toISOString(),
-    obligationPayment: { obligationId: obligation.id, cycleKey: status.cycleKey },
+    obligationPayment,
   };
 }
 
