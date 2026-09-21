@@ -23,7 +23,7 @@ function summarizeTransactions(transactions, monthKey) {
   let monthExpense = 0;
 
   for (const transaction of transactions || []) {
-    if (toMonthKey(transaction.date) !== monthKey) continue;
+    if (toMonthKey(transaction.date) !== monthKey || transaction.savingsGoalMovement) continue;
     const amount = Number(transaction.amount) || 0;
     if (transaction.type === 'income') income += amount;
     if (transaction.type === 'expense') {
@@ -44,7 +44,7 @@ function categoryBreakdown(transactions, monthKey) {
   const totals = new Map();
 
   for (const transaction of transactions || []) {
-    if (transaction.type !== 'expense' || toMonthKey(transaction.date) !== monthKey) continue;
+    if (transaction.type !== 'expense' || transaction.savingsGoalMovement || toMonthKey(transaction.date) !== monthKey) continue;
     const category = transaction.category || 'Other';
     totals.set(category, (totals.get(category) || 0) + (Number(transaction.amount) || 0));
   }
