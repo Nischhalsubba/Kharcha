@@ -3,6 +3,8 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { t } from '../i18n';
 import s from '../appStyles';
 import { Empty, FinanceCard, Progress, Section, TransactionRow } from '../components/AppPrimitives';
+import NativeIcon, { walletIconName } from '../components/NativeIcon';
+import HapticPressable from '../components/HapticPressable';
 
 function shiftMonth(monthKey, offset){
   const match=/^(\d{4})-(\d{2})$/.exec(String(monthKey||''));
@@ -28,7 +30,7 @@ export default function OverviewScreen({ lang, summary, m, wallets, settings, se
   const max=Math.max(...series.map(item=>item.amount),budget.limit||0,1);
   const previous=series.at(-2)?.amount||0;
   const delta=previous?Math.round(((summary.expense-previous)/previous)*100):null;
-  return <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
+  return <ScrollView contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
     <View style={s.screenTitleRow}><Text style={s.screenTitle}>{t(lang,'overview','Overview')}</Text><View style={s.pill}><Text style={s.pillText}>{monthLabel(currentMonth)}</Text><Text style={s.pillChevron}>⌄</Text></View></View>
 
     <FinanceCard title={t(lang,'totalExpenses','Total expenses')}>
@@ -54,7 +56,7 @@ export default function OverviewScreen({ lang, summary, m, wallets, settings, se
     {transactions.length?<View style={s.list}>{transactions.slice(0,5).map((item,index)=><View key={item.id}><TransactionRow item={item} settings={settings} money={m} onDelete={remove} onEdit={openEdit} onPress={openDetails} wallets={settings.wallets} customCategories={settings.customCategories} showActions={false}/>{index<Math.min(transactions.length,5)-1?<View style={s.rowDivider}/>:null}</View>)}</View>:<Empty onAdd={()=>openAdd()} language={lang}/>}
 
     <Section title={t(lang,'wallets','Wallets')} action={t(lang,'addWallet','Add wallet')} onPress={()=>setWalletOpen(true)}/>
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.walletRow}>{wallets.map(wallet=>{const meta=settings.wallets.find(item=>item.id===wallet.id);return <View key={wallet.id} style={s.walletCard}><Text style={s.walletIcon}>{meta?.icon||'👛'}</Text><Text style={s.walletName}>{wallet.name}</Text><Text style={s.walletBalance}>{m(wallet.balance)}</Text></View>;})}</ScrollView>
-    {wallets.length>1?<Pressable style={s.secondary} onPress={onTransfer} accessibilityRole="button"><Text style={s.secondaryText}>⇄ {t(lang,'transferFunds','Transfer between wallets')}</Text></Pressable>:null}
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.walletRow}>{wallets.map(wallet=>{const meta=settings.wallets.find(item=>item.id===wallet.id);return <View key={wallet.id} style={s.walletCard}><View style={s.walletIconSurface}><NativeIcon name={walletIconName(meta||wallet)} size={20} color="#0074FC"/></View><Text style={s.walletName}>{wallet.name}</Text><Text selectable style={s.walletBalance}>{m(wallet.balance)}</Text></View>;})}</ScrollView>
+    {wallets.length>1?<HapticPressable style={s.secondary} onPress={onTransfer} accessibilityRole="button"><View style={s.buttonContent}><NativeIcon name="transfer" size={18} color="#111827"/><Text style={s.secondaryText}>{t(lang,'transferFunds','Transfer between wallets')}</Text></View></HapticPressable>:null}
   </ScrollView>;
 }
