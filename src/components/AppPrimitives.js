@@ -10,7 +10,7 @@ export function Progress({ value }) {
 }
 
 export function Section({ title, action, onPress }) {
-  return <View style={s.sectionHead}><Text style={s.sectionTitle}>{title}</Text>{action?<Pressable onPress={onPress} hitSlop={10}><Text style={s.action}>{action}</Text></Pressable>:null}</View>;
+  return <View style={s.sectionHead}><Text style={s.sectionTitle}>{title}</Text>{action?<Pressable style={s.sectionAction} onPress={onPress} hitSlop={6}><Text style={s.action}>{action}</Text></Pressable>:null}</View>;
 }
 
 export function Chip({ label, active, onPress }) {

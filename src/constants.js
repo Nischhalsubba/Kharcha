@@ -1,7 +1,18 @@
 export const COLORS = {
-  bg: '#0B0F14', surface: '#141A22', surface2: '#1B2430', border: '#273244',
-  text: '#F8FAFC', muted: '#9AA8BA', accent: '#7CE3B6', accentSoft: '#173C33',
-  danger: '#FF8B8B', income: '#8FD8FF', warning: '#FFD27A',
+  bg: '#F7F8FA',
+  surface: '#FFFFFF',
+  surface2: '#F2F4F7',
+  border: '#E4E7EC',
+  text: '#101828',
+  muted: '#667085',
+  accent: '#0F766E',
+  accentSoft: '#E8F5F1',
+  onAccent: '#FFFFFF',
+  danger: '#D14343',
+  income: '#1677B8',
+  warning: '#A15C00',
+  success: '#0F766E',
+  shadow: '#101828',
 };
 
 export const EXPENSE_CATEGORIES = [

@@ -4,9 +4,9 @@
     "slug": "kharcha",
     "owner": "nischhal",
     "scheme": "kharcha",
-    "version": "1.4.0",
+    "version": "1.4.1",
     "orientation": "portrait",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.kharcha.expensetracker"
