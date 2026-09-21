@@ -1,10 +1,10 @@
 # Phase 3 tasks
 
-- [ ] money-obligations domain tests
-- [ ] planning data persistence
-- [ ] wallet-linked Udhaaro repayments
-- [ ] bills/EMI/loan UI
-- [ ] savings goals
-- [ ] household budgeting
-- [ ] planning analytics
+- [x] money-obligations domain tests
+- [x] planning data persistence
+- [x] wallet-linked Udhaaro repayments
+- [x] bills/EMI/loan UI
+- [x] savings goals
+- [x] household budgeting
+- [x] planning analytics
 - [ ] release verification
