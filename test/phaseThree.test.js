@@ -148,3 +148,29 @@ test('planningAnalytics summarizes obligations savings household burn and neares
     householdLimit: 20000,
   });
 });
+
+
+test('monthly obligations carry unpaid prior cycles into the current month', () => {
+  const obligation = { id: 'emi-carry', kind: 'emi', amount: 1000, frequency: 'monthly', dueDay: 10, startMonth: '2026-08', active: true };
+  const tx = [{ type: 'expense', amount: 1000, date: '2026-08-10', obligationPayment: { obligationId: 'emi-carry', cycleKey: '2026-08' } }];
+  assert.deepEqual(obligationStatus(obligation, tx, '2026-10-05'), {
+    id: 'emi-carry', cycleKey: '2026-09', dueDate: '2026-09-10', amountDue: 3000,
+    paid: 1000, remaining: 2000, state: 'overdue',
+  });
+});
+
+test('one obligation payment allocates across oldest unpaid monthly cycles', () => {
+  const obligation = { id: 'emi-carry', kind: 'emi', name: 'Laptop EMI', amount: 1000, frequency: 'monthly', dueDay: 10, startMonth: '2026-08', active: true };
+  const tx = [{ type: 'expense', amount: 1000, date: '2026-08-10', obligationPayment: { obligationId: 'emi-carry', cycleKey: '2026-08' } }];
+  const payment = createObligationPaymentTransaction(obligation, tx, 1800, '2026-10-05', 'bank', { id: 'carry-pay', createdAt: '2026-10-05T01:00:00.000Z' });
+  assert.equal(payment.amount, 1800);
+  assert.deepEqual(payment.obligationPayment, {
+    obligationId: 'emi-carry',
+    cycleKey: '2026-09',
+    allocations: [
+      { cycleKey: '2026-09', amount: 1000 },
+      { cycleKey: '2026-10', amount: 800 },
+    ],
+  });
+  assert.equal(obligationStatus(obligation, [...tx, payment], '2026-10-05').remaining, 200);
+});
