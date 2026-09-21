@@ -13,6 +13,20 @@ Kharcha is a local-first personal money tracker built with Expo / React Native, 
 - Overview hierarchy prioritizes month net, budget, wallets and recent activity
 - Visual redesign only: no finance logic, storage model, Nepal-first behavior or feature scope changed
 
+## Phase 4.5 — Local app security
+
+- Optional 4–6 digit Kharcha PIN lock
+- PIN plaintext is never stored; a salted SHA-256 digest record is kept in Expo SecureStore
+- SecureStore entries use device-only keychain accessibility where supported
+- Optional enrolled fingerprint / Face ID unlock with PIN fallback
+- Android biometric prompts require strong biometrics for Kharcha unlock
+- Auto-lock choices: immediately, 30 seconds, 1 minute, or 5 minutes after backgrounding
+- Five failed PIN attempts trigger a 30-second cooldown; ten trigger 60 seconds
+- Financial screens are not rendered while the app is locked
+- App-lock credentials are device-local and are not included in Kharcha backup/CSV/PDF exports
+- iOS Face ID requires a development/native build for testing; Expo Go does not support Face ID authentication
+- App lock protects access to Kharcha, but does not provide full SQLCipher encryption of the transaction database
+
 ## Phase 4.2–4.4 — Export, reports & safe data management
 
 - Excel-compatible CSV export for all transactions, current month, or custom AD date range
