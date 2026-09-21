@@ -174,3 +174,26 @@ test('one obligation payment allocates across oldest unpaid monthly cycles', () 
   });
   assert.equal(obligationStatus(obligation, [...tx, payment], '2026-10-05').remaining, 200);
 });
+
+
+test('reconcileUdhaaroRecords repairs transaction-linked repayments while preserving legacy repayments', () => {
+  const { reconcileUdhaaroRecords } = require('../src/domain/phaseThree');
+  const records = [{
+    id: 'u1', direction: 'borrowed', amount: 5000, status: 'settled',
+    repayments: [
+      { amount: 500, date: '2026-08-01' },
+      { amount: 1000, date: '2026-09-01', transactionId: 'missing-tx' },
+    ],
+  }];
+  const tx = [{
+    id: 'real-tx', type: 'expense', amount: 1200, date: '2026-09-21',
+    udharoPayment: { recordId: 'u1' },
+  }];
+  assert.deepEqual(reconcileUdhaaroRecords(records, tx), [{
+    id: 'u1', direction: 'borrowed', amount: 5000, status: 'active',
+    repayments: [
+      { amount: 500, date: '2026-08-01' },
+      { amount: 1200, date: '2026-09-21', transactionId: 'real-tx' },
+    ],
+  }]);
+});
