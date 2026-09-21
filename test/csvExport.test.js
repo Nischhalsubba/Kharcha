@@ -59,3 +59,11 @@ test('invalid custom date range fails closed', () => {
     /date range/i,
   );
 });
+
+
+test('custom export rejects impossible calendar dates', () => {
+  assert.throws(
+    ()=>filterTransactionsForExport(state.transactions,{scope:'range',startDate:'2026-13-01',endDate:'2026-13-05'}),
+    /date range/i,
+  );
+});
