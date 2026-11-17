@@ -102,7 +102,7 @@ function filterTransactions(transactions, filters = {}) {
       if (!matchesWallet) return false;
     }
     if (filters.category && filters.category !== 'all' && item.category !== filters.category) return false;
-    if (filters.monthKey && String(item.date || '').slice(0, 7) !== filters.monthKey) return false;
+    if (filters.monthKey && (!parseIso(item.date) || String(item.date).slice(0, 7) !== filters.monthKey)) return false;
     if (!query) return true;
     const haystack = [item.note, item.category, item.date, item.amount, item.type, item.walletId, item.fromWalletId, item.toWalletId]
       .map((value) => String(value ?? '').toLowerCase())
