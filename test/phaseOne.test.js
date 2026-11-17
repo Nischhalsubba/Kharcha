@@ -181,3 +181,9 @@ test('normalizing preferences skips null and malformed recurring entries', () =>
     { id: 'wallet', walletId: 'esewa' },
   ]);
 });
+
+test('weekly recurrence never returns a past date beyond the generation horizon', () => {
+  const rule = { id:'weekly', frequency:'weekly', startDate:'2020-01-01', active:true };
+  assert.equal(nextRecurringDate(rule,'2020-01-02'),'2020-01-08');
+  assert.equal(nextRecurringDate(rule,'2040-01-01'),null);
+});
