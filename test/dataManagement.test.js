@@ -129,3 +129,13 @@ test('CSV import rejects object-prototype keys and blank headers', () => {
     assert.throws(() => parseKharchaCsv(csvText), /unsafe or empty column header/i);
   }
 });
+
+test('CSV parser rejects extra unquoted columns instead of losing transaction data', () => {
+  const header = 'Date AD,Type,Amount NPR,Category,Note\n';
+  const invalid = header + '2026-09-01,expense,500,Food,Tea,coffee\n';
+  assert.throws(() => parseKharchaCsv(invalid), /row 2.*more values.*unquoted commas/i);
+  const quoted = header + '2026-09-01,expense,500,Food,"Tea,coffee"\n';
+  assert.equal(parseKharchaCsv(quoted)[0].Note, 'Tea,coffee');
+  // Older exports may omit optional trailing cells; keep them compatible.
+  assert.equal(parseKharchaCsv(header + '2026-09-01,expense,500,Food\n')[0].Note, '');
+});
