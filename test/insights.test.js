@@ -131,3 +131,9 @@ test('recurringTransactionSuggestions ignores transfers and linked planning move
   ];
   assert.deepEqual(recurringTransactionSuggestions(transactions, []), []);
 });
+
+test('spending anomaly analysis handles infinite or excessive lookback settings', () => {
+  assert.doesNotThrow(() => detectUnusualSpending(history, '2026-09', { lookbackMonths: Infinity }));
+  assert.doesNotThrow(() => detectUnusualSpending(history, '2026-09', { lookbackMonths: 1000000 }));
+  assert.equal(detectUnusualSpending(history, '2026-09', { lookbackMonths: Infinity })[0].category, 'Food');
+});
