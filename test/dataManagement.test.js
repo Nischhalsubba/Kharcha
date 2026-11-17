@@ -101,3 +101,18 @@ test('transaction import rejects transfers with missing or identical wallets',()
   assert.equal(preview.invalid.length,1);
   assert.match(preview.invalid[0].reason,/different/i);
 });
+
+test('CSV parser preserves properly escaped quotes in quoted fields', () => {
+  const text = 'Date AD,Type,Amount NPR,Category,Note\n'
+    + '2026-09-01,expense,50,Food,"He said ""hello"""\n';
+  const parsed = parseKharchaCsv(text);
+  assert.equal(parsed[0].Note, 'He said "hello"');
+});
+
+test('CSV parser rejects misplaced quotes instead of silently altering note text', () => {
+  const header = 'Date AD,Type,Amount NPR,Category,Note\n';
+  for (const value of ['bad"quoted', '"good"trailing', '"unclosed']) {
+    const text = header + '2026-09-01,expense,50,Food,' + value;
+    assert.throws(() => parseKharchaCsv(text), /quote/i);
+  }
+});
