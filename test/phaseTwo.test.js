@@ -55,3 +55,10 @@ test('remittanceSummary totals NPR received and groups original currency', () =>
     count: 2,
   });
 });
+
+test('monthly remittance totals ignore impossible dates with a valid month prefix', () => {
+  const valid = { type: 'income', date: '2026-09-15', amount: 1000, remittance: { currency: 'USD', fees: 20, foreignAmount: 7 } };
+  const invalid = ['2026-09-00', '2026-09-31', '2026-09-99'].map((date) => ({ ...valid, date, amount: 50_000 }));
+  const summary = remittanceSummary([valid, ...invalid], '2026-09');
+  assert.deepEqual(summary, { nprReceived: 1000, fees: 20, byCurrency: { USD: 7 }, count: 1 });
+});
