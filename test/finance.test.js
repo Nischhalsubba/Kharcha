@@ -124,3 +124,12 @@ test('invalid imported expenses do not create empty categories in charts', () =>
   assert.deepEqual(categoryBreakdown(corrupt, '2026-09'), categoryBreakdown(tx, '2026-09'));
   assert.deepEqual(categoryBreakdown(corrupt.filter(x => x.id === 'invalid'), '2026-09'), []);
 });
+
+test('daily average returns a safe zero for malformed date inputs', () => {
+  for (const month of ['2026-00', '2026-13', 'invalid']) {
+    assert.equal(dailyAverage(tx, month, '2026-09-04'), 0);
+  }
+  assert.equal(dailyAverage(tx, '2026-09', 'not-a-date'), 0);
+  assert.equal(dailyAverage(tx, '2026-09', '2026-02-31'), 0);
+  assert.equal(dailyAverage(tx, '2026-09', '2026-09-04'), 4000);
+});
