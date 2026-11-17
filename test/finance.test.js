@@ -107,3 +107,10 @@ test('monthly totals exclude imported transactions with impossible dates', () =>
   assert.deepEqual(summarizeTransactions([...tx, invalid], '2026-09'), summarizeTransactions(tx, '2026-09'));
   assert.deepEqual(categoryBreakdown([...tx, invalid], '2026-09'), categoryBreakdown(tx, '2026-09'));
 });
+
+test('monthly budgets ignore invalid and infinite limit values', () => {
+  const expected = monthlyBudgetStatus(tx, '2026-09', 0);
+  for (const invalid of [Infinity, -Infinity, NaN, '1e309', -100]) {
+    assert.deepEqual(monthlyBudgetStatus(tx, '2026-09', invalid), expected);
+  }
+});
