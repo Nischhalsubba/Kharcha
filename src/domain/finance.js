@@ -75,6 +75,7 @@ function monthlyBudgetStatus(transactions, monthKey, limit) {
 }
 
 function dailyAverage(transactions, monthKey, todayIso) {
+  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(String(monthKey)) || !isValidIsoDate(todayIso)) return 0;
   const spent = categoryBreakdown(transactions, monthKey)
     .reduce((total, item) => total + item.amount, 0);
   const today = new Date(`${todayIso}T00:00:00`);
