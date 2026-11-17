@@ -5,7 +5,8 @@ function toMonthKey(date) {
 function normalizeAmount(value) {
   const parsed = Number(String(value ?? '').replace(/,/g, '').trim());
   if (!Number.isFinite(parsed) || parsed <= 0) return null;
-  return Math.round((parsed + Number.EPSILON) * 100) / 100;
+  const cents = Math.round((parsed + Number.EPSILON) * 100);
+  return cents > 0 ? cents / 100 : null;
 }
 
 function isValidIsoDate(value) {
