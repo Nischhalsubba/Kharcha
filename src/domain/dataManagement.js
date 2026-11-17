@@ -9,36 +9,57 @@ function parseCsvRows(raw) {
   let row = [];
   let cell = '';
   let inQuotes = false;
+  let closedQuote = false;
 
   for (let index = 0; index < text.length; index += 1) {
     const char = text[index];
-    if (char === '"') {
-      if (inQuotes && text[index + 1] === '"') {
-        cell += '"';
-        index += 1;
+    if (inQuotes) {
+      if (char === '"') {
+        if (text[index + 1] === '"') {
+          cell += '"';
+          index += 1;
+        } else {
+          inQuotes = false;
+          closedQuote = true;
+        }
       } else {
-        inQuotes = !inQuotes;
+        cell += char;
       }
       continue;
     }
-    if (!inQuotes && char === ',') {
-      row.push(cell);
-      cell = '';
+
+    if (char === '"') {
+      if (cell !== '' || closedQuote) throw new Error('CSV has a misplaced quote.');
+      inQuotes = true;
       continue;
     }
-    if (!inQuotes && (char === '\n' || char === '\r')) {
+
+    if (closedQuote && char !== ',' && char !== '\n' && char !== '\r') {
+      throw new Error('CSV contains text after a closing quote.');
+    }
+
+    if (char === ',') {
+      row.push(cell);
+      cell = '';
+      closedQuote = false;
+      continue;
+    }
+
+    if (char === '\n' || char === '\r') {
       if (char === '\r' && text[index + 1] === '\n') index += 1;
       row.push(cell);
       if (row.some((value) => value !== '')) rows.push(row);
       row = [];
       cell = '';
+      closedQuote = false;
       continue;
     }
+
     cell += char;
   }
 
   if (inQuotes) throw new Error('CSV contains an unterminated quoted field.');
-  if (cell !== '' || row.length) {
+  if (cell !== '' || row.length || closedQuote) {
     row.push(cell);
     if (row.some((value) => value !== '')) rows.push(row);
   }
