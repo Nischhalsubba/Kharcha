@@ -30,6 +30,8 @@ function normalizeWallet(wallet, index = 0) {
 }
 
 function normalizeSettings(settings = {}) {
+  // Persisted settings can be null or malformed after a failed restore.
+  settings = settings && typeof settings === 'object' && !Array.isArray(settings) ? settings : {};
   const seenWallets = new Set();
   const suppliedWallets = Array.isArray(settings.wallets)
     ? settings.wallets
