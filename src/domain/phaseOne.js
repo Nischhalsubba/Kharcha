@@ -108,8 +108,14 @@ function walletBalances(transactions, wallets) {
   }
 
   for (const item of normalizeTransactions(transactions)) {
+    const amount = Number(item.amount);
+    if (!Number.isFinite(amount) || amount <= 0) continue;
+    if (item.type === 'transfer') {
+      const fromWalletId = item.fromWalletId || item.walletId;
+      const toWalletId = item.toWalletId;
+      if (!toWalletId || fromWalletId === toWalletId) continue;
+    }
     if (!totals.has(item.walletId)) totals.set(item.walletId, 0);
-    const amount = safeNumber(item.amount);
     if (item.type === 'transfer') {
       const fromWalletId = item.fromWalletId || item.walletId;
       const toWalletId = item.toWalletId;
@@ -134,8 +140,10 @@ function walletBalances(transactions, wallets) {
 function categoryBudgetStatus(transactions, monthKey, categoryBudgets = {}) {
   const spent = new Map();
   for (const item of normalizeTransactions(transactions)) {
-    if (item.type !== 'expense' || String(item.date || '').slice(0, 7) !== monthKey) continue;
-    spent.set(item.category, (spent.get(item.category) || 0) + safeNumber(item.amount));
+    const amount = Number(item.amount);
+    if (item.type !== 'expense' || !Number.isFinite(amount) || amount <= 0
+      || !parseIso(item.date) || String(item.date).slice(0, 7) !== monthKey) continue;
+    spent.set(item.category, (spent.get(item.category) || 0) + amount);
   }
 
   return Object.entries(categoryBudgets)
