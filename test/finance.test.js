@@ -133,3 +133,12 @@ test('daily average returns a safe zero for malformed date inputs', () => {
   assert.equal(dailyAverage(tx, '2026-09', '2026-02-31'), 0);
   assert.equal(dailyAverage(tx, '2026-09', '2026-09-04'), 4000);
 });
+
+test('normalizeAmount accepts valid Nepali and Western grouping only', () => {
+  assert.equal(normalizeAmount('1,23,456.75'), 123456.75);
+  assert.equal(normalizeAmount('1,234,567.75'), 1234567.75);
+  assert.equal(normalizeAmount('1250.50'), 1250.5);
+  for (const value of ['1,2', '12,34', '1,23,45', '1,2345', '1,,234']) {
+    assert.equal(normalizeAmount(value), null, value);
+  }
+});
