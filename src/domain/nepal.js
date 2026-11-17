@@ -17,14 +17,17 @@ function trimDecimal(value) {
 }
 
 function groupNepalNumber(value) {
-  const rounded = Math.round(Math.abs(Number(value) || 0));
-  const raw = String(rounded);
-  if (raw.length <= 3) return raw;
-  const tail = raw.slice(-3);
-  const head = raw.slice(0, -3);
-  const groups = [];
-  for (let end = head.length; end > 0; end -= 2) groups.unshift(head.slice(Math.max(0, end - 2), end));
-  return `${groups.join(',')},${tail}`;
+  const amount = Math.round((Math.abs(Number(value) || 0) + Number.EPSILON) * 100) / 100;
+  const [raw, fraction] = amount.toFixed(2).split('.');
+  const integer = raw.length <= 3 ? raw : (() => {
+    const tail = raw.slice(-3);
+    const head = raw.slice(0, -3);
+    const groups = [];
+    for (let end = head.length; end > 0; end -= 2) groups.unshift(head.slice(Math.max(0, end - 2), end));
+    return `${groups.join(',')},${tail}`;
+  })();
+  const decimals = fraction === '00' ? '' : `.${fraction.replace(/0$/, '')}`;
+  return integer + decimals;
 }
 
 function formatNpr(value, options = {}) {
