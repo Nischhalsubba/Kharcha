@@ -11,14 +11,16 @@ const DEFAULT_REMINDER_SETTINGS = {
 };
 
 function normalizeReminderSettings(settings = {}) {
-  const leadDays = [0, 1, 2, 3, 7].includes(Number(settings.leadDays))
-    ? Number(settings.leadDays)
+  // Imported or restored preferences may be null or malformed.
+  const input = settings && typeof settings === 'object' && !Array.isArray(settings) ? settings : {};
+  const leadDays = [0, 1, 2, 3, 7].includes(Number(input.leadDays))
+    ? Number(input.leadDays)
     : DEFAULT_REMINDER_SETTINGS.leadDays;
   return {
-    enabled: settings.enabled === true,
-    bills: settings.bills !== false,
-    udharo: settings.udharo !== false,
-    savings: settings.savings !== false,
+    enabled: input.enabled === true,
+    bills: input.bills !== false,
+    udharo: input.udharo !== false,
+    savings: input.savings !== false,
     leadDays,
   };
 }
