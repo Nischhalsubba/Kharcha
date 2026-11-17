@@ -99,6 +99,15 @@ function positiveNumber(value) {
   return normalizeAmount(String(value ?? '').replace(/,/g, ''));
 }
 
+function nonNegativeImportedMoney(value) {
+  const text = String(value ?? '').trim();
+  if (!text) return 0;
+  const decimal = /^(?:(?:\d+|\d{1,3}(?:,\d{3})+|\d{1,3}(?:,\d{2})*,\d{3})(?:\.\d+)?|\.\d+)$/;
+  if (!decimal.test(text)) return null;
+  const number = Number(text.replace(/,/g, ''));
+  return Number.isFinite(number) && number >= 0 ? number : null;
+}
+
 function importHash(input) {
   let hash = 0x811c9dc5;
   const text = String(input);
@@ -233,12 +242,18 @@ function prepareTransactionImport(rawCsv, state = {}) {
       row['Remittance Original Amount'], row['Remittance Fee NPR'],
     ];
     if (category === 'Remittance' || remittanceFields.some((value) => String(value || '').trim())) {
+      const foreignAmount = nonNegativeImportedMoney(row['Remittance Original Amount']);
+      const fees = nonNegativeImportedMoney(row['Remittance Fee NPR']);
+      if (foreignAmount === null || fees === null) {
+        invalid.push({ rowNumber, transactionId, reason: 'Invalid remittance amount or fee.' });
+        return;
+      }
       base.remittance = {
         sender: String(row['Remittance Sender'] || '').trim(),
         country: String(row['Remittance Country'] || '').trim(),
         currency: String(row['Remittance Original Currency'] || '').trim().toUpperCase(),
-        foreignAmount: Number(String(row['Remittance Original Amount'] || '0').replace(/,/g, '')) || 0,
-        fees: Number(String(row['Remittance Fee NPR'] || '0').replace(/,/g, '')) || 0,
+        foreignAmount,
+        fees,
       };
     }
 
