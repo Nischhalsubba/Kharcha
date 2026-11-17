@@ -116,3 +116,18 @@ test('month exports exclude malformed transaction dates with matching prefix', (
     ['t2'],
   );
 });
+
+test('CSV export replaces nonfinite numeric fields with safe zero values', () => {
+  const corruptState = {
+    ...state,
+    transactions: [{
+      id: 'invalid-money', type: 'expense', date: '2026-09-05',
+      amount: Infinity, category: 'Other', note: 'Corrupted import',
+      remittance: { foreignAmount: Infinity, fees: -Infinity },
+    }],
+  };
+  const result = createTransactionsCsv(corruptState, { scope: 'all' });
+  assert.equal(result.rowCount, 1);
+  assert.doesNotMatch(result.csv, /Infinity|NaN/);
+  assert.match(result.csv, /expense,0,Other,Corrupted import/);
+});

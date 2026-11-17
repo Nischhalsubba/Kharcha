@@ -48,7 +48,10 @@ function spreadsheetSafeText(value) {
 
 function csvCell(value, options = {}) {
   if (value == null) return '';
-  const raw = options.numeric ? String(Number(value) || 0) : spreadsheetSafeText(value);
+  const parsed = options.numeric ? Number(value) : null;
+  const raw = options.numeric
+    ? String(Number.isFinite(parsed) ? parsed : 0)
+    : spreadsheetSafeText(value);
   if (/[",\n\r]/.test(raw) || /^'/.test(raw)) return `"${raw.replace(/"/g, '""')}"`;
   return raw;
 }
