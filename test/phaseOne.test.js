@@ -142,3 +142,16 @@ test('filterTransactions finds a transfer from either participating wallet', () 
     ['5'],
   );
 });
+
+test('invalid recurrence frequencies and monetary rules are not materialized', () => {
+  const base = { id: 'rent', type: 'expense', amount: 1500, category: 'Rent', note: 'Rent', frequency: 'monthly', active: true, startDate: '2026-09-01' };
+  const invalid = [
+    { ...base, id: 'unknown', frequency: 'yearly' },
+    { ...base, id: 'negative', amount: -200 },
+    { ...base, id: 'overflow', amount: Infinity },
+    { ...base, id: 'transfer', type: 'transfer' },
+  ];
+  assert.deepEqual(materializeRecurringTransactions([], invalid, '2026-10-01').created, []);
+  assert.equal(nextRecurringDate(invalid[0], '2026-09-02'), null);
+  assert.equal(materializeRecurringTransactions([], [base], '2026-09-01').created.length, 1);
+});
