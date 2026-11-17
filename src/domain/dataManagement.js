@@ -80,9 +80,13 @@ function parseKharchaCsv(raw) {
     if (!headers.includes(required)) throw new Error(`CSV is missing required column: ${required}`);
   }
 
-  return rows.slice(1).map((values) => {
+  return rows.slice(1).map((values, index) => {
+    // Extra delimiters would otherwise drop financial fields without warning.
+    if (values.length > headers.length) {
+      throw new Error(`CSV row ${index + 2} contains more values than the header; check for unquoted commas.`);
+    }
     const record = {};
-    headers.forEach((header, index) => { record[header] = values[index] ?? ''; });
+    headers.forEach((header, column) => { record[header] = values[column] ?? ''; });
     return record;
   });
 }
