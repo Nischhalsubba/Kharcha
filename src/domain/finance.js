@@ -18,6 +18,12 @@ function isValidIsoDate(value) {
     && date.getDate() === day;
 }
 
+function amountForTotals(value) {
+  const amount = Number(value);
+  // Corrupt imports must not turn balances into Infinity or negative spending.
+  return Number.isFinite(amount) && amount > 0 ? amount : 0;
+}
+
 function summarizeTransactions(transactions, monthKey) {
   let income = 0;
   let expense = 0;
@@ -25,7 +31,7 @@ function summarizeTransactions(transactions, monthKey) {
 
   for (const transaction of transactions || []) {
     if (toMonthKey(transaction.date) !== monthKey || transaction.savingsGoalMovement) continue;
-    const amount = Number(transaction.amount) || 0;
+    const amount = amountForTotals(transaction.amount);
     if (transaction.type === 'income') income += amount;
     if (transaction.type === 'expense') {
       expense += amount;
@@ -47,7 +53,7 @@ function categoryBreakdown(transactions, monthKey) {
   for (const transaction of transactions || []) {
     if (transaction.type !== 'expense' || transaction.savingsGoalMovement || toMonthKey(transaction.date) !== monthKey) continue;
     const category = transaction.category || 'Other';
-    totals.set(category, (totals.get(category) || 0) + (Number(transaction.amount) || 0));
+    totals.set(category, (totals.get(category) || 0) + (amountForTotals(transaction.amount)));
   }
 
   return Array.from(totals, ([category, amount]) => ({ category, amount }))
