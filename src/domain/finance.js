@@ -3,7 +3,13 @@ function toMonthKey(date) {
 }
 
 function normalizeAmount(value) {
-  const parsed = Number(String(value ?? '').replace(/,/g, '').trim());
+  const input = String(value ?? '').trim();
+  if (input.includes(',')) {
+    const nepaliGrouping = /^\d{1,3}(?:,\d{2})*,\d{3}(?:\.\d+)?$/;
+    const westernGrouping = /^\d{1,3}(?:,\d{3})+(?:\.\d+)?$/;
+    if (!nepaliGrouping.test(input) && !westernGrouping.test(input)) return null;
+  }
+  const parsed = Number(input.replace(/,/g, ''));
   if (!Number.isFinite(parsed) || parsed <= 0) return null;
   const cents = Math.round((parsed + Number.EPSILON) * 100);
   return cents > 0 ? cents / 100 : null;
