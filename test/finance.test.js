@@ -45,6 +45,15 @@ test('monthlyBudgetStatus calculates remaining budget without going below zero',
   });
 });
 
+test('normalizeAmount accepts decimal money only, not hexadecimal or scientific notation', () => {
+  for (const input of ['0x20', '0b101', '1e3', '1E+3', '0o10', '0xFF']) {
+    assert.equal(normalizeAmount(input), null, input);
+  }
+  assert.equal(normalizeAmount('+250.50'), 250.5);
+  assert.equal(normalizeAmount('.50'), 0.5);
+  assert.equal(normalizeAmount('1,25,000.50'), 125000.5);
+});
+
 test('normalizeAmount converts valid user input and rejects invalid values', () => {
   assert.equal(normalizeAmount(' 1,250.50 '), 1250.5);
   assert.equal(normalizeAmount('0'), null);
