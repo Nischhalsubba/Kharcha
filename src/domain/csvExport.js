@@ -19,8 +19,8 @@ function filterTransactionsForExport(transactions = [], options = {}) {
 
   if (scope === 'month') {
     const monthKey = String(options.monthKey || '');
-    if (!/^\d{4}-\d{2}$/.test(monthKey)) throw new Error('A valid month is required for export.');
-    filtered = filtered.filter((item) => String(item?.date || '').slice(0, 7) === monthKey);
+    if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(monthKey)) throw new Error('A valid month is required for export.');
+    filtered = filtered.filter((item) => safeDate(item?.date).slice(0, 7) === monthKey);
   } else if (scope === 'range') {
     const startDate = safeDate(options.startDate);
     const endDate = safeDate(options.endDate);
