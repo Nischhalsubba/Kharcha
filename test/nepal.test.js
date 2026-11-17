@@ -42,3 +42,11 @@ test('formatNpr never displays Infinity or NaN for invalid imported amounts', ()
   assert.equal(formatNpr(-Infinity, { language: 'ne' }), 'रु ०');
   assert.equal(formatNpr(NaN), 'Rs 0');
 });
+
+test('standard NPR display preserves paisa instead of rounding to whole rupees', () => {
+  assert.equal(formatNpr(1250.5), 'Rs 1,250.5');
+  assert.equal(formatNpr(123456.75), 'Rs 1,23,456.75');
+  assert.equal(formatNpr(-100.05), 'Rs -100.05');
+  assert.equal(formatNpr(1250.5, { language:'ne' }), 'रु १,२५०.५');
+  assert.equal(formatNpr(125000), 'Rs 1,25,000');
+});
