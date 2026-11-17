@@ -78,7 +78,10 @@ function projectedMonthExpense(transactions = [], monthKey, asOfDate) {
 
 function detectUnusualSpending(transactions = [], currentMonth, options = {}) {
   if (!validMonthKey(currentMonth)) return [];
-  const lookbackMonths = Math.max(1, Math.trunc(Number(options.lookbackMonths) || 3));
+  const requestedLookback = Number(options.lookbackMonths ?? 3);
+  const lookbackMonths = Number.isFinite(requestedLookback)
+    ? Math.min(60, Math.max(1, Math.trunc(requestedLookback)))
+    : 3;
   const minRatio = Math.max(1, Number(options.minRatio) || 1.5);
   const minExcess = Math.max(0, Number(options.minExcess) || 500);
   const minHistoryMonths = Math.max(1, Math.trunc(Number(options.minHistoryMonths) || 2));
