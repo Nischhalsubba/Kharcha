@@ -34,7 +34,7 @@ function buildMonthlyReport(state={},monthKey,options={}) {
     ? options.asOfDate
     : bounds.endAd;
   const monthTransactions=(state.transactions||[])
-    .filter(item=>String(item?.date||'').slice(0,7)===monthKey)
+    .filter(item=>isValidIsoDate(item?.date) && item.date.slice(0,7)===monthKey)
     .sort((a,b)=>String(a.date||'').localeCompare(String(b.date||'')));
 
   const financeSummary=summarizeTransactions(state.transactions||[],monthKey);
