@@ -9,7 +9,10 @@ function normalizeAmount(value) {
     const westernGrouping = /^\d{1,3}(?:,\d{3})+(?:\.\d+)?$/;
     if (!nepaliGrouping.test(input) && !westernGrouping.test(input)) return null;
   }
-  const parsed = Number(input.replace(/,/g, ''));
+  // Financial amounts must be decimal numbers, not JS number syntaxes such as 0x10 or 1e3.
+  const ungrouped = input.replace(/,/g, '');
+  if (!/^\+?(?:\d+(?:\.\d*)?|\.\d+)$/.test(ungrouped)) return null;
+  const parsed = Number(ungrouped);
   if (!Number.isFinite(parsed) || parsed <= 0) return null;
   const cents = Math.round((parsed + Number.EPSILON) * 100);
   return cents > 0 ? cents / 100 : null;
