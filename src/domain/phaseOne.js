@@ -269,7 +269,7 @@ function nextRecurringDate(rule, fromDate) {
   if (rule.frequency === 'weekly') {
     let cursor = rule.startDate;
     for (let i = 0; i < 520 && cursor < fromDate; i += 1) cursor = addDays(cursor, 7);
-    return cursor;
+    return cursor >= fromDate ? cursor : null;
   }
 
   for (let index = 0; index < 240; index += 1) {
