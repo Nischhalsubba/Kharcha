@@ -4,10 +4,11 @@ function safeAmount(value) {
 }
 
 function normalizePlanningData(data = {}) {
+  const input = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
   return {
-    obligations: Array.isArray(data.obligations) ? data.obligations.map((item) => ({ ...item })) : [],
-    savingsGoals: Array.isArray(data.savingsGoals) ? data.savingsGoals.map((item) => ({ ...item })) : [],
-    householdBudgets: Array.isArray(data.householdBudgets) ? data.householdBudgets.map((item) => ({ ...item })) : [],
+    obligations: Array.isArray(input.obligations) ? input.obligations.map((item) => ({ ...item })) : [],
+    savingsGoals: Array.isArray(input.savingsGoals) ? input.savingsGoals.map((item) => ({ ...item })) : [],
+    householdBudgets: Array.isArray(input.householdBudgets) ? input.householdBudgets.map((item) => ({ ...item })) : [],
   };
 }
 
