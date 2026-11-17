@@ -35,6 +35,14 @@ test('normalizeSettings migrates old settings to Phase 1 defaults', () => {
   assert.deepEqual(settings.recurringTransactions, []);
 });
 
+test('normalizing root preferences tolerates malformed restored settings', () => {
+  const expected = normalizeSettings();
+  for (const invalid of [null, [], 'bad settings', 15, false]) {
+    assert.deepEqual(normalizeSettings(invalid), expected);
+  }
+  assert.equal(normalizeSettings({ monthlyBudget: 42000 }).monthlyBudget, 42000);
+});
+
 test('normalizeTransactions migrates existing transactions to Cash wallet', () => {
   const result = normalizeTransactions([{ id: 'legacy', type: 'expense', amount: 50, category: 'Food', date: '2026-09-01' }]);
   assert.equal(result[0].walletId, 'cash');
