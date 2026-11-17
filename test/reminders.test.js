@@ -38,6 +38,13 @@ test('normalizeReminderSettings defaults to opt-in disabled with useful categori
   assert.equal(normalizeReminderSettings({ enabled:true, leadDays:99 }).leadDays,1);
 });
 
+test('malformed reminder preferences fall back to the disabled defaults', () => {
+  for (const input of [null, [], 'invalid', 3]) {
+    assert.deepEqual(normalizeReminderSettings(input), normalizeReminderSettings());
+    assert.deepEqual(buildReminderPlan(state, '2026-09-21', input), []);
+  }
+});
+
 test('disabled reminders produce no schedule', () => {
   assert.deepEqual(buildReminderPlan(state,'2026-09-21',{enabled:false}),[]);
 });
