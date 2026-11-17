@@ -52,8 +52,10 @@ function categoryBreakdown(transactions, monthKey) {
 
   for (const transaction of transactions || []) {
     if (transaction.type !== 'expense' || transaction.savingsGoalMovement || toMonthKey(transaction.date) !== monthKey) continue;
+    const amount = amountForTotals(transaction.amount);
+    if (amount === 0) continue;
     const category = transaction.category || 'Other';
-    totals.set(category, (totals.get(category) || 0) + (amountForTotals(transaction.amount)));
+    totals.set(category, (totals.get(category) || 0) + amount);
   }
 
   return Array.from(totals, ([category, amount]) => ({ category, amount }))
