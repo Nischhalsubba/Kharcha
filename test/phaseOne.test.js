@@ -187,3 +187,17 @@ test('weekly recurrence never returns a past date beyond the generation horizon'
   assert.equal(nextRecurringDate(rule,'2020-01-02'),'2020-01-08');
   assert.equal(nextRecurringDate(rule,'2040-01-01'),null);
 });
+
+test('normalizeSettings keeps one wallet per ID and ignores malformed entries', () => {
+  const normalized = normalizeSettings({ wallets: [
+    { id:'cash', name:'Primary Cash' },
+    { id:'cash', name:'Duplicate Cash' },
+    null,
+    { id:'esewa', name:'eSewa' },
+    { id:'esewa', name:'Duplicate eSewa' },
+  ] });
+  assert.deepEqual(normalized.wallets.map(x => [x.id, x.name]), [
+    ['cash', 'Primary Cash'], ['esewa', 'eSewa'],
+  ]);
+  assert.deepEqual(normalizeSettings({ wallets: [] }).wallets.map(x => x.id), ['cash']);
+});

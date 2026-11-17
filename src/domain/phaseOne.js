@@ -30,8 +30,16 @@ function normalizeWallet(wallet, index = 0) {
 }
 
 function normalizeSettings(settings = {}) {
+  const seenWallets = new Set();
   const suppliedWallets = Array.isArray(settings.wallets)
-    ? settings.wallets.map(normalizeWallet)
+    ? settings.wallets
+      .filter((wallet) => wallet && typeof wallet === 'object' && !Array.isArray(wallet))
+      .map(normalizeWallet)
+      .filter((wallet) => {
+        if (seenWallets.has(wallet.id)) return false;
+        seenWallets.add(wallet.id);
+        return true;
+      })
     : [];
   const wallets = suppliedWallets.some((wallet) => wallet.id === 'cash')
     ? suppliedWallets
