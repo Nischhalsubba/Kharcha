@@ -96,3 +96,23 @@ test('CSV preserves wallet transfer endpoints for safe round trips', () => {
   assert.match(header,/Wallet,Payment Method,Transfer From,Transfer To,Event/);
   assert.match(result.csv,/transfer,5000,Transfer,Cash to bank,Cash,transfer,Cash,Bank,/);
 });
+
+test('month exports reject impossible months instead of silently returning empty data', () => {
+  for (const monthKey of ['2026-00', '2026-13', '2026-99']) {
+    assert.throws(
+      () => filterTransactionsForExport(state.transactions, { scope: 'month', monthKey }),
+      /valid month/,
+    );
+  }
+});
+
+test('month exports exclude malformed transaction dates with matching prefix', () => {
+  const transactions = [
+    ...state.transactions,
+    { id: 'broken-date', date: '2026-09-99', type: 'expense', amount: 20 },
+  ];
+  assert.deepEqual(
+    filterTransactionsForExport(transactions, { scope: 'month', monthKey: '2026-09' }).map((item) => item.id),
+    ['t2'],
+  );
+});
