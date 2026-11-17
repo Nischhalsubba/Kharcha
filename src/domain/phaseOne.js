@@ -58,7 +58,9 @@ function normalizeSettings(settings = {}) {
       ? { ...settings.categoryBudgets }
       : {},
     recurringTransactions: Array.isArray(settings.recurringTransactions)
-      ? settings.recurringTransactions.map((rule) => ({ ...rule, walletId: rule.walletId || 'cash' }))
+      ? settings.recurringTransactions
+        .filter((rule) => rule !== null && typeof rule === 'object' && !Array.isArray(rule))
+        .map((rule) => ({ ...rule, walletId: rule.walletId || 'cash' }))
       : [],
     reminders: {
       enabled: settings.reminders?.enabled === true,

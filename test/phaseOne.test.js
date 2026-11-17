@@ -171,3 +171,13 @@ test('wallet and category balances ignore corrupt imported amounts', () => {
     categoryBudgetStatus(transactions, '2026-09', { Food:2000, Transport:500 }),
   );
 });
+
+test('normalizing preferences skips null and malformed recurring entries', () => {
+  const settings = normalizeSettings({
+    recurringTransactions: [null, 123, 'malformed', [], { id: 'legacy', amount: 100 }, { id: 'wallet', walletId: 'esewa' }],
+  });
+  assert.deepEqual(settings.recurringTransactions, [
+    { id: 'legacy', amount: 100, walletId: 'cash' },
+    { id: 'wallet', walletId: 'esewa' },
+  ]);
+});
