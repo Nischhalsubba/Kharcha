@@ -89,3 +89,15 @@ test('normalizeAmount rejects positive inputs that round to zero currency units'
   assert.equal(normalizeAmount('0.005'), 0.01);
   assert.equal(normalizeAmount('0.01'), 0.01);
 });
+
+test('totals ignore malformed, negative and non-finite imported amounts', () => {
+  const corrupt = [
+    ...tx,
+    { id: 'x1', type: 'income', amount: Infinity, date: '2026-09-05' },
+    { id: 'x2', type: 'expense', amount: -250, category: 'Food', date: '2026-09-06' },
+    { id: 'x3', type: 'expense', amount: '1e309', category: 'Food', date: '2026-09-07' },
+    { id: 'x4', type: 'expense', amount: NaN, category: 'Food', date: '2026-09-08' },
+  ];
+  assert.deepEqual(summarizeTransactions(corrupt, '2026-09'), summarizeTransactions(tx, '2026-09'));
+  assert.deepEqual(categoryBreakdown(corrupt, '2026-09'), categoryBreakdown(tx, '2026-09'));
+});
