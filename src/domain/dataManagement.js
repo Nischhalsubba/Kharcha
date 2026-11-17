@@ -82,7 +82,7 @@ function parseKharchaCsv(raw) {
 
   return rows.slice(1).map((values, index) => {
     // Extra delimiters would otherwise drop financial fields without warning.
-    if (values.length > headers.length) {
+    if (values.length > headers.length && values.slice(headers.length).some((value) => value !== '')) {
       throw new Error(`CSV row ${index + 2} contains more values than the header; check for unquoted commas.`);
     }
     const record = {};
