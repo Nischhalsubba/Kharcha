@@ -114,3 +114,13 @@ test('monthly budgets ignore invalid and infinite limit values', () => {
     assert.deepEqual(monthlyBudgetStatus(tx, '2026-09', invalid), expected);
   }
 });
+
+test('invalid imported expenses do not create empty categories in charts', () => {
+  const corrupt = [
+    ...tx,
+    { id: 'invalid', type: 'expense', amount: Infinity, category: 'Ghost Category', date: '2026-09-09' },
+    { id: 'negative', type: 'expense', amount: -200, category: 'Negative Category', date: '2026-09-10' },
+  ];
+  assert.deepEqual(categoryBreakdown(corrupt, '2026-09'), categoryBreakdown(tx, '2026-09'));
+  assert.deepEqual(categoryBreakdown(corrupt.filter(x => x.id === 'invalid'), '2026-09'), []);
+});
