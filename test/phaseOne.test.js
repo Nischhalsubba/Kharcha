@@ -201,3 +201,14 @@ test('normalizeSettings keeps one wallet per ID and ignores malformed entries', 
   ]);
   assert.deepEqual(normalizeSettings({ wallets: [] }).wallets.map(x => x.id), ['cash']);
 });
+
+test('monthly transaction filtering excludes impossible date prefixes', () => {
+  const malformed = { id:'invalid-day', type:'expense', amount:700, category:'Food', date:'2026-09-99', walletId:'cash' };
+  const items = [...transactions, malformed];
+  assert.deepEqual(
+    filterTransactions(items, { monthKey:'2026-09' }).map(item => item.id),
+    ['1', '2', '3'],
+  );
+  // Without a month filter, the malformed record remains visible for repair.
+  assert.ok(filterTransactions(items).some(item => item.id === 'invalid-day'));
+});
