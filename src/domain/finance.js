@@ -1,5 +1,5 @@
 function toMonthKey(date) {
-  return String(date || '').slice(0, 7);
+  return isValidIsoDate(date) ? date.slice(0, 7) : '';
 }
 
 function normalizeAmount(value) {
