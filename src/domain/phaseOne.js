@@ -187,7 +187,8 @@ function addMonthsClamped(startDate, monthsToAdd) {
 }
 
 function recurrenceDates(rule, throughDate) {
-  if (!rule?.active || !parseIso(rule.startDate) || !parseIso(throughDate)) return [];
+  if (!rule?.active || !['weekly', 'monthly'].includes(rule.frequency)
+    || !parseIso(rule.startDate) || !parseIso(throughDate)) return [];
   if (rule.startDate > throughDate) return [];
 
   const dates = [];
@@ -220,6 +221,8 @@ function materializeRecurringTransactions(transactions, recurringRules, throughD
   const created = [];
 
   for (const rule of recurringRules || []) {
+    const amount = Number(rule?.amount);
+    if (!Number.isFinite(amount) || amount <= 0 || !['income', 'expense'].includes(rule?.type)) continue;
     for (const date of recurrenceDates(rule, throughDate)) {
       const id = occurrenceId(rule.id, date);
       if (existingIds.has(id) || (rule.skippedOccurrences || []).includes(id)) continue;
@@ -249,7 +252,8 @@ function materializeRecurringTransactions(transactions, recurringRules, throughD
 }
 
 function nextRecurringDate(rule, fromDate) {
-  if (!rule?.active || !parseIso(rule.startDate) || !parseIso(fromDate)) return null;
+  if (!rule?.active || !['weekly', 'monthly'].includes(rule.frequency)
+    || !parseIso(rule.startDate) || !parseIso(fromDate)) return null;
   if (rule.startDate >= fromDate) return rule.startDate;
 
   if (rule.frequency === 'weekly') {
