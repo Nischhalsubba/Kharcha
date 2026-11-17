@@ -82,7 +82,7 @@ test('clear month rejects an invalid month',()=>{
 
 test('transaction import restores wallet transfer endpoints without changing them into income or expense',()=>{
   const transferCsv='\uFEFFDate AD,Date BS,Type,Amount NPR,Category,Note,Wallet,Payment Method,Transfer From,Transfer To,Event,Household Budget,Household Member,Remittance Sender,Remittance Country,Remittance Original Currency,Remittance Original Amount,Remittance Fee NPR,Udhaaro Record ID,Obligation ID,Savings Goal,Savings Direction,Recurring ID,Transaction ID\n'
-    +'2026-09-10,,transfer,5000,Transfer,Cash to bank,Cash,transfer,Cash,Bank,,,,,,,,,,,,,,,transfer-1\n';
+    +'2026-09-10,,transfer,5000,Transfer,Cash to bank,Cash,transfer,Cash,Bank,,,,,,,,,,,,,,transfer-1\n';
   const preview=prepareTransactionImport(transferCsv,state);
   assert.equal(preview.invalid.length,0);
   assert.equal(preview.transactions.length,1);
@@ -128,4 +128,16 @@ test('CSV import rejects object-prototype keys and blank headers', () => {
     const csvText = required + ',' + header + '\n2026-09-01,expense,500,Food,value\n';
     assert.throws(() => parseKharchaCsv(csvText), /unsafe or empty column header/i);
   }
+});
+
+test('CSV parser rejects extra unquoted columns instead of losing transaction data', () => {
+  const header = 'Date AD,Type,Amount NPR,Category,Note\n';
+  const invalid = header + '2026-09-01,expense,500,Food,Tea,coffee\n';
+  assert.throws(() => parseKharchaCsv(invalid), /row 2.*more values.*unquoted commas/i);
+  const quoted = header + '2026-09-01,expense,500,Food,"Tea,coffee"\n';
+  assert.equal(parseKharchaCsv(quoted)[0].Note, 'Tea,coffee');
+  // Older exports may omit optional trailing cells; keep them compatible.
+  assert.equal(parseKharchaCsv(header + '2026-09-01,expense,500,Food\n')[0].Note, '');
+  // Legacy transfer exports can contain surplus empty trailing cells.
+  assert.equal(parseKharchaCsv(header + '2026-09-01,expense,500,Food,,\n')[0].Note, '');
 });
