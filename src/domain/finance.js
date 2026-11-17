@@ -61,7 +61,8 @@ function categoryBreakdown(transactions, monthKey) {
 }
 
 function monthlyBudgetStatus(transactions, monthKey, limit) {
-  const safeLimit = Math.max(Number(limit) || 0, 0);
+  const numericLimit = Number(limit);
+  const safeLimit = Number.isFinite(numericLimit) && numericLimit > 0 ? numericLimit : 0;
   const spent = categoryBreakdown(transactions, monthKey)
     .reduce((total, item) => total + item.amount, 0);
   const overBy = Math.max(spent - safeLimit, 0);
