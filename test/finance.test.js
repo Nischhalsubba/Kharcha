@@ -101,3 +101,9 @@ test('totals ignore malformed, negative and non-finite imported amounts', () => 
   assert.deepEqual(summarizeTransactions(corrupt, '2026-09'), summarizeTransactions(tx, '2026-09'));
   assert.deepEqual(categoryBreakdown(corrupt, '2026-09'), categoryBreakdown(tx, '2026-09'));
 });
+
+test('monthly totals exclude imported transactions with impossible dates', () => {
+  const invalid = { id: 'bad-date', type: 'expense', amount: 50000, category: 'Food', date: '2026-09-99' };
+  assert.deepEqual(summarizeTransactions([...tx, invalid], '2026-09'), summarizeTransactions(tx, '2026-09'));
+  assert.deepEqual(categoryBreakdown([...tx, invalid], '2026-09'), categoryBreakdown(tx, '2026-09'));
+});
