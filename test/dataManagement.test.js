@@ -116,3 +116,16 @@ test('CSV parser rejects misplaced quotes instead of silently altering note text
     assert.throws(() => parseKharchaCsv(text), /quote/i);
   }
 });
+
+test('CSV import rejects duplicate headers instead of silently overwriting data', () => {
+  const csvText = 'Date AD,Type,Amount NPR,Category,Category\n2026-09-01,expense,500,Food,Travel\n';
+  assert.throws(() => parseKharchaCsv(csvText), /duplicate column/i);
+});
+
+test('CSV import rejects object-prototype keys and blank headers', () => {
+  const required = 'Date AD,Type,Amount NPR,Category';
+  for (const header of ['__proto__', 'constructor', 'prototype', '']) {
+    const csvText = required + ',' + header + '\n2026-09-01,expense,500,Food,value\n';
+    assert.throws(() => parseKharchaCsv(csvText), /unsafe or empty column header/i);
+  }
+});
