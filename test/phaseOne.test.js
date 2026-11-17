@@ -155,3 +155,19 @@ test('invalid recurrence frequencies and monetary rules are not materialized', (
   assert.equal(nextRecurringDate(invalid[0], '2026-09-02'), null);
   assert.equal(materializeRecurringTransactions([], [base], '2026-09-01').created.length, 1);
 });
+
+test('wallet and category balances ignore corrupt imported amounts', () => {
+  const invalid = [
+    { id:'bad-negative', type:'expense', amount:-50, category:'Food', date:'2026-09-06', walletId:'cash' },
+    { id:'bad-infinite', type:'income', amount:Infinity, date:'2026-09-06', walletId:'cash' },
+    { id:'bad-transfer', type:'transfer', amount:300, date:'2026-09-06', walletId:'cash', fromWalletId:'cash' },
+    { id:'same-transfer', type:'transfer', amount:300, date:'2026-09-06', walletId:'cash', fromWalletId:'cash', toWalletId:'cash' },
+    { id:'bad-date', type:'expense', amount:999, category:'Food', date:'2026-09-99', walletId:'cash' },
+  ];
+  const originalBalances = walletBalances(transactions, wallets);
+  assert.deepEqual(walletBalances([...transactions, ...invalid.slice(0,4)], wallets), originalBalances);
+  assert.deepEqual(
+    categoryBudgetStatus([...transactions, ...invalid], '2026-09', { Food:2000, Transport:500 }),
+    categoryBudgetStatus(transactions, '2026-09', { Food:2000, Transport:500 }),
+  );
+});
