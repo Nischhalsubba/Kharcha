@@ -82,3 +82,10 @@ test('summarizeTransactions excludes wallet transfers from income and spending',
     monthExpense: 16000,
   });
 });
+
+test('normalizeAmount rejects positive inputs that round to zero currency units', () => {
+  assert.equal(normalizeAmount('0.001'), null);
+  assert.equal(normalizeAmount('0.004'), null);
+  assert.equal(normalizeAmount('0.005'), 0.01);
+  assert.equal(normalizeAmount('0.01'), 0.01);
+});
