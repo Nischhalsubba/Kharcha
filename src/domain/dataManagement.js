@@ -70,6 +70,12 @@ function parseKharchaCsv(raw) {
   const rows = parseCsvRows(raw);
   if (rows.length < 1) throw new Error('CSV is empty.');
   const headers = rows[0].map((value) => String(value || '').trim());
+  if (headers.some((header) => !header || ['__proto__', 'constructor', 'prototype'].includes(header))) {
+    throw new Error('CSV contains an unsafe or empty column header.');
+  }
+  if (new Set(headers).size !== headers.length) {
+    throw new Error('CSV contains duplicate column headers.');
+  }
   for (const required of REQUIRED_HEADERS) {
     if (!headers.includes(required)) throw new Error(`CSV is missing required column: ${required}`);
   }
