@@ -138,4 +138,6 @@ test('CSV parser rejects extra unquoted columns instead of losing transaction da
   assert.equal(parseKharchaCsv(quoted)[0].Note, 'Tea,coffee');
   // Older exports may omit optional trailing cells; keep them compatible.
   assert.equal(parseKharchaCsv(header + '2026-09-01,expense,500,Food\n')[0].Note, '');
+  // Legacy transfer exports can contain surplus empty trailing cells.
+  assert.equal(parseKharchaCsv(header + '2026-09-01,expense,500,Food,,\n')[0].Note, '');
 });
