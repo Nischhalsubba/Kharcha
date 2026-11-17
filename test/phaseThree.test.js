@@ -17,6 +17,13 @@ test('normalizePlanningData supplies migration-safe Phase 3 collections', () => 
   });
 });
 
+test('normalizePlanningData rejects malformed top-level collections safely', () => {
+  const empty = { obligations: [], savingsGoals: [], householdBudgets: [] };
+  for (const invalid of [null, [], 42, 'bad data']) {
+    assert.deepEqual(normalizePlanningData(invalid), empty);
+  }
+});
+
 test('dueDateForMonth clamps due day to the last valid day', () => {
   assert.equal(dueDateForMonth('2026-02', 31), '2026-02-28');
   assert.equal(dueDateForMonth('2028-02', 31), '2028-02-29');

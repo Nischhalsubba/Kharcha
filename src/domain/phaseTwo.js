@@ -6,11 +6,12 @@ function safeAmount(value) {
 }
 
 function normalizeNepalData(data = {}) {
+  const input = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
   return {
-    udharo: Array.isArray(data.udharo)
-      ? data.udharo.map((item) => ({ ...item, repayments: Array.isArray(item.repayments) ? item.repayments : [] }))
+    udharo: Array.isArray(input.udharo)
+      ? input.udharo.map((item) => ({ ...item, repayments: Array.isArray(item?.repayments) ? item.repayments : [] }))
       : [],
-    events: Array.isArray(data.events) ? data.events.map((item) => ({ ...item })) : [],
+    events: Array.isArray(input.events) ? input.events.map((item) => ({ ...item })) : [],
   };
 }
 

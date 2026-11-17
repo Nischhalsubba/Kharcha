@@ -12,6 +12,12 @@ test('normalizeNepalData supplies empty migration-safe collections', () => {
   assert.deepEqual(normalizeNepalData(), { udharo: [], events: [] });
 });
 
+test('normalizeNepalData rejects malformed top-level collections safely', () => {
+  for (const invalid of [null, [], 42, 'bad data']) {
+    assert.deepEqual(normalizeNepalData(invalid), { udharo: [], events: [] });
+  }
+});
+
 test('udharoSummary separates borrowed and lent outstanding amounts', () => {
   const records = [
     { id: 'a', direction: 'borrowed', amount: 5000, repayments: [{ amount: 1000 }] },
