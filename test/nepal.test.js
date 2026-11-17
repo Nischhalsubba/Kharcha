@@ -35,3 +35,10 @@ test('transactionDateLabel supports AD, BS and dual display through the calendar
   assert.deepEqual(transactionDateLabel('2026-08-20', { language: 'en', dateSystem: 'BS' }, core), { primary: '2083 Bhadra 04', secondary: '' });
   assert.deepEqual(transactionDateLabel('2026-08-20', { language: 'ne', dateSystem: 'both' }, core), { primary: '२०८३ भदौ ०४', secondary: '2026-08-20' });
 });
+
+test('formatNpr never displays Infinity or NaN for invalid imported amounts', () => {
+  assert.equal(formatNpr(Infinity), 'Rs 0');
+  assert.equal(formatNpr('1e309', { mode: 'compact' }), 'Rs 0');
+  assert.equal(formatNpr(-Infinity, { language: 'ne' }), 'रु ०');
+  assert.equal(formatNpr(NaN), 'Rs 0');
+});

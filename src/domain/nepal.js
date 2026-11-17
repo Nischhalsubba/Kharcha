@@ -28,7 +28,8 @@ function groupNepalNumber(value) {
 }
 
 function formatNpr(value, options = {}) {
-  const amount = Number(value) || 0;
+  const numericAmount = Number(value);
+  const amount = Number.isFinite(numericAmount) ? numericAmount : 0;
   const language = options.language === 'ne' ? 'ne' : 'en';
   const mode = options.mode === 'compact' ? 'compact' : 'standard';
   const prefix = language === 'ne' ? 'रु' : 'Rs';
