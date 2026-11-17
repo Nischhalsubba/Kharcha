@@ -39,6 +39,18 @@ test('monthly report excludes savings transfers from income/spend summary but ke
   assert.equal(report.remittance.fees,200);
 });
 
+test('mid-month as-of reports exclude future transactions from all summaries',()=>{
+  const report=buildMonthlyReport(state,'2026-09',{asOfDate:'2026-09-08'});
+  assert.equal(report.summary.transactionCount,2);
+  assert.equal(report.summary.income,100000);
+  assert.equal(report.summary.expense,5000);
+  assert.equal(report.budget.spent,5000);
+  assert.equal(report.remittance.nprReceived,0);
+  assert.equal(report.savings.saved,0);
+  assert.equal(report.obligations.remaining,4000);
+  assert.equal(report.transactions.some(item=>item.id==='remit'||item.id==='emi'),false);
+});
+
 test('monthly report includes budget, top category, Udhaaro and obligation state',()=>{
   const report=buildMonthlyReport(state,'2026-09',{asOfDate:'2026-09-21'});
   assert.equal(report.budget.limit,30000);
