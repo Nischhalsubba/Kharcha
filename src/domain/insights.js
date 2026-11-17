@@ -182,7 +182,8 @@ function recurringTransactionSuggestions(transactions = [], existingRules = [], 
 
   for (const item of transactions) {
     if (!['income', 'expense'].includes(item?.type)) continue;
-    if (!isValidIsoDate(item?.date) || !Number(item?.amount) || !normalizedText(item?.note)) continue;
+    const amount = Number(item?.amount);
+    if (!isValidIsoDate(item?.date) || !Number.isFinite(amount) || amount <= 0 || !normalizedText(item?.note)) continue;
     if (item.recurringId || item.obligationPayment || item.udharoPayment || item.savingsGoalMovement) continue;
     const key = patternKey(item);
     const group = groups.get(key) || [];
