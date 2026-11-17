@@ -137,3 +137,12 @@ test('spending anomaly analysis handles infinite or excessive lookback settings'
   assert.doesNotThrow(() => detectUnusualSpending(history, '2026-09', { lookbackMonths: 1000000 }));
   assert.equal(detectUnusualSpending(history, '2026-09', { lookbackMonths: Infinity })[0].category, 'Food');
 });
+
+test('recurring suggestions do not reproduce nonfinite or negative imported transactions', () => {
+  const corrupted = [-100, Infinity, '1e309'].flatMap((amount, index) => [
+    { id: `bad-${index}-1`, type: 'expense', amount, category: 'Rent', note: 'Bad import', date: '2026-06-01', walletId: 'cash' },
+    { id: `bad-${index}-2`, type: 'expense', amount, category: 'Rent', note: 'Bad import', date: '2026-07-01', walletId: 'cash' },
+    { id: `bad-${index}-3`, type: 'expense', amount, category: 'Rent', note: 'Bad import', date: '2026-08-01', walletId: 'cash' },
+  ]);
+  assert.deepEqual(recurringTransactionSuggestions(corrupted, []), []);
+});
