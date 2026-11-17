@@ -1,3 +1,5 @@
+const { isValidIsoDate } = require('./finance');
+
 function safeAmount(value) {
   const amount = Number(value);
   return Number.isFinite(amount) && amount > 0 ? amount : 0;
@@ -65,7 +67,7 @@ function eventBudgetStatus(events = [], transactions = []) {
 function remittanceSummary(transactions = [], monthKey) {
   const summary = { nprReceived: 0, fees: 0, byCurrency: {}, count: 0 };
   for (const item of transactions) {
-    if (!item.remittance || item.type !== 'income' || String(item.date || '').slice(0, 7) !== monthKey) continue;
+    if (!item.remittance || item.type !== 'income' || !isValidIsoDate(item.date) || item.date.slice(0, 7) !== monthKey) continue;
     summary.nprReceived += safeAmount(item.amount);
     summary.fees += safeAmount(item.remittance.fees);
     const currency = String(item.remittance.currency || '').toUpperCase();
