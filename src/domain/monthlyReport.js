@@ -33,24 +33,25 @@ function buildMonthlyReport(state={},monthKey,options={}) {
   const asOfDate=isValidIsoDate(options.asOfDate)
     ? options.asOfDate
     : bounds.endAd;
-  const monthTransactions=(state.transactions||[])
+  // Every metric must use the same historical cutoff, not just wallet balances.
+  const throughAsOf=(state.transactions||[]).filter(item=>!item?.date||item.date<=asOfDate);
+  const monthTransactions=throughAsOf
     .filter(item=>isValidIsoDate(item?.date) && item.date.slice(0,7)===monthKey)
     .sort((a,b)=>String(a.date||'').localeCompare(String(b.date||'')));
 
-  const financeSummary=summarizeTransactions(state.transactions||[],monthKey);
-  const categories=categoryBreakdown(state.transactions||[],monthKey);
-  const budget=monthlyBudgetStatus(state.transactions||[],monthKey,state.settings?.monthlyBudget);
-  const remittance=remittanceSummary(state.transactions||[],monthKey);
-  const throughAsOf=(state.transactions||[]).filter(item=>!item?.date||item.date<=asOfDate);
+  const financeSummary=summarizeTransactions(throughAsOf,monthKey);
+  const categories=categoryBreakdown(throughAsOf,monthKey);
+  const budget=monthlyBudgetStatus(throughAsOf,monthKey,state.settings?.monthlyBudget);
+  const remittance=remittanceSummary(throughAsOf,monthKey);
   const udharoRecords=(state.nepalData?.udharo||[]).map(record=>({...record,repayments:(record.repayments||[]).filter(item=>!item?.date||item.date<=asOfDate)}));
   const udharo=udharoSummary(udharoRecords);
 
   const obligationStates=(state.planningData?.obligations||[])
-    .map(item=>({...item,...obligationStatus(item,state.transactions||[],asOfDate)}));
+    .map(item=>({...item,...obligationStatus(item,throughAsOf,asOfDate)}));
   const savingsStates=(state.planningData?.savingsGoals||[])
     .map(item=>({...item,...savingsGoalStatus(item,throughAsOf)}));
   const householdStates=(state.planningData?.householdBudgets||[])
-    .map(item=>({...item,...householdBudgetStatus(item,state.transactions||[],monthKey)}));
+    .map(item=>({...item,...householdBudgetStatus(item,throughAsOf,monthKey)}));
 
   const wallets=walletBalances(throughAsOf,state.settings?.wallets||[]);
 
