@@ -94,3 +94,11 @@ test('historical monthly report ignores later savings and Udhaaro repayments',()
   assert.equal(report.savings.saved,3000);
   assert.equal(report.udharo.lent,5000);
 });
+
+test('monthly reports exclude malformed calendar dates despite matching month prefixes',()=>{
+  const dirty={...state,transactions:[...state.transactions,{id:'invalid',type:'expense',amount:5000,category:'Food',date:'2026-09-99'}]};
+  const result=buildMonthlyReport(dirty,'2026-09',{asOfDate:'2026-09-21'});
+  assert.equal(result.summary.transactionCount,5);
+  assert.equal(result.summary.expense,9000);
+  assert.equal(result.transactions.some(item=>item.id==='invalid'),false);
+});
