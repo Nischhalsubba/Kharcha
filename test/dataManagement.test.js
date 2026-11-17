@@ -82,7 +82,7 @@ test('clear month rejects an invalid month',()=>{
 
 test('transaction import restores wallet transfer endpoints without changing them into income or expense',()=>{
   const transferCsv='\uFEFFDate AD,Date BS,Type,Amount NPR,Category,Note,Wallet,Payment Method,Transfer From,Transfer To,Event,Household Budget,Household Member,Remittance Sender,Remittance Country,Remittance Original Currency,Remittance Original Amount,Remittance Fee NPR,Udhaaro Record ID,Obligation ID,Savings Goal,Savings Direction,Recurring ID,Transaction ID\n'
-    +'2026-09-10,,transfer,5000,Transfer,Cash to bank,Cash,transfer,Cash,Bank,,,,,,,,,,,,,,,transfer-1\n';
+    +'2026-09-10,,transfer,5000,Transfer,Cash to bank,Cash,transfer,Cash,Bank,,,,,,,,,,,,,,transfer-1\n';
   const preview=prepareTransactionImport(transferCsv,state);
   assert.equal(preview.invalid.length,0);
   assert.equal(preview.transactions.length,1);
