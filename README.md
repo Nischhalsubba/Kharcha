@@ -187,3 +187,7 @@ npm test
 ## Contributor verification guide
 
 For changes to Kharcha, follow [release qa](docs/RELEASE_QA.md) for reproducible checks, review evidence and rollback expectations.
+
+## Maintainer review checklist
+
+Before changing critical product behavior or public claims, use the [Financial data integrity and recovery](docs/FINANCIAL_DATA_INTEGRITY.md) to record evidence, verification and rollback expectations.
