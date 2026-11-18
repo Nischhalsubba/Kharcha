@@ -59,6 +59,8 @@ test('normalizeAmount converts valid user input and rejects invalid values', () 
   assert.equal(normalizeAmount('0'), null);
   assert.equal(normalizeAmount('-50'), null);
   assert.equal(normalizeAmount('abc'), null);
+  assert.equal(normalizeAmount('1_000'), null);
+  assert.equal(normalizeAmount('.75'), 0.75);
 });
 
 test('isValidIsoDate rejects impossible calendar dates', () => {
