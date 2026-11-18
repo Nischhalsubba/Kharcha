@@ -183,3 +183,7 @@ npm test
 - Canonical transaction dates remain AD `YYYY-MM-DD` internally so sorting and existing data stay stable.
 - Kharcha does not connect to live bank/wallet/lender accounts or fetch live foreign-exchange rates in Phase 3.
 - The current database is not app-level encrypted with SQLCipher; highly sensitive production use should add encrypted storage/key management.
+
+## Contributor verification guide
+
+For changes to Kharcha, follow [release qa](docs/RELEASE_QA.md) for reproducible checks, review evidence and rollback expectations.
