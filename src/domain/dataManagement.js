@@ -96,7 +96,7 @@ function lower(value) {
 }
 
 function positiveNumber(value) {
-  return normalizeAmount(String(value ?? '').replace(/,/g, ''));
+  return normalizeAmount(value);
 }
 
 function nonNegativeImportedMoney(value) {

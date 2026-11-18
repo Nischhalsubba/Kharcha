@@ -141,3 +141,14 @@ test('CSV parser rejects extra unquoted columns instead of losing transaction da
   // Legacy transfer exports can contain surplus empty trailing cells.
   assert.equal(parseKharchaCsv(header + '2026-09-01,expense,500,Food,,\n')[0].Note, '');
 });
+
+test('CSV import rejects incorrectly grouped monetary amounts', () => {
+  const csvText = 'Date AD,Type,Amount NPR,Category,Transaction ID\n'
+    + '2026-09-01,expense,"1,2",Food,invalid-group\n'
+    + '2026-09-02,expense,"1,23,456.75",Food,valid-group\n';
+  const preview = prepareTransactionImport(csvText, state);
+  assert.equal(preview.invalid.length, 1);
+  assert.equal(preview.invalid[0].transactionId, 'invalid-group');
+  assert.equal(preview.transactions.length, 1);
+  assert.equal(preview.transactions[0].amount, 123456.75);
+});
